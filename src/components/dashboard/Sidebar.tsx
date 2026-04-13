@@ -2,7 +2,7 @@
 
 import {
   LayoutDashboard, Briefcase, FolderOpen, FileText,
-  Settings, X, BarChart3, Users, Wallet, Target, ListChecks,
+  Settings, X, BarChart3, Users, Wallet, Target, ListChecks, PenLine,
 } from 'lucide-react'
 import { useUIStore } from '@/stores/ui.store'
 import { NavLink } from './NavLink'
@@ -34,6 +34,7 @@ const NAV_GROUPS = [
     label: 'PERFIL',
     items: [
       { href: '/cv',        icon: FileText,  label: 'CV'        },
+      { href: '/blog',      icon: PenLine,   label: 'Blog'      },
       { href: '/analytics', icon: BarChart3, label: 'Analytics' },
     ],
   },

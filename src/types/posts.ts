@@ -1,62 +1,60 @@
 // ─────────────────────────────────────────────────────────────
-// Page type
+// Status
 // ─────────────────────────────────────────────────────────────
 
-export const PAGE_TYPES = ['profile', 'project', 'cv', 'post'] as const
-export type PageType = (typeof PAGE_TYPES)[number]
+export const POST_STATUSES = ['draft', 'published', 'archived'] as const
+export type PostStatus = (typeof POST_STATUSES)[number]
 
-export const PAGE_TYPE_LABELS: Record<PageType, string> = {
-  profile: 'Perfil',
-  project: 'Proyectos',
-  cv:      'CV',
-  post:    'Blog',
+export const POST_STATUS_LABELS: Record<PostStatus, string> = {
+  draft:     'Borrador',
+  published: 'Publicado',
+  archived:  'Archivado',
+}
+
+export const POST_STATUS_STYLES: Record<PostStatus, string> = {
+  draft:     'bg-slate-100   text-slate-600  dark:bg-slate-800   dark:text-slate-300',
+  published: 'bg-green-100   text-green-700  dark:bg-green-900/40  dark:text-green-300',
+  archived:  'bg-red-100     text-red-600    dark:bg-red-900/40    dark:text-red-300',
 }
 
 // ─────────────────────────────────────────────────────────────
 // Core entity (espejo de la tabla SQL)
 // ─────────────────────────────────────────────────────────────
 
-export interface PageView {
-  id:         string
-  user_id:    string | null
-  page_type:  PageType
-  page_id:    string | null
-  visitor_id: string | null
-  referrer:   string | null
-  user_agent: string | null
-  country:    string | null
-  city:       string | null
-  viewed_at:  string    // ISO 8601
+export interface Post {
+  id:           string
+  user_id:      string
+  title:        string
+  slug:         string
+  excerpt:      string | null
+  content:      string
+  cover_image:  string | null
+  tags:         string[]
+  status:       PostStatus
+  is_featured:  boolean
+  reading_time: number | null
+  published_at: string | null   // ISO 8601
+  created_at:   string
+  updated_at:   string
 }
 
 // ─────────────────────────────────────────────────────────────
-// Aggregated types
+// Public view (joined with profile)
 // ─────────────────────────────────────────────────────────────
 
-export interface DailyStat {
-  date:  string   // 'YYYY-MM-DD'
-  views: number
-}
-
-export interface ProjectStat {
-  page_id: string
-  views:   number
-  title:   string  // joined from projects table
-}
-
-export interface AnalyticsSummary {
-  totalViews:     number
-  uniqueVisitors: number
-  viewsThisWeek:  number
-  viewsPrevWeek:  number
-  weeklyChange:   number          // porcentaje; puede ser Infinity si prev=0
-  byPageType:     Record<PageType, number>
-  dailyStats:     DailyStat[]
-  topProjects:    ProjectStat[]
+export interface PostWithAuthor extends Post {
+  author: {
+    username:   string
+    full_name:  string | null
+    avatar_url: string | null
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
-// Config
+// Action result
 // ─────────────────────────────────────────────────────────────
 
-export type DateRange = 7 | 14 | 30 | 90
+export type PostActionResult =
+  | { error: string; post?: never }
+  | { post: Post;   error?: never }
+  | { ok: true;     error?: never }

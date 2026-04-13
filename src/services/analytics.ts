@@ -87,6 +87,7 @@ function buildSummary(views: PageView[], days: DateRange, topProjects: ProjectSt
     profile: views.filter((v) => v.page_type === 'profile').length,
     project: views.filter((v) => v.page_type === 'project').length,
     cv:      views.filter((v) => v.page_type === 'cv').length,
+    post:    views.filter((v) => v.page_type === 'post').length,
   }
 
   return {

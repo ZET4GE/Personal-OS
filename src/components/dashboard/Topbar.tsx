@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation'
 import {
   Menu, PanelLeft, LogOut,
   LayoutDashboard, Briefcase, FolderOpen, FileText,
-  BarChart3, Users, Wallet, Target, ListChecks, Settings,
+  BarChart3, Users, Wallet, Target, ListChecks, Settings, PenLine,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useUIStore } from '@/stores/ui.store'
@@ -20,6 +20,7 @@ const PAGE_CONFIG: Record<string, { title: string; icon: LucideIcon }> = {
   '/habits':    { title: 'Hábitos',       icon: Target          },
   '/routines':  { title: 'Rutinas',       icon: ListChecks      },
   '/cv':        { title: 'CV',            icon: FileText        },
+  '/blog':      { title: 'Blog',          icon: PenLine         },
   '/analytics': { title: 'Analytics',    icon: BarChart3       },
   '/settings':  { title: 'Configuración', icon: Settings        },
 }
