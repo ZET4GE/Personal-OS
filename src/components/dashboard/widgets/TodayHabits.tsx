@@ -39,7 +39,7 @@ export function TodayHabits({ data, todayStr }: { data: TodayHabitsSummary; toda
       fd.append('date', todayStr)
       const res = await toggleHabitLogAction(fd)
       
-      if (res.error) {
+      if ('error' in res) {
         toast.error(res.error)
         // Revert
         setOptimisticState(prev => prev.map(s => s.id === habitId ? { ...s, completed: currentCompleted } : s))

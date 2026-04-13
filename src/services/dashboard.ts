@@ -110,20 +110,17 @@ async function fetchDeadlines(
 
   if (!data) return []
 
-  return (data as Array<{
-    id: string
-    title: string
-    status: string
-    due_date: string
-    client: { name: string } | null
-  }>).map((p) => ({
-    id:         p.id,
-    title:      p.title,
-    clientName: p.client?.name ?? null,
-    dueDate:    p.due_date,
-    daysLeft:   daysUntil(p.due_date, todayStr),
-    status:     p.status,
-  }))
+  return (data as any[]).map((p) => {
+    const clientName = Array.isArray(p.client) ? p.client[0]?.name : p.client?.name;
+    return {
+      id:         p.id,
+      title:      p.title,
+      clientName: clientName ?? null,
+      dueDate:    p.due_date,
+      daysLeft:   daysUntil(p.due_date, todayStr),
+      status:     p.status,
+    };
+  })
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -142,26 +139,22 @@ async function fetchPendingPayments(
 
   if (!data) return []
 
-  const projects = data as Array<{
-    id: string
-    title: string
-    budget: number
-    paid_amount: number
-    currency: string
-    client: { name: string } | null
-  }>
+  const projects = data as any[]
 
   return projects
     .filter((p) => p.budget > p.paid_amount)
-    .map((p) => ({
-      id:         p.id,
-      title:      p.title,
-      clientName: p.client?.name ?? null,
-      pending:    p.budget - p.paid_amount,
-      currency:   p.currency,
-      budget:     p.budget,
-      paidAmount: p.paid_amount,
-    }))
+    .map((p) => {
+      const clientName = Array.isArray(p.client) ? p.client[0]?.name : p.client?.name;
+      return {
+        id:         p.id,
+        title:      p.title,
+        clientName: clientName ?? null,
+        pending:    p.budget - p.paid_amount,
+        currency:   p.currency,
+        budget:     p.budget,
+        paidAmount: p.paid_amount,
+      };
+    })
     .slice(0, 5)
 }
 
