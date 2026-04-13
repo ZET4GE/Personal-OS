@@ -1,6 +1,6 @@
 'use client'
 
-import { LayoutDashboard, Briefcase, FolderOpen, FileText, Settings, X, BarChart3, Users, Wallet } from 'lucide-react'
+import { LayoutDashboard, Briefcase, FolderOpen, FileText, Settings, X, BarChart3, Users, Wallet, Target, ListChecks } from 'lucide-react'
 import { useUIStore } from '@/stores/ui.store'
 import { NavLink } from './NavLink'
 
@@ -10,6 +10,8 @@ const NAV_ITEMS = [
   { href: '/projects',  icon: FolderOpen,      label: 'Proyectos' },
   { href: '/clients',   icon: Users,           label: 'Clientes' },
   { href: '/freelance', icon: Wallet,          label: 'Freelance' },
+  { href: '/habits',    icon: Target,          label: 'Hábitos' },
+  { href: '/routines',  icon: ListChecks,      label: 'Rutinas' },
   { href: '/cv',        icon: FileText,        label: 'CV' },
   { href: '/analytics', icon: BarChart3,       label: 'Analytics' },
 ] as const
