@@ -50,7 +50,12 @@
   --color-border:           #e4e4e7;
   --color-border-bright:    #d4d4d8;
   --color-foreground:       #18181b;
+  --color-text:             #18181b;
   --color-muted:            #71717a;
+
+  /* Shadows */
+  --shadow-card:       0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.07);
+  --shadow-card-hover: 0 4px 12px 0 rgb(0 0 0 / 0.10), 0 2px 4px -1px rgb(0 0 0 / 0.07);
 
   /* Typography */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
@@ -66,6 +71,7 @@ html.dark {
   --color-border:           #27272a;
   --color-border-bright:    #3f3f46;
   --color-foreground:       #fafafa;
+  --color-text:             #fafafa;
   --color-muted:            #a1a1aa;
 }
 
