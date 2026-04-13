@@ -4,12 +4,13 @@ import { usePathname } from 'next/navigation'
 import {
   Menu, PanelLeft, LogOut,
   LayoutDashboard, Briefcase, FolderOpen, FileText,
-  BarChart3, Users, Wallet, Target, ListChecks, Settings, PenLine,
+  BarChart3, Users, Wallet, Target, ListChecks, Settings, PenLine, Bell,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useUIStore } from '@/stores/ui.store'
 import { logoutAction } from '@/app/(auth)/actions/auth.actions'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { NotificationBell } from '@/components/notifications/NotificationBell'
 
 const PAGE_CONFIG: Record<string, { title: string; icon: LucideIcon }> = {
   '/dashboard': { title: 'Dashboard',     icon: LayoutDashboard },
@@ -21,8 +22,9 @@ const PAGE_CONFIG: Record<string, { title: string; icon: LucideIcon }> = {
   '/routines':  { title: 'Rutinas',       icon: ListChecks      },
   '/cv':        { title: 'CV',            icon: FileText        },
   '/blog':      { title: 'Blog',          icon: PenLine         },
-  '/analytics': { title: 'Analytics',    icon: BarChart3       },
-  '/settings':  { title: 'Configuración', icon: Settings        },
+  '/analytics':      { title: 'Analytics',       icon: BarChart3 },
+  '/notifications':  { title: 'Notificaciones',  icon: Bell      },
+  '/settings':       { title: 'Configuración',   icon: Settings  },
 }
 
 function getPageConfig(pathname: string) {
@@ -89,6 +91,7 @@ export function Topbar({ userEmail, userName, collapsed, onToggleCollapse }: Top
 
       {/* Actions */}
       <div className="flex items-center gap-1">
+        <NotificationBell />
         <ThemeToggle />
         <div className="mx-1 h-5 w-px bg-border" />
         <UserAvatar name={userName} email={userEmail} />
