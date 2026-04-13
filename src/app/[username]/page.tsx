@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getProfileByUsername, getPublicProjectsByUsername } from '@/services/profiles'
 import { PublicHeader } from '@/components/public/PublicHeader'
 import { PublicProjectsGrid } from '@/components/public/PublicProjectsGrid'
+import { TrackingPixel } from '@/components/analytics/TrackingPixel'
 
 // ─────────────────────────────────────────────────────────────
 // Types — params es Promise en Next.js 16
@@ -51,11 +52,15 @@ export default async function PublicProfilePage({ params }: PageProps) {
   const { data: profile } = await getProfileByUsername(supabase, username)
   if (!profile) notFound()
 
+  // Visitor actual (para no trackear al owner viendo su propio perfil)
+  const { data: { user } } = await supabase.auth.getUser()
+
   // Fetch proyectos públicos en paralelo (ya tenemos el profile.id)
   const { data: projects } = await getPublicProjectsByUsername(supabase, profile.id)
 
   return (
     <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+      <TrackingPixel pageType="profile" ownerId={profile.id} currentUserId={user?.id ?? null} />
       {/* Header: avatar, nombre, bio, links */}
       <PublicHeader profile={profile} />
 

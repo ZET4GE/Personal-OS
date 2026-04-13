@@ -8,6 +8,7 @@ import { getWorkExperience, getEducation, getSkills } from '@/services/cv'
 import { SKILL_CATEGORIES, SKILL_CATEGORY_LABELS, SKILL_LEVEL_LABELS } from '@/types/cv'
 import type { WorkExperience, Education, Skill, SkillCategory } from '@/types/cv'
 import { CVDownloadSection } from '@/components/cv/pdf/CVDownloadSection'
+import { TrackingPixel } from '@/components/analytics/TrackingPixel'
 
 // ─────────────────────────────────────────────────────────────
 // Types
@@ -197,6 +198,9 @@ export default async function PublicCVPage({ params }: PageProps) {
   const { data: profile } = await getProfileByUsername(supabase, username)
   if (!profile) notFound()
 
+  // Visitor actual (para skip self-tracking)
+  const { data: { user } } = await supabase.auth.getUser()
+
   // Fetch CV data in parallel — RLS filters non-public automatically
   const [expResult, eduResult, skillsResult] = await Promise.all([
     getWorkExperience(supabase, profile.id),
@@ -211,6 +215,7 @@ export default async function PublicCVPage({ params }: PageProps) {
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+      <TrackingPixel pageType="cv" ownerId={profile.id} currentUserId={user?.id ?? null} />
       {/* Breadcrumb + download */}
       <div className="mb-8 flex items-center justify-between">
         <nav className="flex items-center gap-1 text-xs text-muted">

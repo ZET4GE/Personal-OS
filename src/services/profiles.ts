@@ -103,17 +103,33 @@ export async function updateProfile(
   userId: string,
   input: UpdateProfileData,
 ): Promise<Result<Profile>> {
-  const { data, error } = await supabase
+  // Intentar UPDATE primero (caso normal: el perfil ya existe).
+  // Si no hay fila (perfil nunca creado), caer a INSERT.
+  const { data: updated, error: updateErr } = await supabase
     .from('profiles')
-    .upsert({ id: userId, ...input }, { onConflict: 'id' })
+    .update(input)
+    .eq('id', userId)
     .select()
     .single()
 
-  if (error) {
-    // 23505 = unique_violation (username ya tomado)
-    if (error.code === '23505') return err('Ese username ya está en uso')
-    return err(error.message)
+  if (!updateErr) return ok(updated as Profile)
+
+  // PGRST116 = "no rows returned" → perfil no existe, crear
+  if (updateErr.code !== 'PGRST116') {
+    if (updateErr.code === '23505') return err('Ese username ya está en uso')
+    return err(updateErr.message)
   }
 
-  return ok(data as Profile)
+  const { data: inserted, error: insertErr } = await supabase
+    .from('profiles')
+    .insert({ id: userId, ...input })
+    .select()
+    .single()
+
+  if (insertErr) {
+    if (insertErr.code === '23505') return err('Ese username ya está en uso')
+    return err(insertErr.message)
+  }
+
+  return ok(inserted as Profile)
 }

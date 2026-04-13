@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { getProfileByUsername, getPublicProjectById } from '@/services/profiles'
 import { ProjectDetail } from '@/components/public/ProjectDetail'
+import { TrackingPixel } from '@/components/analytics/TrackingPixel'
 
 // ─────────────────────────────────────────────────────────────
 // Types — params es Promise en Next.js 16
@@ -56,10 +57,14 @@ export default async function PublicProjectPage({ params }: PageProps) {
   const { data: project } = await getPublicProjectById(supabase, id, profile.id)
   if (!project) notFound()
 
+  // Visitor actual (para skip self-tracking)
+  const { data: { user } } = await supabase.auth.getUser()
+
   const displayName = profile.full_name ?? `@${username}`
 
   return (
     <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+      <TrackingPixel pageType="project" pageId={project.id} ownerId={profile.id} currentUserId={user?.id ?? null} />
       <ProjectDetail project={project} username={username} displayName={displayName} />
     </main>
   )
