@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  /* Base palette */
+  /* ── Slate palette (unchanged — used by many components) ─── */
   --color-slate-50:  #f8fafc;
   --color-slate-100: #f1f5f9;
   --color-slate-200: #e2e8f0;
@@ -14,7 +14,7 @@
   --color-slate-900: #0f172a;
   --color-slate-950: #020617;
 
-  /* Accent — blue */
+  /* ── Accent — vivid blue ──────────────────────────────────── */
   --color-accent-50:  #eff6ff;
   --color-accent-100: #dbeafe;
   --color-accent-200: #bfdbfe;
@@ -26,28 +26,66 @@
   --color-accent-800: #1e40af;
   --color-accent-900: #1e3a8a;
 
-  /* Semantic tokens */
-  --color-background: var(--color-slate-50);
-  --color-foreground: var(--color-slate-900);
-  --color-muted:      var(--color-slate-500);
-  --color-border:     var(--color-slate-200);
-  --color-surface:    #ffffff;
+  /* ── Semantic tokens — light mode ────────────────────────── */
+  --color-background:       #f6f8fa;
+  --color-surface:          #ffffff;
+  --color-surface-elevated: #ffffff;
+  --color-surface-hover:    #f0f3f7;
+  --color-border:           #d0d7de;
+  --color-border-bright:    #b0b8c5;
+  --color-foreground:       #1f2328;
+  --color-muted:            #656d76;
 
-  /* Typography */
+  /* ── Typography ──────────────────────────────────────────── */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+
+  /* ── Shadows ─────────────────────────────────────────────── */
+  --shadow-card:   0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-card-hover: 0 4px 12px 0 rgb(0 0 0 / 0.10), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --shadow-modal:  0 20px 60px -12px rgb(0 0 0 / 0.25);
 }
 
+/* ── Dark mode overrides ──────────────────────────────────── */
 @media (prefers-color-scheme: dark) {
   @theme {
-    --color-background: var(--color-slate-950);
-    --color-foreground: var(--color-slate-50);
-    --color-muted:      var(--color-slate-400);
-    --color-border:     var(--color-slate-800);
-    --color-surface:    var(--color-slate-900);
+    --color-background:       #0d1117;
+    --color-surface:          #161b22;
+    --color-surface-elevated: #1c2128;
+    --color-surface-hover:    #21262d;
+    --color-border:           #30363d;
+    --color-border-bright:    #484f58;
+    --color-foreground:       #e6edf3;
+    --color-muted:            #7d8590;
+
+    --shadow-card:       0 1px 3px 0 rgb(0 0 0 / 0.3),  0 1px 2px -1px rgb(0 0 0 / 0.2);
+    --shadow-card-hover: 0 8px 24px 0 rgb(0 0 0 / 0.4),  0 4px 8px -4px rgb(0 0 0 / 0.3);
+    --shadow-modal:      0 20px 60px -12px rgb(0 0 0 / 0.6);
   }
 }
 
+/* ── Keyframes ────────────────────────────────────────────── */
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(200%); }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes slide-in-bottom {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.97); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Base ─────────────────────────────────────────────────── */
 *, *::before, *::after {
   border-color: var(--color-border);
 }
@@ -58,4 +96,14 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Animation helpers ────────────────────────────────────── */
+.animate-fade-in        { animation: fade-in        150ms ease both; }
+.animate-slide-in       { animation: slide-in-bottom 200ms ease both; }
+.animate-scale-in       { animation: scale-in        150ms ease both; }
+
+/* Dialog open animation */
+dialog[open] {
+  animation: scale-in 150ms ease both;
 }

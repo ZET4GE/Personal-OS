@@ -1,19 +1,42 @@
 'use client'
 
-import { LayoutDashboard, Briefcase, FolderOpen, FileText, Settings, X, BarChart3, Users, Wallet, Target, ListChecks } from 'lucide-react'
+import {
+  LayoutDashboard, Briefcase, FolderOpen, FileText,
+  Settings, X, BarChart3, Users, Wallet, Target, ListChecks,
+} from 'lucide-react'
 import { useUIStore } from '@/stores/ui.store'
 import { NavLink } from './NavLink'
 
-const NAV_ITEMS = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/jobs',      icon: Briefcase,       label: 'Empleos' },
-  { href: '/projects',  icon: FolderOpen,      label: 'Proyectos' },
-  { href: '/clients',   icon: Users,           label: 'Clientes' },
-  { href: '/freelance', icon: Wallet,          label: 'Freelance' },
-  { href: '/habits',    icon: Target,          label: 'Hábitos' },
-  { href: '/routines',  icon: ListChecks,      label: 'Rutinas' },
-  { href: '/cv',        icon: FileText,        label: 'CV' },
-  { href: '/analytics', icon: BarChart3,       label: 'Analytics' },
+const NAV_GROUPS = [
+  {
+    label: 'PRINCIPAL',
+    items: [
+      { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    ],
+  },
+  {
+    label: 'TRABAJO',
+    items: [
+      { href: '/jobs',      icon: Briefcase,  label: 'Empleos'   },
+      { href: '/projects',  icon: FolderOpen, label: 'Proyectos' },
+      { href: '/clients',   icon: Users,      label: 'Clientes'  },
+      { href: '/freelance', icon: Wallet,     label: 'Freelance' },
+    ],
+  },
+  {
+    label: 'PERSONAL',
+    items: [
+      { href: '/habits',   icon: Target,     label: 'Hábitos'  },
+      { href: '/routines', icon: ListChecks, label: 'Rutinas'  },
+    ],
+  },
+  {
+    label: 'PERFIL',
+    items: [
+      { href: '/cv',        icon: FileText,  label: 'CV'        },
+      { href: '/analytics', icon: BarChart3, label: 'Analytics' },
+    ],
+  },
 ] as const
 
 const BOTTOM_ITEMS = [
@@ -32,7 +55,7 @@ export function Sidebar({ collapsed }: SidebarProps) {
       {/* Backdrop móvil */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-20 bg-black/40 md:hidden"
+          className="fixed inset-0 z-20 bg-black/50 backdrop-blur-sm md:hidden"
           onClick={() => setSidebarOpen(false)}
           aria-hidden
         />
@@ -42,48 +65,60 @@ export function Sidebar({ collapsed }: SidebarProps) {
       <aside
         className={[
           'fixed inset-y-0 left-0 z-30 flex flex-col border-r bg-surface transition-all duration-200',
-          // Ancho: colapsado = 56px, normal = 240px
           collapsed ? 'w-14' : 'w-60',
-          // Móvil: ocultar cuando cerrado
           sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         ].join(' ')}
-        style={{ borderColor: 'var(--color-border)' }}
       >
-        {/* Header del sidebar */}
+        {/* Header */}
         <div
           className={[
             'flex h-14 shrink-0 items-center border-b px-3',
             collapsed ? 'justify-center' : 'justify-between',
           ].join(' ')}
-          style={{ borderColor: 'var(--color-border)' }}
         >
-          {!collapsed && (
-            <span className="text-sm font-semibold tracking-tight">Personal OS</span>
-          )}
-          {collapsed && (
-            <span className="text-sm font-bold text-accent-600">P</span>
-          )}
-          {/* Botón cerrar en móvil */}
-          {!collapsed && (
-            <button
-              className="rounded p-1 text-slate-400 hover:text-slate-600 md:hidden"
-              onClick={() => setSidebarOpen(false)}
-              aria-label="Cerrar sidebar"
-            >
-              <X size={16} />
-            </button>
+          {collapsed ? (
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-600 text-xs font-bold text-white shadow-sm">
+              P
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-600 text-xs font-bold text-white shadow-sm">
+                  P
+                </div>
+                <span className="text-sm font-semibold tracking-tight">Personal OS</span>
+              </div>
+              <button
+                className="rounded-md p-1 text-muted transition-colors hover:bg-surface-hover hover:text-foreground md:hidden"
+                onClick={() => setSidebarOpen(false)}
+                aria-label="Cerrar sidebar"
+              >
+                <X size={16} />
+              </button>
+            </>
           )}
         </div>
 
-        {/* Nav principal */}
-        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-2">
-          {NAV_ITEMS.map((item) => (
-            <NavLink key={item.href} {...item} collapsed={collapsed} />
+        {/* Nav principal con grupos */}
+        <nav className="flex flex-1 flex-col overflow-y-auto px-2 py-3 gap-4">
+          {NAV_GROUPS.map((group) => (
+            <div key={group.label}>
+              {!collapsed && (
+                <p className="mb-1 px-2.5 text-[10px] font-semibold tracking-widest text-muted/60 uppercase select-none">
+                  {group.label}
+                </p>
+              )}
+              <div className="flex flex-col gap-0.5">
+                {group.items.map((item) => (
+                  <NavLink key={item.href} {...item} collapsed={collapsed} />
+                ))}
+              </div>
+            </div>
           ))}
         </nav>
 
         {/* Nav inferior */}
-        <div className="border-t p-2" style={{ borderColor: 'var(--color-border)' }}>
+        <div className="border-t px-2 py-2">
           {BOTTOM_ITEMS.map((item) => (
             <NavLink key={item.href} {...item} collapsed={collapsed} />
           ))}
