@@ -9,6 +9,7 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { useUIStore } from '@/stores/ui.store'
 import { logoutAction } from '@/app/(auth)/actions/auth.actions'
+import { ThemeToggle } from '@/components/ui/ThemeToggle'
 
 const PAGE_CONFIG: Record<string, { title: string; icon: LucideIcon }> = {
   '/dashboard': { title: 'Dashboard',     icon: LayoutDashboard },
@@ -85,10 +86,12 @@ export function Topbar({ userEmail, userName, collapsed, onToggleCollapse }: Top
         <h1 className="text-sm font-semibold">{title}</h1>
       </div>
 
-      {/* Usuario + logout */}
-      <div className="flex items-center gap-2">
+      {/* Actions */}
+      <div className="flex items-center gap-1">
+        <ThemeToggle />
+        <div className="mx-1 h-5 w-px bg-border" />
         <UserAvatar name={userName} email={userEmail} />
-        <span className="hidden text-xs text-muted sm:block max-w-[140px] truncate">
+        <span className="hidden text-xs text-muted sm:block max-w-[140px] truncate ml-1">
           {userName ?? userEmail}
         </span>
         <form action={logoutAction}>

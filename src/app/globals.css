@@ -1,7 +1,23 @@
 @import "tailwindcss";
 
+/* ── Dark mode via .dark class on <html> ──────────────────── */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ── Palette ─────────────────────────────────────────────── */
 @theme {
-  /* ── Slate palette (unchanged — used by many components) ─── */
+  --color-zinc-50:   #fafafa;
+  --color-zinc-100:  #f4f4f5;
+  --color-zinc-200:  #e4e4e7;
+  --color-zinc-300:  #d4d4d8;
+  --color-zinc-400:  #a1a1aa;
+  --color-zinc-500:  #71717a;
+  --color-zinc-600:  #52525b;
+  --color-zinc-700:  #3f3f46;
+  --color-zinc-800:  #27272a;
+  --color-zinc-900:  #18181b;
+  --color-zinc-950:  #09090b;
+
+  /* Keep slate for backward compat (many components use slate-*) */
   --color-slate-50:  #f8fafc;
   --color-slate-100: #f1f5f9;
   --color-slate-200: #e2e8f0;
@@ -14,7 +30,7 @@
   --color-slate-900: #0f172a;
   --color-slate-950: #020617;
 
-  /* ── Accent — vivid blue ──────────────────────────────────── */
+  /* Accent — vivid blue */
   --color-accent-50:  #eff6ff;
   --color-accent-100: #dbeafe;
   --color-accent-200: #bfdbfe;
@@ -26,42 +42,31 @@
   --color-accent-800: #1e40af;
   --color-accent-900: #1e3a8a;
 
-  /* ── Semantic tokens — light mode ────────────────────────── */
-  --color-background:       #f6f8fa;
-  --color-surface:          #ffffff;
+  /* ── Semantic tokens — LIGHT defaults ──────────────────── */
+  --color-background:       #ffffff;
+  --color-surface:          #f4f4f5;
   --color-surface-elevated: #ffffff;
-  --color-surface-hover:    #f0f3f7;
-  --color-border:           #d0d7de;
-  --color-border-bright:    #b0b8c5;
-  --color-foreground:       #1f2328;
-  --color-muted:            #656d76;
+  --color-surface-hover:    #e4e4e7;
+  --color-border:           #e4e4e7;
+  --color-border-bright:    #d4d4d8;
+  --color-foreground:       #18181b;
+  --color-muted:            #71717a;
 
-  /* ── Typography ──────────────────────────────────────────── */
+  /* Typography */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-geist-mono), ui-monospace, monospace;
-
-  /* ── Shadows ─────────────────────────────────────────────── */
-  --shadow-card:   0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
-  --shadow-card-hover: 0 4px 12px 0 rgb(0 0 0 / 0.10), 0 2px 4px -2px rgb(0 0 0 / 0.06);
-  --shadow-modal:  0 20px 60px -12px rgb(0 0 0 / 0.25);
 }
 
-/* ── Dark mode overrides ──────────────────────────────────── */
-@media (prefers-color-scheme: dark) {
-  @theme {
-    --color-background:       #0d1117;
-    --color-surface:          #161b22;
-    --color-surface-elevated: #1c2128;
-    --color-surface-hover:    #21262d;
-    --color-border:           #30363d;
-    --color-border-bright:    #484f58;
-    --color-foreground:       #e6edf3;
-    --color-muted:            #7d8590;
-
-    --shadow-card:       0 1px 3px 0 rgb(0 0 0 / 0.3),  0 1px 2px -1px rgb(0 0 0 / 0.2);
-    --shadow-card-hover: 0 8px 24px 0 rgb(0 0 0 / 0.4),  0 4px 8px -4px rgb(0 0 0 / 0.3);
-    --shadow-modal:      0 20px 60px -12px rgb(0 0 0 / 0.6);
-  }
+/* ── Dark mode overrides (class-based) ───────────────────── */
+html.dark {
+  --color-background:       #09090b;
+  --color-surface:          #18181b;
+  --color-surface-elevated: #27272a;
+  --color-surface-hover:    #3f3f46;
+  --color-border:           #27272a;
+  --color-border-bright:    #3f3f46;
+  --color-foreground:       #fafafa;
+  --color-muted:            #a1a1aa;
 }
 
 /* ── Keyframes ────────────────────────────────────────────── */
@@ -75,14 +80,35 @@
   to   { opacity: 1; }
 }
 
-@keyframes slide-in-bottom {
-  from { opacity: 0; transform: translateY(8px); }
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes scale-in {
-  from { opacity: 0; transform: scale(0.97); }
+  from { opacity: 0; transform: scale(0.96); }
   to   { opacity: 1; transform: scale(1); }
+}
+
+@keyframes spin-once {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+/* ── Animation utility classes ───────────────────────────── */
+.animate-fade-in  { animation: fade-in  0.2s ease-out both; }
+.animate-slide-up { animation: slide-up 0.25s ease-out both; }
+.animate-scale-in { animation: scale-in 0.2s ease-out both; }
+
+/* Stagger helpers for lists */
+.stagger-1 { animation-delay: 50ms; }
+.stagger-2 { animation-delay: 100ms; }
+.stagger-3 { animation-delay: 150ms; }
+.stagger-4 { animation-delay: 200ms; }
+
+/* ── Dialog open animation ────────────────────────────────── */
+dialog[open] {
+  animation: scale-in 0.18s ease-out both;
 }
 
 /* ── Base ─────────────────────────────────────────────────── */
@@ -98,12 +124,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Animation helpers ────────────────────────────────────── */
-.animate-fade-in        { animation: fade-in        150ms ease both; }
-.animate-slide-in       { animation: slide-in-bottom 200ms ease both; }
-.animate-scale-in       { animation: scale-in        150ms ease both; }
+/* ── Scrollbar (dark mode) ────────────────────────────────── */
+html.dark {
+  color-scheme: dark;
+}
 
-/* Dialog open animation */
-dialog[open] {
-  animation: scale-in 150ms ease both;
+html:not(.dark) {
+  color-scheme: light;
 }
