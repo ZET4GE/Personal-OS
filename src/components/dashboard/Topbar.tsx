@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation'
 import {
   Menu, PanelLeft, LogOut,
   LayoutDashboard, Briefcase, FolderOpen, FileText,
-  BarChart3, Users, Wallet, Target, ListChecks, Settings, PenLine, Bell,
+  BarChart3, Users, Wallet, Target, ListChecks, Settings, PenLine, Bell, StickyNote,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -26,10 +26,11 @@ const PAGE_ICONS: Record<string, LucideIcon> = {
   '/blog':          PenLine,
   '/analytics':     BarChart3,
   '/notifications': Bell,
+  '/notes':         StickyNote,
   '/settings':      Settings,
 }
 
-type NavKey = 'dashboard' | 'jobs' | 'projects' | 'clients' | 'freelance' | 'habits' | 'routines' | 'cv' | 'blog' | 'analytics' | 'notifications' | 'settings'
+type NavKey = 'dashboard' | 'jobs' | 'projects' | 'clients' | 'freelance' | 'habits' | 'routines' | 'cv' | 'blog' | 'analytics' | 'notifications' | 'notes' | 'settings'
 
 const PAGE_NAV_KEYS: Record<string, NavKey> = {
   '/dashboard':     'dashboard',
@@ -43,6 +44,7 @@ const PAGE_NAV_KEYS: Record<string, NavKey> = {
   '/blog':          'blog',
   '/analytics':     'analytics',
   '/notifications': 'notifications',
+  '/notes':         'notes',
   '/settings':      'settings',
 }
 

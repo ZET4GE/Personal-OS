@@ -13,6 +13,7 @@ import { PendingPayments } from '@/components/dashboard/widgets/PendingPayments'
 import { RecentActivity } from '@/components/dashboard/widgets/RecentActivity'
 import { GoogleCalendarWidget } from '@/components/integrations/GoogleCalendarWidget'
 import { GitHubActivityWidget } from '@/components/integrations/GitHubActivityWidget'
+import { RecentNotes } from '@/components/dashboard/widgets/RecentNotes'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 
@@ -81,7 +82,12 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* Row 5: Recent Activity */}
+      {/* Row 5: Recent Notes */}
+      <Suspense fallback={<WidgetSkeleton />}>
+        <RecentNotes userId={user.id} />
+      </Suspense>
+
+      {/* Row 6: Recent Activity */}
       <RecentActivity activity={data.recentActivity} />
     </div>
   )

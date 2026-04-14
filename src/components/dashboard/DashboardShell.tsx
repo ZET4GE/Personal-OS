@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
+import { QuickCapture } from '@/components/notes/QuickCapture'
 
 interface DashboardShellProps {
   userEmail: string
@@ -35,6 +36,7 @@ export function DashboardShell({ userEmail, userName, children }: DashboardShell
         />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
+      <QuickCapture />
     </div>
   )
 }
