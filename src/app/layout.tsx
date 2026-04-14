@@ -13,8 +13,14 @@ export const metadata: Metadata = {
     default:  'Personal OS',
     template: '%s | Personal OS',
   },
-  description: 'Workspace privado y portafolio público — todo en un solo lugar.',
-  metadataBase: new URL('https://localhost:3000'),
+  description: 'Organizá tu vida profesional, gestioná proyectos, trackeá hábitos y creá tu portafolio público. Gratis.',
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL ?? 'https://winf.com.ar',
+  ),
+  openGraph: {
+    siteName: 'Personal OS',
+    locale:   'es_AR',
+  },
 }
 
 // Inline script runs synchronously before React hydrates — prevents flash of wrong theme.
