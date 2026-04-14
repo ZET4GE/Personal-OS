@@ -1,17 +1,19 @@
 import Link from 'next/link'
-import { DollarSign, ArrowRight } from 'lucide-react'
+import { getTranslations } from 'next-intl/server'
 import type { PendingPaymentItem } from '@/types/dashboard'
 
-export function PendingPayments({ payments }: { payments: PendingPaymentItem[] }) {
+export async function PendingPayments({ payments }: { payments: PendingPaymentItem[] }) {
+  const t = await getTranslations('dashboard')
+
   const totalPending = payments.reduce((acc, curr) => acc + curr.pending, 0)
 
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-text">Pagos Pendientes</h3>
+        <h3 className="text-sm font-semibold text-text">{t('pendingPayments')}</h3>
         {payments.length > 0 && (
           <span className="text-xs font-semibold text-amber-600 dark:text-amber-400">
-            Total: ${totalPending.toLocaleString()}
+            {t('total')}: ${totalPending.toLocaleString()}
           </span>
         )}
       </div>
@@ -36,15 +38,15 @@ export function PendingPayments({ payments }: { payments: PendingPaymentItem[] }
                     )}
                   </div>
                   <div className="flex items-center gap-1 font-semibold text-text">
-                    <span className="text-xs text-muted">Falta</span>
+                    <span className="text-xs text-muted">{t('missing')}</span>
                     <span>${item.pending.toLocaleString()}</span>
                   </div>
                 </div>
-                
+
                 <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-surface">
-                  <div 
-                    className="h-full bg-emerald-500 transition-all" 
-                    style={{ width: `${progress}%` }} 
+                  <div
+                    className="h-full bg-emerald-500 transition-all"
+                    style={{ width: `${progress}%` }}
                   />
                 </div>
               </Link>
@@ -53,7 +55,7 @@ export function PendingPayments({ payments }: { payments: PendingPaymentItem[] }
         </div>
       ) : (
         <div className="flex flex-1 flex-col items-center justify-center py-6 text-center">
-          <p className="text-sm font-medium text-muted">¡Todo cobrado! 💰</p>
+          <p className="text-sm font-medium text-muted">{t('noPendingPayments')}</p>
         </div>
       )}
     </div>

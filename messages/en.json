@@ -1,0 +1,181 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "back": "Back",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "none": "None",
+    "yes": "Yes",
+    "no": "No"
+  },
+  "auth": {
+    "login": "Sign in",
+    "signup": "Sign up",
+    "logout": "Sign out",
+    "email": "Email address",
+    "password": "Password",
+    "forgotPassword": "Forgot your password?",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "jobs": "Jobs",
+    "projects": "Projects",
+    "clients": "Clients",
+    "freelance": "Freelance",
+    "cv": "CV",
+    "habits": "Habits",
+    "routines": "Routines",
+    "blog": "Blog",
+    "analytics": "Analytics",
+    "notifications": "Notifications",
+    "settings": "Settings"
+  },
+  "dashboard": {
+    "greeting": {
+      "morning": "Good morning",
+      "afternoon": "Good afternoon",
+      "evening": "Good evening"
+    },
+    "contextual": {
+      "pendingHabitsMessage": "{count, plural, one {You have # pending habit today.} other {You have # pending habits today.}}",
+      "upcomingDeadlinesMessage": "{count, plural, one {# project is due in the next 7 days.} other {# projects are due in the next 7 days.}}",
+      "streakMessage": "{count}-day streak! Keep it up 🔥",
+      "allGood": "All caught up. Great work!"
+    },
+    "quickActions": {
+      "newJob": "New job",
+      "newProject": "New project",
+      "newHabit": "New habit"
+    },
+    "todayHabits": "Today's Habits",
+    "viewAll": "View all",
+    "progress": "Progress",
+    "noHabits": "No habits scheduled for today",
+    "createFirstHabit": "Create your first habit",
+    "upcomingDeadlines": "Upcoming Deadlines",
+    "today": "Today",
+    "inDays": "{count, plural, one {In # day} other {In # days}}",
+    "noDeadlines": "No upcoming deadlines ✨",
+    "pendingPayments": "Pending Payments",
+    "total": "Total",
+    "missing": "Due",
+    "noPendingPayments": "All paid up! 💰",
+    "recentActivity": "Recent Activity",
+    "noActivity": "No recent activity yet.",
+    "streak": {
+      "daysLabel": "Day streak",
+      "bestStreak": "Best streak: {count} days",
+      "messages": {
+        "start": "Start your streak today!",
+        "beginning": "Good start!",
+        "rolling": "You're on a roll!",
+        "unstoppable": "Unstoppable! 🔥",
+        "legend": "Living legend! 👑"
+      }
+    }
+  },
+  "jobs": {
+    "title": "Jobs",
+    "newJob": "New job",
+    "company": "Company",
+    "role": "Role",
+    "status": "Status",
+    "applied": "Applied",
+    "interview": "Interview",
+    "offer": "Offer",
+    "rejected": "Rejected",
+    "noJobs": "No applications yet",
+    "addFirst": "Add your first application"
+  },
+  "projects": {
+    "title": "Projects",
+    "newProject": "New project",
+    "techStack": "Tech stack",
+    "status": "Status",
+    "public": "Public",
+    "private": "Private",
+    "inProgress": "In progress",
+    "completed": "Completed",
+    "idea": "Idea",
+    "archived": "Archived"
+  },
+  "freelance": {
+    "title": "Freelance",
+    "newProject": "New project",
+    "client": "Client",
+    "budget": "Budget",
+    "paid": "Paid",
+    "pending": "Pending",
+    "dueDate": "Due date",
+    "proposal": "Proposal",
+    "active": "Active",
+    "paused": "Paused",
+    "completed": "Completed",
+    "cancelled": "Cancelled"
+  },
+  "habits": {
+    "title": "Habits",
+    "newHabit": "New habit",
+    "streak": "Streak",
+    "days": "days",
+    "today": "Today",
+    "completed": "completed",
+    "daily": "Every day",
+    "weekdays": "Weekdays",
+    "weekly": "Weekly"
+  },
+  "blog": {
+    "title": "Blog",
+    "newPost": "New post",
+    "draft": "Draft",
+    "published": "Published",
+    "archived": "Archived",
+    "readTime": "{minutes} min read",
+    "publish": "Publish",
+    "unpublish": "Unpublish",
+    "saveDraft": "Save draft"
+  },
+  "notifications": {
+    "title": "Notifications",
+    "markAllRead": "Mark all as read",
+    "deleteRead": "Delete read",
+    "noNotifications": "No notifications",
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "thisWeek": "This week",
+    "older": "Older"
+  },
+  "profile": {
+    "title": "Public profile",
+    "username": "Username",
+    "fullName": "Full name",
+    "bio": "Bio",
+    "location": "Location",
+    "website": "Website",
+    "publicProfile": "Public profile",
+    "privateProfile": "Private profile"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Public profile",
+    "profileDesc": "Customize your profile and control what visitors see.",
+    "preferences": "Preferences",
+    "preferencesDesc": "Language and interface appearance.",
+    "language": "Language",
+    "languageDesc": "Select the interface language.",
+    "spanish": "Spanish",
+    "english": "English",
+    "saved": "Preferences saved"
+  }
+}

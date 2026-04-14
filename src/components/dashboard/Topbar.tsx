@@ -7,33 +7,55 @@ import {
   BarChart3, Users, Wallet, Target, ListChecks, Settings, PenLine, Bell,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useUIStore } from '@/stores/ui.store'
 import { logoutAction } from '@/app/(auth)/actions/auth.actions'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
+import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 
-const PAGE_CONFIG: Record<string, { title: string; icon: LucideIcon }> = {
-  '/dashboard': { title: 'Dashboard',     icon: LayoutDashboard },
-  '/jobs':      { title: 'Empleos',       icon: Briefcase       },
-  '/projects':  { title: 'Proyectos',     icon: FolderOpen      },
-  '/clients':   { title: 'Clientes',      icon: Users           },
-  '/freelance': { title: 'Freelance',     icon: Wallet          },
-  '/habits':    { title: 'Hábitos',       icon: Target          },
-  '/routines':  { title: 'Rutinas',       icon: ListChecks      },
-  '/cv':        { title: 'CV',            icon: FileText        },
-  '/blog':      { title: 'Blog',          icon: PenLine         },
-  '/analytics':      { title: 'Analytics',       icon: BarChart3 },
-  '/notifications':  { title: 'Notificaciones',  icon: Bell      },
-  '/settings':       { title: 'Configuración',   icon: Settings  },
+const PAGE_ICONS: Record<string, LucideIcon> = {
+  '/dashboard':     LayoutDashboard,
+  '/jobs':          Briefcase,
+  '/projects':      FolderOpen,
+  '/clients':       Users,
+  '/freelance':     Wallet,
+  '/habits':        Target,
+  '/routines':      ListChecks,
+  '/cv':            FileText,
+  '/blog':          PenLine,
+  '/analytics':     BarChart3,
+  '/notifications': Bell,
+  '/settings':      Settings,
 }
 
-function getPageConfig(pathname: string) {
-  // Exact match first, then prefix match
-  if (PAGE_CONFIG[pathname]) return PAGE_CONFIG[pathname]
-  const match = Object.keys(PAGE_CONFIG)
+type NavKey = 'dashboard' | 'jobs' | 'projects' | 'clients' | 'freelance' | 'habits' | 'routines' | 'cv' | 'blog' | 'analytics' | 'notifications' | 'settings'
+
+const PAGE_NAV_KEYS: Record<string, NavKey> = {
+  '/dashboard':     'dashboard',
+  '/jobs':          'jobs',
+  '/projects':      'projects',
+  '/clients':       'clients',
+  '/freelance':     'freelance',
+  '/habits':        'habits',
+  '/routines':      'routines',
+  '/cv':            'cv',
+  '/blog':          'blog',
+  '/analytics':     'analytics',
+  '/notifications': 'notifications',
+  '/settings':      'settings',
+}
+
+function getPageInfo(pathname: string): { icon: LucideIcon; key: NavKey } {
+  if (PAGE_ICONS[pathname]) {
+    return { icon: PAGE_ICONS[pathname], key: PAGE_NAV_KEYS[pathname] }
+  }
+  const match = Object.keys(PAGE_ICONS)
     .filter((k) => k !== '/dashboard' && pathname.startsWith(k))
     .sort((a, b) => b.length - a.length)[0]
-  return match ? PAGE_CONFIG[match] : { title: 'Personal OS', icon: LayoutDashboard }
+  return match
+    ? { icon: PAGE_ICONS[match], key: PAGE_NAV_KEYS[match] }
+    : { icon: LayoutDashboard, key: 'dashboard' }
 }
 
 function UserAvatar({ name, email }: { name?: string; email: string }) {
@@ -59,9 +81,13 @@ interface TopbarProps {
 }
 
 export function Topbar({ userEmail, userName, collapsed, onToggleCollapse }: TopbarProps) {
-  const pathname         = usePathname()
+  const pathname           = usePathname()
   const { setSidebarOpen } = useUIStore()
-  const { title, icon: PageIcon } = getPageConfig(pathname)
+  const tNav               = useTranslations('nav')
+  const tAuth              = useTranslations('auth')
+
+  const { icon: PageIcon, key: navKey } = getPageInfo(pathname)
+  const title = tNav(navKey)
 
   return (
     <header className="flex h-14 shrink-0 items-center gap-3 border-b bg-surface px-4">
@@ -92,6 +118,7 @@ export function Topbar({ userEmail, userName, collapsed, onToggleCollapse }: Top
       {/* Actions */}
       <div className="flex items-center gap-1">
         <NotificationBell />
+        <LanguageSwitcher />
         <ThemeToggle />
         <div className="mx-1 h-5 w-px bg-border" />
         <UserAvatar name={userName} email={userEmail} />
@@ -102,10 +129,10 @@ export function Topbar({ userEmail, userName, collapsed, onToggleCollapse }: Top
           <button
             type="submit"
             className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
-            title="Cerrar sesión"
+            title={tAuth('logout')}
           >
             <LogOut size={14} />
-            <span className="hidden sm:inline">Salir</span>
+            <span className="hidden sm:inline">{tAuth('logout')}</span>
           </button>
         </form>
       </div>

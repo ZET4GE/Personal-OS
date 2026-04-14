@@ -4,52 +4,50 @@ import {
   LayoutDashboard, Briefcase, FolderOpen, FileText,
   Settings, X, BarChart3, Users, Wallet, Target, ListChecks, PenLine,
 } from 'lucide-react'
+import { useTranslations } from 'next-intl'
 import { useUIStore } from '@/stores/ui.store'
 import { NavLink } from './NavLink'
 
-const NAV_GROUPS = [
-  {
-    label: 'PRINCIPAL',
-    items: [
-      { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-    ],
-  },
-  {
-    label: 'TRABAJO',
-    items: [
-      { href: '/jobs',      icon: Briefcase,  label: 'Empleos'   },
-      { href: '/projects',  icon: FolderOpen, label: 'Proyectos' },
-      { href: '/clients',   icon: Users,      label: 'Clientes'  },
-      { href: '/freelance', icon: Wallet,     label: 'Freelance' },
-    ],
-  },
-  {
-    label: 'PERSONAL',
-    items: [
-      { href: '/habits',   icon: Target,     label: 'Hábitos'  },
-      { href: '/routines', icon: ListChecks, label: 'Rutinas'  },
-    ],
-  },
-  {
-    label: 'PERFIL',
-    items: [
-      { href: '/cv',        icon: FileText,  label: 'CV'        },
-      { href: '/blog',      icon: PenLine,   label: 'Blog'      },
-      { href: '/analytics', icon: BarChart3, label: 'Analytics' },
-    ],
-  },
-] as const
-
-const BOTTOM_ITEMS = [
-  { href: '/settings', icon: Settings, label: 'Configuración' },
-] as const
-
-interface SidebarProps {
-  collapsed: boolean
-}
-
-export function Sidebar({ collapsed }: SidebarProps) {
+export function Sidebar({ collapsed }: { collapsed: boolean }) {
   const { sidebarOpen, setSidebarOpen } = useUIStore()
+  const t = useTranslations('nav')
+
+  const NAV_GROUPS = [
+    {
+      label: 'PRINCIPAL',
+      items: [
+        { href: '/dashboard', icon: LayoutDashboard, label: t('dashboard') },
+      ],
+    },
+    {
+      label: 'TRABAJO',
+      items: [
+        { href: '/jobs',      icon: Briefcase,  label: t('jobs')      },
+        { href: '/projects',  icon: FolderOpen, label: t('projects')  },
+        { href: '/clients',   icon: Users,      label: t('clients')   },
+        { href: '/freelance', icon: Wallet,     label: t('freelance') },
+      ],
+    },
+    {
+      label: 'PERSONAL',
+      items: [
+        { href: '/habits',   icon: Target,     label: t('habits')   },
+        { href: '/routines', icon: ListChecks, label: t('routines') },
+      ],
+    },
+    {
+      label: 'PERFIL',
+      items: [
+        { href: '/cv',        icon: FileText,  label: t('cv')        },
+        { href: '/blog',      icon: PenLine,   label: t('blog')      },
+        { href: '/analytics', icon: BarChart3, label: t('analytics') },
+      ],
+    },
+  ] as const
+
+  const BOTTOM_ITEMS = [
+    { href: '/settings', icon: Settings, label: t('settings') },
+  ] as const
 
   return (
     <>

@@ -1,37 +1,43 @@
 import Link from 'next/link'
 import { Plus } from 'lucide-react'
+import { getTranslations, getLocale } from 'next-intl/server'
 import type { DashboardData } from '@/types/dashboard'
 
-export function DashboardHeader({ data, userName }: { data: DashboardData; userName: string }) {
-  const currentHour = new Date().getHours()
-  let greeting = 'Buenos días'
-  if (currentHour >= 12 && currentHour < 19) greeting = 'Buenas tardes'
-  else if (currentHour >= 19) greeting = 'Buenas noches'
+export async function DashboardHeader({ data, userName }: { data: DashboardData; userName: string }) {
+  const t      = await getTranslations('dashboard')
+  const locale = await getLocale()
+
+  // Greeting by time of day
+  const hour = new Date().getHours()
+  let greeting: string
+  if (hour >= 6 && hour < 12)      greeting = t('greeting.morning')
+  else if (hour >= 12 && hour < 19) greeting = t('greeting.afternoon')
+  else                               greeting = t('greeting.evening')
 
   // Contextual message
-  const dueHabits = data.todayHabits.habits.filter(h => {
-    const todayLog = h.recentDays.find(d => d.date === data.todayStr)
+  const dueHabits = data.todayHabits.habits.filter((h) => {
+    const todayLog = h.recentDays.find((d) => d.date === data.todayStr)
     return todayLog && todayLog.isDue && !h.todayCompleted
   }).length
 
-  const currentStreak = Math.max(...data.todayHabits.habits.map(h => h.streak), 0)
+  const currentStreak = Math.max(...data.todayHabits.habits.map((h) => h.streak), 0)
 
-  let contextualMessage = ''
+  let contextualMessage: string
   if (dueHabits > 0) {
-    contextualMessage = `Tenés ${dueHabits} hábito${dueHabits > 1 ? 's' : ''} pendiente${dueHabits > 1 ? 's' : ''} hoy.`
-  } else if (data.deadlines.some(d => d.daysLeft < 7)) {
-    const dls = data.deadlines.filter(d => d.daysLeft < 7).length
-    contextualMessage = `${dls} proyecto${dls > 1 ? 's' : ''} vence${dls > 1 ? 'n' : ''} en los próximos 7 días.`
+    contextualMessage = t('contextual.pendingHabitsMessage', { count: dueHabits })
+  } else if (data.deadlines.some((d) => d.daysLeft < 7)) {
+    const dls = data.deadlines.filter((d) => d.daysLeft < 7).length
+    contextualMessage = t('contextual.upcomingDeadlinesMessage', { count: dls })
   } else if (currentStreak >= 3) {
-    contextualMessage = `¡Racha de ${currentStreak} días! Seguí así 🔥`
+    contextualMessage = t('contextual.streakMessage', { count: currentStreak })
   } else {
-    contextualMessage = 'Todo al día. ¡Buen trabajo!'
+    contextualMessage = t('contextual.allGood')
   }
 
-  const dateFormatted = new Intl.DateTimeFormat('es-ES', { 
-    weekday: 'long', 
-    day: 'numeric', 
-    month: 'long' 
+  const dateFormatted = new Intl.DateTimeFormat(locale, {
+    weekday: 'long',
+    day:     'numeric',
+    month:   'long',
   }).format(new Date(data.todayStr + 'T12:00:00'))
 
   return (
@@ -45,23 +51,23 @@ export function DashboardHeader({ data, userName }: { data: DashboardData; userN
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Link 
-          href="/jobs?new=true" 
+        <Link
+          href="/jobs?new=true"
           className="inline-flex items-center gap-1.5 rounded-lg bg-surface-elevated px-3 py-1.5 text-xs font-medium text-text border border-border hover:border-border-bright transition-colors"
         >
-          <Plus size={14} /> Nuevo empleo
+          <Plus size={14} /> {t('quickActions.newJob')}
         </Link>
-        <Link 
-          href="/projects?new=true" 
+        <Link
+          href="/projects?new=true"
           className="inline-flex items-center gap-1.5 rounded-lg bg-surface-elevated px-3 py-1.5 text-xs font-medium text-text border border-border hover:border-border-bright transition-colors"
         >
-          <Plus size={14} /> Nuevo proyecto
+          <Plus size={14} /> {t('quickActions.newProject')}
         </Link>
-        <Link 
-          href="/habits/manage" 
+        <Link
+          href="/habits/manage"
           className="inline-flex items-center gap-1.5 rounded-lg bg-surface-elevated px-3 py-1.5 text-xs font-medium text-text border border-border hover:border-border-bright transition-colors"
         >
-          <Plus size={14} /> Nuevo hábito
+          <Plus size={14} /> {t('quickActions.newHabit')}
         </Link>
       </div>
     </div>
