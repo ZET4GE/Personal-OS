@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Plus } from 'lucide-react'
+import { Plus, Briefcase, FolderOpen, Target } from 'lucide-react'
 import { getTranslations, getLocale } from 'next-intl/server'
 import type { DashboardData } from '@/types/dashboard'
 
@@ -7,14 +7,12 @@ export async function DashboardHeader({ data, userName }: { data: DashboardData;
   const t      = await getTranslations('dashboard')
   const locale = await getLocale()
 
-  // Greeting by time of day
   const hour = new Date().getHours()
   let greeting: string
-  if (hour >= 6 && hour < 12)      greeting = t('greeting.morning')
+  if (hour >= 6 && hour < 12)       greeting = t('greeting.morning')
   else if (hour >= 12 && hour < 19) greeting = t('greeting.afternoon')
   else                               greeting = t('greeting.evening')
 
-  // Contextual message
   const dueHabits = data.todayHabits.habits.filter((h) => {
     const todayLog = h.recentDays.find((d) => d.date === data.todayStr)
     return todayLog && todayLog.isDue && !h.todayCompleted
@@ -40,34 +38,40 @@ export async function DashboardHeader({ data, userName }: { data: DashboardData;
     month:   'long',
   }).format(new Date(data.todayStr + 'T12:00:00'))
 
+  const firstName = userName.split(' ')[0]
+
   return (
-    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-6">
-      <div className="flex flex-col">
-        <p className="text-sm font-medium text-muted capitalize">{dateFormatted}</p>
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between mb-2">
+      <div className="flex flex-col gap-0.5">
+        <p className="text-xs font-medium text-muted capitalize">{dateFormatted}</p>
         <h1 className="text-2xl font-bold tracking-tight text-text sm:text-3xl">
-          {greeting}, {userName.split(' ')[0]}
+          {greeting},{' '}
+          <span className="gradient-text">{firstName}</span>
         </h1>
-        <p className="mt-1 text-sm text-muted">{contextualMessage}</p>
+        <p className="mt-0.5 text-sm text-muted">{contextualMessage}</p>
       </div>
 
       <div className="flex flex-wrap gap-2">
         <Link
           href="/jobs?new=true"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-surface-elevated px-3 py-1.5 text-xs font-medium text-text border border-border hover:border-border-bright transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text shadow-[var(--shadow-card)] transition-all hover:border-border-bright hover:shadow-[var(--shadow-card-hover)]"
         >
-          <Plus size={14} /> {t('quickActions.newJob')}
+          <Briefcase size={12} className="text-blue-500" />
+          {t('quickActions.newJob')}
         </Link>
         <Link
           href="/projects?new=true"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-surface-elevated px-3 py-1.5 text-xs font-medium text-text border border-border hover:border-border-bright transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text shadow-[var(--shadow-card)] transition-all hover:border-border-bright hover:shadow-[var(--shadow-card-hover)]"
         >
-          <Plus size={14} /> {t('quickActions.newProject')}
+          <FolderOpen size={12} className="text-violet-500" />
+          {t('quickActions.newProject')}
         </Link>
         <Link
           href="/habits/manage"
-          className="inline-flex items-center gap-1.5 rounded-lg bg-surface-elevated px-3 py-1.5 text-xs font-medium text-text border border-border hover:border-border-bright transition-colors"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-1.5 text-xs font-medium text-text shadow-[var(--shadow-card)] transition-all hover:border-border-bright hover:shadow-[var(--shadow-card-hover)]"
         >
-          <Plus size={14} /> {t('quickActions.newHabit')}
+          <Target size={12} className="text-emerald-500" />
+          {t('quickActions.newHabit')}
         </Link>
       </div>
     </div>

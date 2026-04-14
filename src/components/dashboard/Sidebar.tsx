@@ -69,7 +69,9 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
       {/* Sidebar panel */}
       <aside
         className={[
-          'fixed inset-y-0 left-0 z-30 flex flex-col border-r bg-surface transition-all duration-200',
+          'fixed inset-y-0 left-0 z-30 flex flex-col border-r border-border transition-all duration-200',
+          // Subtle gradient background
+          'bg-gradient-to-b from-surface to-surface dark:from-zinc-900 dark:to-zinc-950',
           collapsed ? 'w-14' : 'w-60',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
         ].join(' ')}
@@ -77,21 +79,23 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
         {/* Header */}
         <div
           className={[
-            'flex h-14 shrink-0 items-center border-b px-3',
+            'flex h-14 shrink-0 items-center border-b border-border px-3',
             collapsed ? 'justify-center' : 'justify-between',
           ].join(' ')}
         >
           {collapsed ? (
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-600 text-xs font-bold text-white shadow-sm">
+            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-600 text-xs font-bold text-white shadow-sm shadow-accent-600/40">
               P
             </div>
           ) : (
             <>
               <div className="flex items-center gap-2.5">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-600 text-xs font-bold text-white shadow-sm">
+                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-600 text-xs font-bold text-white shadow-sm shadow-accent-600/40">
                   P
                 </div>
-                <span className="text-sm font-semibold tracking-tight">Personal OS</span>
+                <span className="text-sm font-semibold tracking-tight text-text">
+                  Personal OS
+                </span>
               </div>
               <button
                 className="rounded-md p-1 text-muted transition-colors hover:bg-surface-hover hover:text-foreground md:hidden"
@@ -109,7 +113,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
           {NAV_GROUPS.map((group) => (
             <div key={group.label}>
               {!collapsed && (
-                <p className="mb-1 px-2.5 text-[10px] font-semibold tracking-widest text-muted/60 uppercase select-none">
+                <p className="mb-1 px-2.5 text-[10px] font-semibold tracking-widest text-muted/50 uppercase select-none">
                   {group.label}
                 </p>
               )}
@@ -123,7 +127,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
         </nav>
 
         {/* Nav inferior */}
-        <div className="border-t px-2 py-2">
+        <div className="border-t border-border px-2 py-2">
           {BOTTOM_ITEMS.map((item) => (
             <NavLink key={item.href} {...item} collapsed={collapsed} />
           ))}

@@ -2,20 +2,24 @@ import { SocialLinks } from './SocialLinks'
 import type { Profile } from '@/types/profile'
 
 // ─────────────────────────────────────────────────────────────
-// Avatar — initials en círculo coloreado
+// Avatar
 // ─────────────────────────────────────────────────────────────
 
 function Avatar({ profile }: { profile: Profile }) {
   if (profile.avatar_url) {
     return (
-      /* eslint-disable-next-line @next/next/no-img-element */
-      <img
-        src={profile.avatar_url}
-        alt={profile.full_name ?? profile.username}
-        width={96}
-        height={96}
-        className="h-24 w-24 rounded-full object-cover ring-4 ring-white dark:ring-slate-900"
-      />
+      <div className="relative shrink-0">
+        {/* Glow ring */}
+        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-accent-500 to-violet-600 blur-md opacity-40" />
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={profile.avatar_url}
+          alt={profile.full_name ?? profile.username}
+          width={96}
+          height={96}
+          className="relative h-24 w-24 rounded-full object-cover ring-2 ring-accent-500/30"
+        />
+      </div>
     )
   }
 
@@ -29,8 +33,12 @@ function Avatar({ profile }: { profile: Profile }) {
     : profile.username[0].toUpperCase()
 
   return (
-    <div className="flex h-24 w-24 items-center justify-center rounded-full bg-accent-600 text-2xl font-bold text-white ring-4 ring-white dark:ring-slate-900">
-      {initials}
+    <div className="relative shrink-0">
+      {/* Glow ring */}
+      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-accent-500 to-violet-600 blur-md opacity-40" />
+      <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-accent-500 to-violet-600 text-2xl font-bold text-white ring-2 ring-accent-500/30">
+        {initials}
+      </div>
     </div>
   )
 }
@@ -45,25 +53,35 @@ interface PublicHeaderProps {
 
 export function PublicHeader({ profile }: PublicHeaderProps) {
   return (
-    <header className="flex flex-col items-center gap-5 text-center sm:flex-row sm:items-end sm:text-left">
-      <Avatar profile={profile} />
+    <header className="relative overflow-hidden rounded-2xl border border-border bg-surface p-8 shadow-[var(--shadow-card)]">
+      {/* Ambient glow */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-accent-600/[0.06] blur-3xl dark:bg-accent-600/[0.10]"
+      />
 
-      <div className="flex-1 space-y-2">
-        {/* Nombre + username */}
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">
-            {profile.full_name ?? profile.username}
-          </h1>
-          <p className="text-sm text-muted">@{profile.username}</p>
+      <div className="relative flex flex-col items-center gap-6 text-center sm:flex-row sm:items-center sm:text-left">
+        <Avatar profile={profile} />
+
+        <div className="flex-1 space-y-3 min-w-0">
+          {/* Name + username */}
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+              <span className="gradient-text">
+                {profile.full_name ?? profile.username}
+              </span>
+            </h1>
+            <p className="mt-0.5 text-sm font-medium text-muted">@{profile.username}</p>
+          </div>
+
+          {/* Bio */}
+          {profile.bio && (
+            <p className="max-w-xl text-sm leading-relaxed text-muted">{profile.bio}</p>
+          )}
+
+          {/* Social links + location */}
+          <SocialLinks profile={profile} />
         </div>
-
-        {/* Bio */}
-        {profile.bio && (
-          <p className="max-w-xl text-sm leading-relaxed text-muted">{profile.bio}</p>
-        )}
-
-        {/* Links sociales + location */}
-        <SocialLinks profile={profile} />
       </div>
     </header>
   )

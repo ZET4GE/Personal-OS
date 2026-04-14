@@ -67,7 +67,7 @@ function UserAvatar({ name, email }: { name?: string; email: string }) {
 
   return (
     <div
-      className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-accent-600 text-xs font-semibold text-white shadow-sm ring-2 ring-accent-600/20"
+      className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent-500 to-violet-600 text-[11px] font-bold text-white shadow-sm ring-2 ring-border"
       title={name ?? email}
     >
       {initials}
@@ -92,48 +92,54 @@ export function Topbar({ userEmail, userName, collapsed, onToggleCollapse }: Top
   const title = tNav(navKey)
 
   return (
-    <header className="flex h-14 shrink-0 items-center gap-3 border-b bg-surface px-4">
-      {/* Toggle sidebar en desktop */}
+    <header className="flex h-14 shrink-0 items-center gap-3 border-b border-border bg-surface/80 px-4 backdrop-blur-sm">
+      {/* Collapse toggle — desktop */}
       <button
         className="hidden rounded-lg p-1.5 text-muted transition-colors hover:bg-surface-hover hover:text-foreground md:flex"
         onClick={onToggleCollapse}
         aria-label={collapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
       >
-        <PanelLeft size={17} />
+        <PanelLeft size={16} />
       </button>
 
-      {/* Hamburger en móvil */}
+      {/* Hamburger — mobile */}
       <button
         className="rounded-lg p-1.5 text-muted transition-colors hover:bg-surface-hover hover:text-foreground md:hidden"
         onClick={() => setSidebarOpen(true)}
         aria-label="Abrir menú"
       >
-        <Menu size={17} />
+        <Menu size={16} />
       </button>
 
-      {/* Título con icono */}
+      {/* Page title */}
       <div className="flex flex-1 items-center gap-2">
-        <PageIcon size={16} className="text-muted shrink-0" />
-        <h1 className="text-sm font-semibold">{title}</h1>
+        <PageIcon size={15} className="shrink-0 text-accent-600 dark:text-accent-400" />
+        <h1 className="text-sm font-semibold text-text">{title}</h1>
       </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-1">
+      {/* Right-side actions */}
+      <div className="flex items-center gap-0.5">
         <NotificationBell />
         <LanguageSwitcher />
         <ThemeToggle />
-        <div className="mx-1 h-5 w-px bg-border" />
-        <UserAvatar name={userName} email={userEmail} />
-        <span className="hidden text-xs text-muted sm:block max-w-[140px] truncate ml-1">
-          {userName ?? userEmail}
-        </span>
-        <form action={logoutAction}>
+
+        <div className="mx-2 h-5 w-px bg-border" />
+
+        {/* User */}
+        <div className="flex items-center gap-2">
+          <UserAvatar name={userName} email={userEmail} />
+          <span className="hidden max-w-[120px] truncate text-xs font-medium text-text sm:block">
+            {userName?.split(' ')[0] ?? userEmail.split('@')[0]}
+          </span>
+        </div>
+
+        <form action={logoutAction} className="ml-1">
           <button
             type="submit"
-            className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
+            className="flex items-center gap-1 rounded-lg px-2 py-1.5 text-xs text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
             title={tAuth('logout')}
           >
-            <LogOut size={14} />
+            <LogOut size={13} />
             <span className="hidden sm:inline">{tAuth('logout')}</span>
           </button>
         </form>

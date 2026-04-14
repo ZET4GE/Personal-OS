@@ -54,8 +54,9 @@
   --color-muted:            #71717a;
 
   /* Shadows */
-  --shadow-card:       0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.07);
-  --shadow-card-hover: 0 4px 12px 0 rgb(0 0 0 / 0.10), 0 2px 4px -1px rgb(0 0 0 / 0.07);
+  --shadow-card:        0 1px 3px 0 rgb(0 0 0 / 0.07), 0 1px 2px -1px rgb(0 0 0 / 0.07);
+  --shadow-card-hover:  0 4px 16px 0 rgb(0 0 0 / 0.10), 0 2px 4px -1px rgb(0 0 0 / 0.07);
+  --shadow-glow-accent: 0 4px 24px -4px color-mix(in srgb, var(--color-accent-600) 30%, transparent);
 
   /* Typography */
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
@@ -111,11 +112,69 @@ html.dark {
 .stagger-2 { animation-delay: 100ms; }
 .stagger-3 { animation-delay: 150ms; }
 .stagger-4 { animation-delay: 200ms; }
+.stagger-5 { animation-delay: 250ms; }
+.stagger-6 { animation-delay: 300ms; }
 
 /* ── Dialog open animation ────────────────────────────────── */
 dialog[open] {
   animation: scale-in 0.18s ease-out both;
 }
+
+/* ── Design system utilities ──────────────────────────────── */
+
+/* Gradient text — accent blue → violet */
+.gradient-text {
+  background: linear-gradient(
+    135deg,
+    var(--color-accent-500) 0%,
+    #818cf8 50%,
+    #a78bfa 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Card with glow on hover */
+.card-hover {
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out;
+}
+.card-hover:hover {
+  transform: translateY(-2px);
+  border-color: var(--color-border-bright);
+  box-shadow: var(--shadow-card-hover);
+}
+
+/* Glassmorphism surface */
+.glass {
+  background: color-mix(in srgb, var(--color-surface) 80%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Primary glow — accent shadow */
+.glow-accent {
+  box-shadow: 0 0 0 1px var(--color-accent-600),
+              0 4px 24px -4px color-mix(in srgb, var(--color-accent-600) 35%, transparent);
+}
+
+/* Subtle grid dot pattern for backgrounds */
+.bg-grid {
+  background-image:
+    linear-gradient(var(--color-border) 1px, transparent 1px),
+    linear-gradient(90deg, var(--color-border) 1px, transparent 1px);
+  background-size: 40px 40px;
+  opacity: 0.4;
+}
+
+/* ── Scrollbar styling ───────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-bright);
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover { background: var(--color-muted); }
 
 /* ── Base ─────────────────────────────────────────────────── */
 *, *::before, *::after {

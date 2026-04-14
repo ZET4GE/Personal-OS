@@ -4,7 +4,7 @@ type Variant = 'default' | 'elevated' | 'ghost'
 
 const VARIANT_CLS: Record<Variant, string> = {
   default:  'border border-border bg-surface shadow-[var(--shadow-card)]',
-  elevated: 'border border-border bg-surface-elevated shadow-[var(--shadow-card-hover)]',
+  elevated: 'border border-border bg-surface shadow-[var(--shadow-card-hover)]',
   ghost:    'bg-transparent',
 }
 
