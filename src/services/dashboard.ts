@@ -7,11 +7,13 @@ import type {
   PendingPaymentItem,
   ActivityItem,
   DashboardAnalytics,
+  DashboardIntegrations,
 } from '@/types/dashboard'
 import type { JobApplication } from '@/types/jobs'
 import type { ClientProject } from '@/types/clients'
 import { getHabitsWithLogs, isHabitDueOn } from './habits'
 import { getPageViews } from './analytics'
+import { getActiveProviders } from './integrations'
 
 // ─────────────────────────────────────────────────────────────
 // Helpers
@@ -285,7 +287,7 @@ export async function getDashboardData(
 ): Promise<DashboardData> {
   const todayStr = todayISO()
 
-  const [stats, todayHabits, deadlines, pendingPayments, recentActivity, analytics] =
+  const [stats, todayHabits, deadlines, pendingPayments, recentActivity, analytics, integrations] =
     await Promise.all([
       fetchStats(supabase),
       fetchTodayHabits(supabase, userId, todayStr),
@@ -293,7 +295,8 @@ export async function getDashboardData(
       fetchPendingPayments(supabase),
       fetchRecentActivity(supabase),
       fetchAnalytics(supabase, userId),
+      getActiveProviders(supabase, userId),
     ])
 
-  return { stats, todayHabits, deadlines, pendingPayments, recentActivity, analytics, todayStr }
+  return { stats, todayHabits, deadlines, pendingPayments, recentActivity, analytics, integrations, todayStr }
 }
