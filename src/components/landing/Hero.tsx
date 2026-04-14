@@ -29,7 +29,7 @@ export function Hero() {
           {/* Badge */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent-600/20 bg-accent-600/5 px-3.5 py-1.5 text-xs font-medium text-accent-600 dark:text-accent-400">
             <Sparkles size={12} className="shrink-0" />
-            Gratis para siempre · Open source
+            Plan gratuito · Sin tarjeta de crédito
           </div>
 
           {/* Headline */}

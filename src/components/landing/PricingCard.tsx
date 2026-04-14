@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Check, ArrowRight, Code2 } from 'lucide-react'
+import { Check, ArrowRight, Zap } from 'lucide-react'
 
 const FEATURES = [
   'Dashboard completo',
@@ -7,7 +7,7 @@ const FEATURES = [
   'Proyectos públicos y privados',
   'Gestión de clientes y freelance',
   'CV Builder con export PDF',
-  'Hábitos y rutinas',
+  'Hábitos, rutinas y metas',
   'Blog con Markdown',
   'Notas / Wiki personal',
   'Perfil público (@username)',
@@ -26,11 +26,11 @@ export function PricingCard() {
             Pricing
           </p>
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Gratis para siempre
+            Comenzá gratis
           </h2>
           <p className="mt-4 text-muted">
-            Personal OS es un proyecto open source. Todas las features están disponibles
-            sin costo, sin trucos.
+            Todas las funcionalidades incluidas en el plan gratuito.
+            Sin límites, sin trucos.
           </p>
         </div>
 
@@ -40,7 +40,7 @@ export function PricingCard() {
             {/* Badge */}
             <div className="absolute -top-3 left-1/2 -translate-x-1/2">
               <span className="inline-flex items-center rounded-full bg-accent-600 px-3.5 py-1 text-xs font-semibold text-white shadow-lg shadow-accent-600/30">
-                Plan único · Gratis
+                Plan Gratuito
               </span>
             </div>
 
@@ -50,7 +50,7 @@ export function PricingCard() {
                 <span className="text-5xl font-bold text-text">$0</span>
                 <span className="mb-1.5 text-sm text-muted">/ mes</span>
               </div>
-              <p className="mt-1 text-xs text-muted">Para siempre. Sin límites.</p>
+              <p className="mt-1 text-xs text-muted">Gratis para siempre. Sin tarjeta de crédito.</p>
             </div>
 
             {/* Features */}
@@ -74,16 +74,11 @@ export function PricingCard() {
               <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
             </Link>
 
-            {/* GitHub */}
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 flex items-center justify-center gap-2 text-xs text-muted hover:text-text transition-colors"
-            >
-              <Code2 size={13} />
-              Ver código fuente
-            </a>
+            {/* Pro teaser */}
+            <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-muted">
+              <Zap size={12} className="text-amber-500" />
+              Próximamente: planes Pro con más funcionalidades
+            </div>
           </div>
         </div>
       </div>

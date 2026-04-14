@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Code2, MessageCircle, ExternalLink } from 'lucide-react'
+import { MessageCircle, ExternalLink } from 'lucide-react'
 
 const LINKS = {
   producto: [
@@ -20,9 +20,8 @@ const LINKS = {
 }
 
 const SOCIAL = [
-  { icon: Code2,          href: 'https://github.com',    label: 'GitHub' },
-  { icon: MessageCircle,  href: 'https://twitter.com',   label: 'Twitter / X' },
-  { icon: ExternalLink,   href: 'https://linkedin.com',  label: 'LinkedIn' },
+  { icon: MessageCircle, href: 'https://twitter.com',  label: 'Twitter / X' },
+  { icon: ExternalLink,  href: 'https://linkedin.com', label: 'LinkedIn'    },
 ]
 
 export function Footer() {
@@ -122,15 +121,7 @@ export function Footer() {
             © {new Date().getFullYear()} Personal OS. Hecho con ❤️ en Argentina.
           </p>
           <p className="text-xs text-muted">
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-accent-600 hover:underline dark:text-accent-400"
-            >
-              Open source
-            </a>
-            {' '}· Libre y gratuito
+            Plan gratuito disponible · Próximamente planes Pro
           </p>
         </div>
       </div>
