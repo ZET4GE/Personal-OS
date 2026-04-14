@@ -2,7 +2,7 @@
 
 import {
   LayoutDashboard, Briefcase, FolderOpen, FileText,
-  Settings, X, BarChart3, Users, Wallet, Target, ListChecks, PenLine, StickyNote,
+  Settings, X, BarChart3, Users, Wallet, Target, ListChecks, PenLine, StickyNote, Crosshair,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useUIStore } from '@/stores/ui.store'
@@ -33,6 +33,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
       items: [
         { href: '/habits',   icon: Target,     label: t('habits')   },
         { href: '/routines', icon: ListChecks, label: t('routines') },
+        { href: '/goals',    icon: Crosshair,  label: t('goals')    },
       ],
     },
     {

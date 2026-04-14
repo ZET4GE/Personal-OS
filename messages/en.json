@@ -40,6 +40,7 @@
     "analytics": "Analytics",
     "notifications": "Notifications",
     "notes": "Notes",
+    "goals": "Goals",
     "settings": "Settings"
   },
   "dashboard": {
@@ -218,6 +219,56 @@
     "recentNotes": "Recent Notes",
     "viewAll": "View all",
     "quickCapture": "Quick capture"
+  },
+  "goals": {
+    "title": "Goals",
+    "subtitle": "Track your progress toward your most important objectives",
+    "newGoal": "New goal",
+    "editGoal": "Edit goal",
+    "deleteGoal": "Delete goal",
+    "noGoals": "No goals yet",
+    "noGoalsDesc": "Create your first goal to start tracking your progress",
+    "createFirst": "Create my first goal",
+    "status": {
+      "all":        "All",
+      "active":     "Active",
+      "completed":  "Completed",
+      "paused":     "Paused",
+      "abandoned":  "Abandoned"
+    },
+    "priority": {
+      "low":    "Low",
+      "medium": "Medium",
+      "high":   "High"
+    },
+    "category": {
+      "personal":  "Personal",
+      "career":    "Career",
+      "health":    "Health",
+      "financial": "Financial",
+      "learning":  "Learning",
+      "other":     "Other"
+    },
+    "mood": {
+      "great":      "Great",
+      "good":       "Good",
+      "okay":       "Okay",
+      "struggling": "Struggling"
+    },
+    "milestones":    "Milestones",
+    "progress":      "Progress",
+    "targetDate":    "Target date",
+    "daysLeft":      "{count, plural, one {# day} other {# days}} left",
+    "overdue":       "Overdue",
+    "dueToday":      "Due today",
+    "widgetTitle":   "My Goals",
+    "noActiveGoals": "No active goals",
+    "updates": {
+      "title":       "Updates",
+      "placeholder": "How is your progress going?",
+      "publish":     "Post update",
+      "noUpdates":   "No updates yet"
+    }
   },
   "integrations": {
     "title": "Integrations",

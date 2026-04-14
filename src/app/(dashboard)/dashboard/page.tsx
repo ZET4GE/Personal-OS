@@ -14,6 +14,7 @@ import { RecentActivity } from '@/components/dashboard/widgets/RecentActivity'
 import { GoogleCalendarWidget } from '@/components/integrations/GoogleCalendarWidget'
 import { GitHubActivityWidget } from '@/components/integrations/GitHubActivityWidget'
 import { RecentNotes } from '@/components/dashboard/widgets/RecentNotes'
+import { GoalsWidget } from '@/components/dashboard/widgets/GoalsWidget'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 
@@ -82,10 +83,15 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* Row 5: Recent Notes */}
-      <Suspense fallback={<WidgetSkeleton />}>
-        <RecentNotes userId={user.id} />
-      </Suspense>
+      {/* Row 5: Goals + Recent Notes */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Suspense fallback={<WidgetSkeleton />}>
+          <GoalsWidget userId={user.id} />
+        </Suspense>
+        <Suspense fallback={<WidgetSkeleton />}>
+          <RecentNotes userId={user.id} />
+        </Suspense>
+      </div>
 
       {/* Row 6: Recent Activity */}
       <RecentActivity activity={data.recentActivity} />

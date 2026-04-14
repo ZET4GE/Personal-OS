@@ -40,6 +40,7 @@
     "analytics": "Analytics",
     "notifications": "Notificaciones",
     "notes": "Notas",
+    "goals": "Metas",
     "settings": "Configuración"
   },
   "dashboard": {
@@ -218,6 +219,56 @@
     "recentNotes": "Notas Recientes",
     "viewAll": "Ver todas",
     "quickCapture": "Captura rápida"
+  },
+  "goals": {
+    "title": "Metas",
+    "subtitle": "Seguí tu progreso hacia tus objetivos más importantes",
+    "newGoal": "Nueva meta",
+    "editGoal": "Editar meta",
+    "deleteGoal": "Eliminar meta",
+    "noGoals": "No hay metas aún",
+    "noGoalsDesc": "Creá tu primera meta para empezar a trackear tu progreso",
+    "createFirst": "Crear mi primera meta",
+    "status": {
+      "all":        "Todas",
+      "active":     "Activa",
+      "completed":  "Completada",
+      "paused":     "Pausada",
+      "abandoned":  "Abandonada"
+    },
+    "priority": {
+      "low":    "Baja",
+      "medium": "Media",
+      "high":   "Alta"
+    },
+    "category": {
+      "personal":  "Personal",
+      "career":    "Carrera",
+      "health":    "Salud",
+      "financial": "Financiero",
+      "learning":  "Aprendizaje",
+      "other":     "Otro"
+    },
+    "mood": {
+      "great":      "Excelente",
+      "good":       "Bien",
+      "okay":       "Regular",
+      "struggling": "Con dificultades"
+    },
+    "milestones":    "Hitos",
+    "progress":      "Progreso",
+    "targetDate":    "Fecha objetivo",
+    "daysLeft":      "{count, plural, one {# día} other {# días}} restantes",
+    "overdue":       "Vencida",
+    "dueToday":      "Vence hoy",
+    "widgetTitle":   "Mis Metas",
+    "noActiveGoals": "No hay metas activas",
+    "updates": {
+      "title":       "Actualizaciones",
+      "placeholder": "¿Cómo va tu progreso?",
+      "publish":     "Publicar actualización",
+      "noUpdates":   "Aún no hay actualizaciones"
+    }
   },
   "integrations": {
     "title": "Integraciones",
