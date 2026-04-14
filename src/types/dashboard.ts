@@ -83,6 +83,15 @@ export interface DashboardAnalytics {
 }
 
 // ─────────────────────────────────────────────────────────────
+// Active integrations (boolean flags for conditional widget rendering)
+// ─────────────────────────────────────────────────────────────
+
+export interface DashboardIntegrations {
+  google: boolean
+  github: boolean
+}
+
+// ─────────────────────────────────────────────────────────────
 // Top-level aggregation
 // ─────────────────────────────────────────────────────────────
 
@@ -93,5 +102,6 @@ export interface DashboardData {
   pendingPayments: PendingPaymentItem[]
   recentActivity:  ActivityItem[]
   analytics:       DashboardAnalytics
+  integrations:    DashboardIntegrations
   todayStr:        string   // 'YYYY-MM-DD'
 }

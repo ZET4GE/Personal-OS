@@ -172,10 +172,32 @@
     "profileDesc": "Personaliza tu perfil y controla qué ven los visitantes.",
     "preferences": "Preferencias",
     "preferencesDesc": "Idioma y apariencia de la interfaz.",
+    "integrations": "Integraciones",
     "language": "Idioma",
     "languageDesc": "Seleccioná el idioma de la interfaz.",
     "spanish": "Español",
     "english": "Inglés",
     "saved": "Preferencias guardadas"
+  },
+  "integrations": {
+    "title": "Integraciones",
+    "desc": "Conectá tus servicios externos para ver tus eventos y actividad directamente en el dashboard.",
+    "connected": "Conectado",
+    "notConnected": "No conectado",
+    "connect": "Conectar",
+    "disconnect": "Desconectar",
+    "connectedAt": "Conectado el {date}",
+    "noEvents": "No hay eventos próximos",
+    "noCommits": "Sin actividad reciente en GitHub",
+    "calendarWidget": "Próximos eventos",
+    "githubWidget": "Actividad en GitHub",
+    "google": {
+      "name": "Google Calendar",
+      "desc": "Ve tus próximos eventos directamente en el dashboard."
+    },
+    "github": {
+      "name": "GitHub",
+      "desc": "Mostrá tu actividad de commits en el dashboard."
+    }
   }
 }
