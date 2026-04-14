@@ -1,9 +1,6 @@
-import type { Metadata } from 'next'
-import { AuthForm } from '@/components/auth/AuthForm'
-import { loginAction } from '../actions/auth.actions'
+import { redirect } from 'next/navigation'
 
-export const metadata: Metadata = { title: 'Iniciar sesión' }
-
+// /login now opens the landing page with the auth modal pre-opened
 export default function LoginPage() {
-  return <AuthForm mode="login" action={loginAction} />
+  redirect('/?modal=login')
 }

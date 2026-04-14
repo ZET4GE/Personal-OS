@@ -1,5 +1,5 @@
-import Link from 'next/link'
-import { Check, ArrowRight, Zap } from 'lucide-react'
+import { Check, Zap } from 'lucide-react'
+import { AuthCTAButton } from './AuthCTAButton'
 
 const FEATURES = [
   'Dashboard completo',
@@ -66,13 +66,11 @@ export function PricingCard() {
             </ul>
 
             {/* CTA */}
-            <Link
-              href="/signup"
-              className="group mt-8 flex items-center justify-center gap-2 rounded-xl bg-accent-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-accent-600/20 transition-all hover:bg-accent-700 hover:shadow-xl active:scale-[0.98]"
-            >
-              Crear cuenta gratis
-              <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
-            </Link>
+            <AuthCTAButton
+              label="Crear cuenta gratis"
+              mode="signup"
+              className="mt-8 w-full justify-center"
+            />
 
             {/* Pro teaser */}
             <div className="mt-4 flex items-center justify-center gap-1.5 text-xs text-muted">

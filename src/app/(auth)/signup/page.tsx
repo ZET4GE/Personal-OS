@@ -1,9 +1,6 @@
-import type { Metadata } from 'next'
-import { AuthForm } from '@/components/auth/AuthForm'
-import { signupAction } from '../actions/auth.actions'
+import { redirect } from 'next/navigation'
 
-export const metadata: Metadata = { title: 'Crear cuenta' }
-
+// /signup now opens the landing page with the auth modal pre-opened
 export default function SignupPage() {
-  return <AuthForm mode="signup" action={signupAction} />
+  redirect('/?modal=signup')
 }

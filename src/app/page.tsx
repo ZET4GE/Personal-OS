@@ -37,15 +37,22 @@ export const metadata: Metadata = {
 // Page — redirect if already logged in
 // ─────────────────────────────────────────────────────────────
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ modal?: string }>
+}) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
   if (user) redirect('/dashboard')
 
+  const { modal } = await searchParams
+  const initialModal = modal === 'login' || modal === 'signup' ? modal : undefined
+
   return (
     <div className="min-h-screen">
-      <Navbar />
+      <Navbar initialModal={initialModal} />
 
       <main>
         {/* 1. Hero */}

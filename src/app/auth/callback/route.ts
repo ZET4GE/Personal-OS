@@ -18,6 +18,6 @@ export async function GET(request: NextRequest) {
     }
   }
 
-  // Si algo falla, redirigir a login con mensaje de error
-  return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`)
+  // Si algo falla, volver a la landing con el modal abierto
+  return NextResponse.redirect(`${origin}/?modal=login`)
 }

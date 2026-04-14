@@ -78,8 +78,40 @@ export async function signupAction(
   return { success: true }
 }
 
+export async function forgotPasswordAction(
+  _prevState: AuthActionResult | null,
+  formData: FormData,
+): Promise<AuthActionResult> {
+  const email = String(formData.get('email') ?? '').trim()
+  if (!email) return { error: 'Email requerido' }
+
+  const supabase = await createClient()
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: `${appUrl}/reset-password`,
+  })
+
+  if (error) return { error: error.message }
+  return { success: true }
+}
+
+export async function updatePasswordAction(
+  _prevState: AuthActionResult | null,
+  formData: FormData,
+): Promise<AuthActionResult> {
+  const password = String(formData.get('password') ?? '')
+  if (password.length < 8) return { error: 'Mínimo 8 caracteres' }
+
+  const supabase = await createClient()
+  const { error } = await supabase.auth.updateUser({ password })
+
+  if (error) return { error: error.message }
+  redirect('/dashboard')
+}
+
 export async function logoutAction(): Promise<void> {
   const supabase = await createClient()
   await supabase.auth.signOut()
-  redirect('/login')
+  redirect('/')
 }
