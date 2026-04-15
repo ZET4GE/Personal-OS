@@ -33,7 +33,7 @@ function createInitialState(): TimerState {
 
 function getStoredTimerState(): TimerState {
   const baseState = createInitialState()
-  if (typeof window === 'undefined') return INITIAL_STATE
+  if (typeof window === 'undefined') return baseState
 
   const raw = window.localStorage.getItem(TIMER_STORAGE_KEY)
   if (!raw) return baseState
