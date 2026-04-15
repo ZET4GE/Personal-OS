@@ -3,8 +3,6 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
-const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
-
 // ─── Inline SVG icons ─────────────────────────────────────────
 
 function GoogleIcon() {
@@ -37,7 +35,7 @@ export function OAuthButtons() {
     await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: `${appUrl}/auth/callback`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       },
     })
     // Supabase redirects the browser, no need to handle response
