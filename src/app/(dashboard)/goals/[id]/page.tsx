@@ -7,7 +7,9 @@ import {
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getGoal } from '@/services/goals'
+import { getGoalDetail, getGoalDetailProgress } from '@/services/goal-detail'
 import { GoalProgress } from '@/components/goals/GoalProgress'
+import { GoalDetail } from '@/components/goals/GoalDetail'
 import { CategoryBadge } from '@/components/goals/CategoryBadge'
 import { MilestoneList } from '@/components/goals/MilestoneList'
 import { GoalTimeline } from '@/components/goals/GoalTimeline'
@@ -42,11 +44,20 @@ export default async function GoalDetailPage({
   const result = await getGoal(supabase, id)
   if (!result.data || result.data.user_id !== user.id) notFound()
 
+  const [detailResult, progressResult] = await Promise.all([
+    getGoalDetail(supabase, id),
+    getGoalDetailProgress(supabase, id),
+  ])
+
+  if (!detailResult.data || !progressResult.data) notFound()
+
   const goal       = result.data
   const milestones = goal.milestones   ?? []
   const updates    = goal.goal_updates ?? []
   const styles     = GOAL_COLOR_STYLES[goal.color] ?? GOAL_COLOR_STYLES.blue
   const priority   = PRIORITY_META[goal.priority]
+  const detail     = detailResult.data
+  const progress   = progressResult.data
 
   const daysLeft = goal.target_date
     ? Math.ceil((new Date(goal.target_date).getTime() - Date.now()) / 86_400_000)
@@ -122,7 +133,7 @@ export default async function GoalDetailPage({
           {/* Right: circular progress */}
           <div className="flex shrink-0 flex-col items-center gap-2 sm:items-end">
             <GoalProgress
-              progress={goal.progress}
+              progress={progress.progress}
               size={130}
               stroke={10}
               color={styles.text}
@@ -140,6 +151,8 @@ export default async function GoalDetailPage({
           </div>
         </div>
       </div>
+
+      <GoalDetail detail={detail} progress={progress} />
 
       {/* Two columns: milestones + timeline */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
