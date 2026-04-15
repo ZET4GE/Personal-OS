@@ -41,7 +41,7 @@ function optimisticReducer(state: OptimisticProject[], op: OptimisticOp): Optimi
 
 export function ProjectsClient({ projects }: { projects: Project[] }) {
   const [optimisticProjects, dispatch] = useOptimistic(projects, optimisticReducer)
-  const [, startTransition]            = useTransition()
+  const [isPending, startTransition]   = useTransition()
   const formRef                        = useRef<ProjectFormHandle>(null)
 
   function openCreate()               { formRef.current?.open(null) }
@@ -75,7 +75,7 @@ export function ProjectsClient({ projects }: { projects: Project[] }) {
     startTransition(async () => {
       dispatch({ type: 'add', project: optimistic })
       const result = await createProjectAction(formData)
-      if (result.error) toast.error(result.error)
+      if (result.error) toast.error(result.error || 'Algo falló')
       else              toast.success('Proyecto creado')
     })
   }
@@ -87,7 +87,7 @@ export function ProjectsClient({ projects }: { projects: Project[] }) {
     startTransition(async () => {
       dispatch({ type: 'update', id, patch })
       const result = await updateProjectAction(formData)
-      if (result.error) toast.error(result.error)
+      if (result.error) toast.error(result.error || 'Algo falló')
       else              toast.success('Proyecto actualizado')
     })
   }
@@ -99,7 +99,7 @@ export function ProjectsClient({ projects }: { projects: Project[] }) {
     startTransition(async () => {
       dispatch({ type: 'toggle', id, is_public })
       const result = await togglePublicAction(formData)
-      if (result.error) toast.error(result.error)
+      if (result.error) toast.error(result.error || 'Algo falló')
       else              toast.success(is_public ? 'Proyecto publicado' : 'Proyecto ocultado')
     })
   }
@@ -110,7 +110,7 @@ export function ProjectsClient({ projects }: { projects: Project[] }) {
     startTransition(async () => {
       dispatch({ type: 'delete', id })
       const result = await deleteProjectAction(formData)
-      if (result.error) toast.error(result.error)
+      if (result.error) toast.error(result.error || 'Algo falló')
       else              toast.success('Proyecto eliminado')
     })
   }
@@ -125,15 +125,16 @@ export function ProjectsClient({ projects }: { projects: Project[] }) {
         <button
           onClick={openCreate}
           aria-label="Nuevo proyecto"
-          className="flex items-center gap-2 rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          disabled={isPending}
+          className="flex cursor-pointer items-center gap-2 rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:scale-[1.02] hover:opacity-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
         >
           <Plus size={16} />
-          Nuevo proyecto
+          {isPending ? 'Guardando...' : 'Nuevo proyecto'}
         </button>
       </div>
 
       {optimisticProjects.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface py-20 text-center">
+        <div className="animate-fade-in flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface py-20 text-center">
           <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
             <FolderOpen size={24} className="text-muted" />
           </span>
@@ -142,9 +143,17 @@ export function ProjectsClient({ projects }: { projects: Project[] }) {
             Crea tu primer proyecto. Los que marques como{' '}
             <span className="font-medium text-green-600">Público</span> aparecerán en tu portafolio.
           </p>
+          <button
+            onClick={openCreate}
+            disabled={isPending}
+            className="mt-5 inline-flex cursor-pointer items-center gap-2 rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:scale-[1.02] hover:opacity-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Plus size={15} />
+            Crear mi primer proyecto
+          </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="animate-fade-in grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {optimisticProjects.map((project) => (
             <ProjectCard
               key={project.id}

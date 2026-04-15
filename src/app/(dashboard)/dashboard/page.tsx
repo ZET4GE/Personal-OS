@@ -18,7 +18,7 @@ import { GitHubActivityWidget } from '@/components/integrations/GitHubActivityWi
 import { RecentNotes } from '@/components/dashboard/widgets/RecentNotes'
 import { GoalsWidget } from '@/components/dashboard/widgets/GoalsWidget'
 import { DashboardInsights } from '@/components/dashboard/widgets/DashboardInsights'
-import { DashboardGoals } from '@/components/dashboard/widgets/DashboardGoals'
+import { DashboardGoalsPanel } from '@/components/dashboard/widgets/DashboardGoalsPanel'
 import { DashboardCustomizer } from '@/components/dashboard/DashboardCustomizer'
 
 export const metadata: Metadata = { title: 'Dashboard' }
@@ -60,7 +60,7 @@ export default async function DashboardPage() {
       type: 'dashboard-goals',
       title: 'Metas',
       defaultSize: 'lg' as const,
-      content: <DashboardGoals />,
+      content: <DashboardGoalsPanel />,
     },
     {
       id: 'stats-grid',

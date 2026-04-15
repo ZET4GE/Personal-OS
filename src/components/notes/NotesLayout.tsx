@@ -118,12 +118,12 @@ export function NotesLayout({ notes, folders, tags }: Props) {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder={t('search')}
-              className="w-full rounded-lg border border-border bg-surface py-1.5 pl-7 pr-7 text-sm outline-none focus:border-accent-600"
+              className="w-full rounded-lg border border-border bg-surface py-1.5 pl-7 pr-7 text-sm outline-none transition-all duration-200 focus:border-accent-600"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted hover:text-text"
+                className="absolute right-2 top-1/2 -translate-y-1/2 cursor-pointer text-muted transition-colors hover:text-text"
               >
                 <X size={12} />
               </button>
@@ -132,22 +132,22 @@ export function NotesLayout({ notes, folders, tags }: Props) {
           <button
             onClick={handleNewNote}
             disabled={pending}
-            className="flex shrink-0 items-center gap-1 rounded-lg bg-accent-600 px-2.5 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="flex shrink-0 cursor-pointer items-center gap-1 rounded-lg bg-accent-600 px-2.5 py-1.5 text-xs font-medium text-white transition-all duration-200 hover:scale-[1.02] hover:opacity-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            <Plus size={13} /> {t('new')}
+            <Plus size={13} /> {pending ? 'Creando...' : t('new')}
           </button>
         </div>
 
         {/* Notes list */}
-        <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1.5">
+        <div className="flex-1 space-y-1.5 overflow-y-auto px-2 py-2">
           {filteredNotes.length === 0 ? (
-            <div className="flex flex-col items-center gap-3 py-10 text-center">
+            <div className="animate-fade-in flex flex-col items-center gap-3 py-10 text-center">
               <p className="text-sm text-muted">{searchQuery ? t('noResults') : t('noNotes')}</p>
               {!searchQuery && (
                 <button
                   onClick={handleNewNote}
                   disabled={pending}
-                  className="text-xs text-accent-600 hover:underline"
+                  className="cursor-pointer text-xs text-accent-600 transition-colors hover:underline disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {t('createFirst')}
                 </button>
@@ -171,14 +171,14 @@ export function NotesLayout({ notes, folders, tags }: Props) {
         {currentNote ? (
           <NoteEditor key={currentNote.id} note={currentNote} />
         ) : (
-          <div className="flex h-full flex-col items-center justify-center gap-4 text-center text-muted">
+          <div className="animate-fade-in flex h-full flex-col items-center justify-center gap-4 text-center text-muted">
             <p className="text-sm">{t('selectNote')}</p>
             <button
               onClick={handleNewNote}
               disabled={pending}
-              className="flex items-center gap-1.5 rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white hover:opacity-90 disabled:opacity-50"
+              className="flex cursor-pointer items-center gap-1.5 rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:scale-[1.02] hover:opacity-95 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
             >
-              <Plus size={14} /> {t('newNote')}
+              <Plus size={14} /> {pending ? 'Creando...' : t('newNote')}
             </button>
           </div>
         )}

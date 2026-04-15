@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useOptimistic, useTransition, useRef } from 'react'
 import { Target } from 'lucide-react'
 import { toast } from 'sonner'
@@ -54,13 +55,13 @@ export function HabitsClient({ items, date }: HabitsClientProps) {
       dispatch({ type: 'toggle', habitId })
       const r = await toggleHabitLogAction(fd)
       pendingRef.current.delete(habitId)
-      if ('error' in r) toast.error(r.error)
+      if ('error' in r) toast.error(r.error || 'Algo falló')
     })
   }
 
   if (total === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface py-16 text-center">
+      <div className="animate-fade-in flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface py-16 text-center">
         <span className="mb-3 text-3xl">🎯</span>
         <p className="font-medium">Sin hábitos activos</p>
         <p className="mt-1 text-sm text-muted">
@@ -68,6 +69,15 @@ export function HabitsClient({ items, date }: HabitsClientProps) {
             ? 'Crea tu primer hábito desde "Gestionar hábitos".'
             : 'No había hábitos activos este día.'}
         </p>
+        {date === today ? (
+          <Link
+            href="/habits/manage"
+            className="mt-4 inline-flex cursor-pointer items-center gap-2 rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-all duration-200 hover:scale-[1.02] hover:opacity-95 active:scale-[0.98]"
+          >
+            <Target size={15} />
+            Crear mi primer hÃ¡bito
+          </Link>
+        ) : null}
       </div>
     )
   }
@@ -95,13 +105,13 @@ export function HabitsClient({ items, date }: HabitsClientProps) {
       )}
 
       {/* Habit list */}
-      <div className="space-y-2">
+      <div className="animate-fade-in space-y-2">
         {optimistic.map((item) => (
           <HabitCard
             key={item.habit.id}
             item={item}
             onToggle={handleToggle}
-            isLoading={pendingRef.current.has(item.habit.id)}
+            isLoading={item.isPending}
           />
         ))}
       </div>
