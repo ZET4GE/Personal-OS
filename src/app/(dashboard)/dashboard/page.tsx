@@ -16,6 +16,7 @@ import { GitHubActivityWidget } from '@/components/integrations/GitHubActivityWi
 import { RecentNotes } from '@/components/dashboard/widgets/RecentNotes'
 import { GoalsWidget } from '@/components/dashboard/widgets/GoalsWidget'
 import { DashboardInsights } from '@/components/dashboard/widgets/DashboardInsights'
+import { DashboardGoals } from '@/components/dashboard/widgets/DashboardGoals'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 
@@ -45,6 +46,8 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col gap-6 animate-fade-in pb-8">
       <DashboardHeader data={data} userName={userName} />
+
+      <DashboardGoals />
 
       {/* Row 1: Stats */}
       <StatsGrid stats={data.stats} />

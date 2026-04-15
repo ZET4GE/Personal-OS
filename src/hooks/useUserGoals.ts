@@ -3,17 +3,22 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { getGoals } from '@/services/goals'
+import { getGoalProgress, type GoalProgressData } from '@/services/goal-progress'
 import type { Goal } from '@/types/goals'
 
+export interface UserGoal extends Goal {
+  goal_progress: GoalProgressData
+}
+
 interface UseUserGoalsResult {
-  goals: Goal[]
+  goals: UserGoal[]
   loading: boolean
   error: string | null
   refresh: () => Promise<void>
 }
 
 export function useUserGoals(): UseUserGoalsResult {
-  const [goals, setGoals] = useState<Goal[]>([])
+  const [goals, setGoals] = useState<UserGoal[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -40,7 +45,24 @@ export function useUserGoals(): UseUserGoalsResult {
       setGoals([])
       setError(result.error)
     } else {
-      setGoals(result.data ?? [])
+      const baseGoals = result.data ?? []
+      const progressResults = await Promise.all(
+        baseGoals.map(async (goal) => {
+          const progressResult = await getGoalProgress(goal.id)
+
+          return {
+            ...goal,
+            goal_progress: progressResult.data ?? {
+              progress: 0,
+              habits_progress: 0,
+              projects_progress: 0,
+              routines_progress: 0,
+            },
+          }
+        }),
+      )
+
+      setGoals(progressResults)
     }
 
     setLoading(false)
