@@ -264,6 +264,7 @@ export function FloatingTimer() {
     }
 
     toast.success('Sesión guardada')
+    window.dispatchEvent(new Event('smart-alerts:refresh'))
     setSaveModalOpen(false)
     setTrackingSnapshot(null)
     setProjectId('')

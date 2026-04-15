@@ -53,7 +53,30 @@ export function useSmartAlerts(): UseSmartAlertsResult {
       void refresh()
     }, 0)
 
-    return () => window.clearTimeout(timer)
+    const handleFocus = () => {
+      void refresh()
+    }
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        void refresh()
+      }
+    }
+
+    const handleCustomRefresh = () => {
+      void refresh()
+    }
+
+    window.addEventListener('focus', handleFocus)
+    document.addEventListener('visibilitychange', handleVisibility)
+    window.addEventListener('smart-alerts:refresh', handleCustomRefresh)
+
+    return () => {
+      window.clearTimeout(timer)
+      window.removeEventListener('focus', handleFocus)
+      document.removeEventListener('visibilitychange', handleVisibility)
+      window.removeEventListener('smart-alerts:refresh', handleCustomRefresh)
+    }
   }, [])
 
   return { alerts, loading, error, refresh }

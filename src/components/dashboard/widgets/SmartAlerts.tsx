@@ -41,15 +41,15 @@ export function SmartAlerts() {
   if (error || alerts.length === 0) return null
 
   return (
-    <section className="rounded-xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
-      <div className="mb-4 flex items-center justify-between">
+    <section className="rounded-xl border border-border bg-surface p-4 shadow-[var(--shadow-card)]">
+      <div className="mb-3 flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold text-text">Alertas inteligentes</h2>
           <p className="text-xs text-muted">Señales rápidas según tu actividad reciente</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-2 xl:grid-cols-3">
         {alerts.map((alert, index) => {
           const config = getAlertStyles(alert.type)
           const Icon = config.icon
@@ -57,17 +57,17 @@ export function SmartAlerts() {
           return (
             <div
               key={`${alert.type}-${index}`}
-              className={`animate-fade-in rounded-xl border px-4 py-4 ${config.className}`}
+              className={`animate-fade-in rounded-lg border px-3 py-3 ${config.className}`}
             >
               <div className="flex items-start gap-3">
                 <span className={`mt-0.5 ${config.badge}`}>
-                  <Icon size={16} />
+                  <Icon size={14} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium">{alert.message}</p>
+                  <p className="text-sm font-medium leading-snug">{alert.message}</p>
                   <Link
                     href={config.href}
-                    className="mt-3 inline-flex items-center gap-1 text-xs font-medium text-white/80 transition-colors hover:text-white"
+                    className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-white/80 transition-colors hover:text-white"
                   >
                     {config.action}
                     <ChevronRight size={12} />
