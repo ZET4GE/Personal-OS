@@ -481,9 +481,9 @@ export function FloatingTimer() {
         document.body,
       ) : null}
 
-      {saveModalOpen ? (
-        <div className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/55 px-4 backdrop-blur-sm">
-          <div className="animate-scale-in w-full max-w-md rounded-3xl border border-border bg-surface-elevated p-6 shadow-2xl">
+      {mounted && saveModalOpen ? createPortal(
+        <div className="fixed inset-0 z-[10050] flex items-center justify-center bg-black/65 px-4 backdrop-blur-sm">
+          <div className="animate-scale-in relative z-[10051] w-full max-w-md rounded-3xl border border-border bg-surface-elevated p-6 shadow-2xl">
             <div className="mb-5 flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs uppercase tracking-[0.16em] text-muted">Sesión finalizada</p>
@@ -562,7 +562,8 @@ export function FloatingTimer() {
               </Button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       ) : null}
     </>
   )
