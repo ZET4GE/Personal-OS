@@ -5,6 +5,7 @@ import { HABIT_COLOR_STYLES } from '@/types/habits'
 import type { HabitWithLogs } from '@/types/habits'
 import { StreakBadge } from './StreakBadge'
 import { HabitMiniCalendar } from './HabitMiniCalendar'
+import { GoalSelector } from '@/components/goals/GoalSelector'
 
 interface HabitCardProps {
   item:      HabitWithLogs
@@ -41,15 +42,18 @@ export function HabitCard({ item, onToggle, isLoading }: HabitCardProps) {
 
       {/* Info */}
       <div className="flex flex-1 flex-col gap-2 min-w-0">
-        <div className="flex flex-wrap items-center gap-2">
-          {habit.icon && <span className="text-base leading-none">{habit.icon}</span>}
-          <span className={[
-            'text-sm font-semibold truncate',
-            todayCompleted ? 'line-through text-muted' : '',
-          ].join(' ')}>
-            {habit.name}
-          </span>
-          {streak > 0 && <StreakBadge streak={streak} size="sm" />}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-2 min-w-0">
+            {habit.icon && <span className="text-base leading-none">{habit.icon}</span>}
+            <span className={[
+              'text-sm font-semibold truncate',
+              todayCompleted ? 'line-through text-muted' : '',
+            ].join(' ')}>
+              {habit.name}
+            </span>
+            {streak > 0 && <StreakBadge streak={streak} size="sm" />}
+          </div>
+          <GoalSelector entityId={habit.id} entityType="habit" />
         </div>
         <HabitMiniCalendar days={recentDays} color={habit.color} />
       </div>

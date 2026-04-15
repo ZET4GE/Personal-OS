@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { ChevronRight, Pencil, Trash2, Clock, CheckCircle2, Circle } from 'lucide-react'
 import { TIME_OF_DAY_EMOJI, TIME_OF_DAY_LABELS } from '@/types/habits'
 import type { RoutineWithStatus, Routine } from '@/types/habits'
+import { GoalSelector } from '@/components/goals/GoalSelector'
 
 interface RoutineCardProps {
   item:     RoutineWithStatus
@@ -55,6 +56,7 @@ export function RoutineCard({ item, date, onEdit, onDelete }: RoutineCardProps) 
 
         {/* Actions */}
         <div className="flex items-center gap-1 shrink-0">
+          <GoalSelector entityId={routine.id} entityType="routine" />
           <button onClick={() => onEdit(routine)} className="rounded-lg p-1.5 text-muted hover:text-foreground transition-colors">
             <Pencil size={13} />
           </button>

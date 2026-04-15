@@ -3,6 +3,7 @@
 import { Globe, Lock, GitBranch, ExternalLink, Pencil, Trash2 } from 'lucide-react'
 import { PROJECT_STATUS_LABELS, PROJECT_STATUS_STYLES } from '@/types/projects'
 import type { Project } from '@/types/projects'
+import { GoalSelector } from '@/components/goals/GoalSelector'
 
 // ─────────────────────────────────────────────────────────────
 // Constants
@@ -151,6 +152,7 @@ export function ProjectCard({
 
         {/* Edit + Delete — visibles sólo en hover */}
         <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+          <GoalSelector entityId={project.id} entityType="project" />
           <button
             type="button"
             onClick={() => onEdit(project)}
