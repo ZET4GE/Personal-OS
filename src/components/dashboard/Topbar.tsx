@@ -13,6 +13,7 @@ import { logoutAction } from '@/app/(auth)/actions/auth.actions'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
+import { GlobalSearch } from '@/components/search/GlobalSearch'
 
 const PAGE_ICONS: Record<string, LucideIcon> = {
   '/dashboard':     LayoutDashboard,
@@ -117,6 +118,10 @@ export function Topbar({ userEmail, userName, collapsed, onToggleCollapse }: Top
       <div className="flex flex-1 items-center gap-2">
         <PageIcon size={15} className="shrink-0 text-accent-600 dark:text-accent-400" />
         <h1 className="text-sm font-semibold text-text">{title}</h1>
+      </div>
+
+      <div className="hidden lg:block">
+        <GlobalSearch />
       </div>
 
       {/* Right-side actions */}
