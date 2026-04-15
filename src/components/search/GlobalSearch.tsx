@@ -20,11 +20,11 @@ const TYPE_ORDER: GlobalSearchResultType[] = ['project', 'goal', 'note', 'habit'
 function getRouteByType(type: GlobalSearchResultType, id: string): string {
   switch (type) {
     case 'project':
-      return `/projects/${id}`
+      return '/projects'
     case 'goal':
       return `/goals/${id}`
     case 'note':
-      return `/notes/${id}`
+      return '/notes'
     case 'habit':
       return '/habits'
     case 'routine':
@@ -64,9 +64,9 @@ export function GlobalSearch() {
 
   const handleClick = (item: GlobalSearchResult) => {
     console.log('click', item)
-    setFocused(false)
-    setQuery('')
     router.push(getRouteByType(item.type, item.id))
+    setQuery('')
+    setFocused(false)
   }
 
   const handleMouseDown = (
@@ -108,7 +108,7 @@ export function GlobalSearch() {
       </div>
 
       {showResults && (
-        <div className="absolute left-0 right-0 top-full mt-2 z-[9999] max-h-[28rem] overflow-y-auto rounded-xl border border-border bg-background p-2 shadow-lg">
+        <div className="fixed left-1/2 top-[60px] z-[9999] max-h-[28rem] w-[90%] max-w-md -translate-x-1/2 overflow-y-auto rounded-xl border border-border bg-background p-2 shadow-xl">
           {loading ? (
             <div className="flex items-center gap-2 px-3 py-4 text-sm text-muted">
               <Loader2 size={14} className="animate-spin" />
