@@ -22,6 +22,14 @@ function clamp(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max)
 }
 
+function getPanelMetrics(isMinimized: boolean) {
+  return {
+    width: isMinimized ? 148 : 292,
+    height: isMinimized ? 58 : 286,
+    rightGap: 22,
+  }
+}
+
 function playCompletionSound() {
   if (typeof window === 'undefined') return
 
@@ -105,11 +113,11 @@ export function FloatingTimer() {
 
     function handleMove(event: MouseEvent) {
       const panelRect = panelRef.current?.getBoundingClientRect()
-      const panelWidth = panelRect?.width ?? (minimized ? 152 : 340)
-      const panelHeight = panelRect?.height ?? (minimized ? 60 : 320)
+      const panelWidth = panelRect?.width ?? (minimized ? 148 : 292)
+      const panelHeight = panelRect?.height ?? (minimized ? 58 : 286)
 
       setPosition({
-        x: clamp(event.clientX - activeDrag.offsetX, 8, window.innerWidth - panelWidth - 8),
+        x: clamp(event.clientX - activeDrag.offsetX, 8, window.innerWidth - panelWidth - 22),
         y: clamp(event.clientY - activeDrag.offsetY, 64, window.innerHeight - panelHeight - 8),
       })
     }
@@ -148,6 +156,21 @@ export function FloatingTimer() {
     setMinimized(false)
   }
 
+  function repositionPanel(nextMinimized: boolean) {
+    if (typeof window === 'undefined') return
+
+    const nextMetrics = getPanelMetrics(nextMinimized)
+    const currentMetrics = getPanelMetrics(minimized)
+    const currentRight = window.innerWidth - position.x - currentMetrics.width
+
+    setPosition({
+      x: currentRight <= nextMetrics.rightGap + 24 || nextMinimized
+        ? window.innerWidth - nextMetrics.width - nextMetrics.rightGap
+        : clamp(position.x, 8, window.innerWidth - nextMetrics.width - 8),
+      y: clamp(position.y, 64, window.innerHeight - nextMetrics.height - 8),
+    })
+  }
+
   function togglePanel() {
     if (hidden) {
       openPanel()
@@ -155,6 +178,16 @@ export function FloatingTimer() {
     }
 
     closePanel()
+  }
+
+  function handleMinimize() {
+    repositionPanel(true)
+    setMinimized(true)
+  }
+
+  function handleExpand() {
+    repositionPanel(false)
+    setMinimized(false)
   }
 
   function handleDragStart(event: React.MouseEvent<HTMLDivElement>) {
@@ -268,7 +301,7 @@ export function FloatingTimer() {
           }}
           className={[
             'fixed z-[10001] select-none rounded-2xl border border-border shadow-2xl backdrop-blur-md transition-all duration-200',
-            minimized ? 'w-[156px]' : 'w-[340px]',
+            minimized ? 'w-[148px]' : 'w-[292px]',
             dragState ? 'cursor-grabbing shadow-[0_18px_55px_rgba(0,0,0,0.22)]' : '',
           ].join(' ')}
         >
@@ -279,14 +312,14 @@ export function FloatingTimer() {
             >
               <button
                 type="button"
-                onClick={() => setMinimized(false)}
+                onClick={handleExpand}
                 className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-xl bg-accent-600/10 text-accent-600 transition-colors hover:bg-accent-600/15"
               >
                 <Clock3 size={15} />
               </button>
               <div className="min-w-0 flex-1">
                 <p className="font-mono text-sm font-semibold text-text">{formattedTime}</p>
-                <p className="text-[11px] uppercase tracking-[0.14em] text-muted">
+                <p className="text-[10px] uppercase tracking-[0.14em] text-muted">
                   {isCountdown ? 'Countdown' : 'Tracking'}
                 </p>
               </div>
@@ -299,11 +332,11 @@ export function FloatingTimer() {
               </button>
             </div>
           ) : (
-            <div className="animate-scale-in p-4">
+            <div className="animate-scale-in p-3.5">
               <div
                 onMouseDown={handleDragStart}
                 className={[
-                  'mb-4 flex items-center justify-between gap-3 rounded-xl px-1 py-1.5',
+                  'mb-3 flex items-center justify-between gap-3 rounded-xl px-1 py-1',
                   dragState ? 'cursor-grabbing' : 'cursor-grab',
                 ].join(' ')}
               >
@@ -322,7 +355,7 @@ export function FloatingTimer() {
                 <div className="flex items-center gap-1">
                   <button
                     type="button"
-                    onClick={() => setMinimized(true)}
+                    onClick={handleMinimize}
                     className="flex h-8 w-8 cursor-pointer items-center justify-center rounded-lg text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
                   >
                     <Minimize2 size={14} />
@@ -337,13 +370,13 @@ export function FloatingTimer() {
                 </div>
               </div>
 
-              <div className="mb-4 grid grid-cols-2 gap-2 rounded-2xl bg-surface p-1">
+              <div className="mb-3 grid grid-cols-2 gap-1.5 rounded-2xl bg-surface p-1">
                 <button
                   type="button"
                   disabled={isRunning}
                   onClick={() => setMode('tracking')}
                   className={[
-                    'rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200',
+                    'rounded-xl px-3 py-1.5 text-sm font-medium transition-all duration-200',
                     mode === 'tracking'
                       ? 'bg-accent-600 text-white shadow-sm'
                       : 'cursor-pointer text-muted hover:bg-surface-hover hover:text-foreground',
@@ -357,7 +390,7 @@ export function FloatingTimer() {
                   disabled={isRunning}
                   onClick={() => setMode('countdown')}
                   className={[
-                    'rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200',
+                    'rounded-xl px-3 py-1.5 text-sm font-medium transition-all duration-200',
                     mode === 'countdown'
                       ? 'bg-accent-600 text-white shadow-sm'
                       : 'cursor-pointer text-muted hover:bg-surface-hover hover:text-foreground',
@@ -369,8 +402,8 @@ export function FloatingTimer() {
               </div>
 
               {isCountdown ? (
-                <label className="mb-4 block">
-                  <span className="mb-1.5 block text-sm font-medium text-text">Minutos</span>
+                <label className="mb-3 block">
+                  <span className="mb-1 block text-sm font-medium text-text">Minutos</span>
                   <input
                     type="number"
                     min={1}
@@ -378,13 +411,13 @@ export function FloatingTimer() {
                     value={countdownMinutes}
                     disabled={isRunning}
                     onChange={(event) => setCountdownMinutes(Number(event.target.value))}
-                    className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm outline-none transition-colors focus:border-accent-600 disabled:cursor-not-allowed disabled:opacity-60"
+                    className="w-full rounded-xl border border-border bg-surface px-3 py-2 text-sm outline-none transition-colors focus:border-accent-600 disabled:cursor-not-allowed disabled:opacity-60"
                   />
                 </label>
               ) : null}
 
-              <label className="mb-4 block">
-                <span className="mb-1.5 block text-sm font-medium text-text">
+              <label className="mb-3 block">
+                <span className="mb-1 block text-sm font-medium text-text">
                   Transparencia {Math.round(transparency * 100)}%
                 </span>
                 <input
@@ -398,16 +431,16 @@ export function FloatingTimer() {
                 />
               </label>
 
-              <div className="rounded-2xl bg-surface px-4 py-5 text-center">
+              <div className="rounded-2xl bg-surface px-4 py-4 text-center">
                 <p className="text-[11px] uppercase tracking-[0.16em] text-muted">
                   {isCountdown ? 'Tiempo restante' : 'Tiempo en vivo'}
                 </p>
-                <p className="mt-2 font-mono text-4xl font-bold tracking-tight text-text">
+                <p className="mt-1.5 font-mono text-3xl font-bold tracking-tight text-text">
                   {formattedTime}
                 </p>
               </div>
 
-              <div className="mt-4 flex items-center gap-2">
+              <div className="mt-3 flex items-center gap-2">
                 {isRunning ? (
                   <Button
                     type="button"
