@@ -43,6 +43,11 @@ export function GoalDetail({ detail, progress }: GoalDetailProps) {
   const [habits, setHabits] = useState(detail.habits)
   const [routines, setRoutines] = useState(detail.routines)
   const [notes, setNotes] = useState(detail.notes)
+  const currentHours = (detail.goal.current_time ?? 0) / 3600
+  const targetHours = (detail.goal.target_time ?? 0) / 3600
+  const timeProgress = detail.goal.target_time && detail.goal.target_time > 0
+    ? Math.min(1, (detail.goal.current_time ?? 0) / detail.goal.target_time)
+    : 0
   const linkedIds = useMemo(
     () => ({
       project: projects.map((item) => item.id),
@@ -106,6 +111,26 @@ export function GoalDetail({ detail, progress }: GoalDetailProps) {
             <p className="mt-1 text-sm font-medium text-text">{Math.round(progress.routines_progress * 100)}%</p>
           </div>
         </div>
+
+        {(detail.goal.target_time ?? 0) > 0 || (detail.goal.current_time ?? 0) > 0 ? (
+          <div className="mt-4 rounded-xl border border-border bg-surface-2 p-4">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[11px] uppercase tracking-wide text-muted">Tiempo invertido</p>
+                <p className="mt-1 text-sm font-medium text-text">
+                  {currentHours.toFixed(1)}h / {targetHours.toFixed(1)}h
+                </p>
+              </div>
+              <span className="text-xs font-medium text-muted">{Math.round(timeProgress * 100)}%</span>
+            </div>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-background">
+              <div
+                className="h-full rounded-full bg-accent-600 transition-all"
+                style={{ width: `${Math.max(0, Math.min(100, timeProgress * 100))}%` }}
+              />
+            </div>
+          </div>
+        ) : null}
       </section>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">

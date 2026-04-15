@@ -83,6 +83,8 @@ export interface Goal {
   icon:         string | null
   color:        GoalColor
   is_public:    boolean
+  target_time:  number | null
+  current_time: number
   order_index:  number
   created_at:   string
   updated_at:   string
