@@ -61,10 +61,11 @@ export function GlobalSearch() {
 
   const showResults = focused && query.trim().length > 0
 
-  function handleSelect(result: GlobalSearchResult) {
+  const handleClick = (item: GlobalSearchResult) => {
+    console.log('click', item)
     setFocused(false)
     setQuery('')
-    router.push(getRouteByType(result.type, result.id))
+    router.push(getRouteByType(item.type, item.id))
   }
 
   return (
@@ -103,12 +104,11 @@ export function GlobalSearch() {
                   </p>
                   <div className="space-y-1">
                     {group.items.map((item) => (
-                      <button
+                      <div
                         key={`${item.type}-${item.id}`}
-                        type="button"
                         onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => handleSelect(item)}
-                        className="flex w-full flex-col rounded-lg px-3 py-2 text-left transition-colors hover:bg-surface-hover"
+                        onClick={() => handleClick(item)}
+                        className="flex w-full cursor-pointer flex-col rounded-lg px-3 py-2 text-left transition-colors hover:bg-surface-hover"
                       >
                         <span className="text-sm text-text">
                           [{TYPE_LABELS[item.type]}] {item.title}
@@ -118,7 +118,7 @@ export function GlobalSearch() {
                             {item.description}
                           </span>
                         )}
-                      </button>
+                      </div>
                     ))}
                   </div>
                 </div>
