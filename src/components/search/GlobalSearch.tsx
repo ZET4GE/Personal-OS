@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2, Search } from 'lucide-react'
 import { useGlobalSearch } from '@/hooks/useGlobalSearch'
@@ -38,6 +38,7 @@ function getRouteByType(type: GlobalSearchResultType, id: string): string {
 
 export function GlobalSearch() {
   const router = useRouter()
+  const containerRef = useRef<HTMLDivElement | null>(null)
   const [query, setQuery] = useState('')
   const [focused, setFocused] = useState(false)
   const { results, loading, error } = useGlobalSearch(query)
@@ -76,17 +77,31 @@ export function GlobalSearch() {
     handleClick(item)
   }
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setFocused(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
   return (
-    <div className="relative w-full max-w-md overflow-visible">
+    <div ref={containerRef} className="relative w-full max-w-md overflow-visible">
       <div className="relative">
         <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
         <input
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
-          onBlur={() => {
-            window.setTimeout(() => setFocused(false), 150)
-          }}
           placeholder="Buscar en todo..."
           className="w-full rounded-xl border border-border bg-surface-2 py-2 pl-9 pr-3 text-sm text-text outline-none transition-colors focus:border-accent-600"
         />
