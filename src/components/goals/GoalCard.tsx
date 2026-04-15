@@ -7,6 +7,7 @@ import type { Goal } from '@/types/goals'
 import { GOAL_COLOR_STYLES, PRIORITY_META } from '@/types/goals'
 import { CategoryBadge } from './CategoryBadge'
 import { toggleGoalStatusAction } from '@/app/(dashboard)/goals/actions'
+import { GoalProgressCard } from './GoalProgressCard'
 
 function daysLeft(dateStr: string | null): string | null {
   if (!dateStr) return null
@@ -78,19 +79,7 @@ export function GoalCard({ goal }: GoalCardProps) {
         <p className="text-xs text-muted leading-relaxed line-clamp-2">{goal.description}</p>
       )}
 
-      {/* Progress bar */}
-      <div className="space-y-1.5">
-        <div className="flex items-center justify-between text-xs">
-          <span className="text-muted">Progreso</span>
-          <span className={`font-semibold ${styles.text}`}>{goal.progress}%</span>
-        </div>
-        <div className="h-1.5 rounded-full bg-surface-3 overflow-hidden">
-          <div
-            className={`h-full rounded-full transition-all duration-700 ${styles.bar}`}
-            style={{ width: `${goal.progress}%` }}
-          />
-        </div>
-      </div>
+      <GoalProgressCard goal={goal} showTitle={false} showDetails />
 
       {/* Footer */}
       <div className="flex items-center justify-between">

@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { ChevronRight, Plus, Crosshair } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getTopGoals } from '@/services/goals'
-import { GOAL_COLOR_STYLES, CATEGORY_META } from '@/types/goals'
+import { CATEGORY_META } from '@/types/goals'
+import { GoalProgressCard } from '@/components/goals/GoalProgressCard'
 
 interface GoalsWidgetProps {
   userId: string
@@ -48,7 +49,6 @@ export async function GoalsWidget({ userId }: GoalsWidgetProps) {
       ) : (
         <div className="space-y-3">
           {goals.map((goal) => {
-            const styles   = GOAL_COLOR_STYLES[goal.color] ?? GOAL_COLOR_STYLES.blue
             const category = CATEGORY_META[goal.category]
 
             return (
@@ -65,18 +65,7 @@ export async function GoalsWidget({ userId }: GoalsWidgetProps) {
                   <p className="truncate text-sm font-medium text-text group-hover:text-accent-600 dark:group-hover:text-accent-400 transition-colors">
                     {goal.title}
                   </p>
-                  {/* Mini progress bar */}
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <div className="flex-1 h-1.5 rounded-full bg-surface-3 overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-700 ${styles.bar}`}
-                        style={{ width: `${goal.progress}%` }}
-                      />
-                    </div>
-                    <span className={`text-[11px] font-medium shrink-0 ${styles.text}`}>
-                      {goal.progress}%
-                    </span>
-                  </div>
+                  <GoalProgressCard goal={goal} showTitle={false} compact className="mt-1.5" />
                 </div>
 
                 <ChevronRight size={14} className="shrink-0 text-muted opacity-0 group-hover:opacity-100 transition-opacity" />
