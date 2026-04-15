@@ -8,12 +8,25 @@ import type {
   ActivityItem,
   DashboardAnalytics,
   DashboardIntegrations,
+  DashboardInsight,
 } from '@/types/dashboard'
 import type { JobApplication } from '@/types/jobs'
 import type { ClientProject } from '@/types/clients'
 import { getHabitsWithLogs, isHabitDueOn } from './habits'
 import { getPageViews } from './analytics'
 import { getActiveProviders } from './integrations'
+import { getGoals } from './goals'
+
+type ClientRef = { name?: string | null } | Array<{ name?: string | null }> | null
+type DeadlineRow = { id: string; title: string; status: string; due_date: string; client?: ClientRef }
+type PendingPaymentRow = {
+  id: string
+  title: string
+  budget: number
+  paid_amount: number
+  currency: string
+  client?: ClientRef
+}
 
 // ─────────────────────────────────────────────────────────────
 // Helpers
@@ -113,7 +126,7 @@ async function fetchDeadlines(
 
   if (!data) return []
 
-  return (data as any[]).map((p) => {
+  return (data as DeadlineRow[]).map((p) => {
     const clientName = Array.isArray(p.client) ? p.client[0]?.name : p.client?.name;
     return {
       id:         p.id,
@@ -142,7 +155,7 @@ async function fetchPendingPayments(
 
   if (!data) return []
 
-  const projects = data as any[]
+  const projects = data as PendingPaymentRow[]
 
   return projects
     .filter((p) => p.budget > p.paid_amount)
@@ -302,4 +315,62 @@ export async function getDashboardData(
     ])
 
   return { stats, todayHabits, deadlines, pendingPayments, recentActivity, analytics, integrations, todayStr }
+}
+
+export async function getDashboardInsights(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<DashboardInsight[]> {
+  const goalsResult = await getGoals(supabase, userId)
+  const goals = goalsResult.data ?? []
+
+  if (goals.length === 0) return []
+
+  const insights: DashboardInsight[] = []
+
+  for (const goal of goals) {
+    if (insights.length >= 3) break
+
+    const { data, error } = await supabase.rpc('get_goal_progress', {
+      p_goal_id: goal.id,
+    })
+
+    if (error) continue
+
+    const row = Array.isArray(data) ? data[0] : data
+    const progress = Number(row?.progress ?? 0)
+    const habitsProgress = Number(row?.habits_progress ?? 0)
+    const projectsProgress = Number(row?.projects_progress ?? 0)
+    const routinesProgress = Number(row?.routines_progress ?? 0)
+
+    if (progress < 0.3 && insights.length < 3) {
+      insights.push({
+        id: `goal-late-${goal.id}`,
+        message: `Meta atrasada: ${goal.title}`,
+      })
+    }
+
+    if (habitsProgress === 0 && insights.length < 3) {
+      insights.push({
+        id: `habit-zero-${goal.id}`,
+        message: 'No registraste habitos hoy',
+      })
+    }
+
+    if (projectsProgress > 0 && projectsProgress < 0.3 && insights.length < 3) {
+      insights.push({
+        id: `project-low-${goal.id}`,
+        message: 'Avanza en tus proyectos',
+      })
+    }
+
+    if (routinesProgress === 0 && insights.length < 3) {
+      insights.push({
+        id: `routine-zero-${goal.id}`,
+        message: 'No completaste rutinas hoy',
+      })
+    }
+  }
+
+  return insights.slice(0, 3)
 }

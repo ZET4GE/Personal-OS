@@ -91,6 +91,11 @@ export interface DashboardIntegrations {
   github: boolean
 }
 
+export interface DashboardInsight {
+  id: string
+  message: string
+}
+
 // ─────────────────────────────────────────────────────────────
 // Top-level aggregation
 // ─────────────────────────────────────────────────────────────
