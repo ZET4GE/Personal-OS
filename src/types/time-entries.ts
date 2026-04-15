@@ -10,14 +10,27 @@ export interface TimeEntry {
   created_at: string
 }
 
+export type TimerMode = 'tracking' | 'countdown'
+
+export interface TimerPosition {
+  x: number
+  y: number
+}
+
 export interface TimerState {
   isRunning: boolean
   startTime: number | null
   elapsedTime: number
+  mode: TimerMode
+  minimized: boolean
+  hidden: boolean
+  position: TimerPosition
+  countdownMinutes: number
+  countdownDuration: number
+  finishedAt: number | null
 }
 
 export interface TimerTargetOption {
   id: string
   label: string
 }
-
