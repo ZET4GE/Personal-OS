@@ -4,6 +4,7 @@ import { Briefcase, GraduationCap, Zap, ChevronRight, ExternalLink, Download } f
 import { createClient } from '@/lib/supabase/server'
 import { getWorkExperience, getEducation, getSkills } from '@/services/cv'
 import { getMyProfile } from '@/services/profiles'
+import { CVModeSection } from '@/components/cv/CVModeSection'
 
 export const metadata: Metadata = { title: 'Mi CV' }
 
@@ -138,6 +139,8 @@ export default async function CVPage() {
       </div>
 
       {/* Hint si perfil no es público */}
+      <CVModeSection expCount={expCount} eduCount={eduCount} skillsCount={skillsCount} />
+
       {profile && !profile.is_public && (
         <p className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
           Tu perfil está configurado como privado. El CV público no será visible hasta que lo actives en{' '}
