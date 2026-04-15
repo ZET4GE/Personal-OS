@@ -55,8 +55,8 @@ export function GlobalTimer() {
       return
     }
 
-    setProjects(result.data.projects)
-    setGoals(result.data.goals)
+    setProjects(result.data?.projects ?? [])
+    setGoals(result.data?.goals ?? [])
   }
 
   async function handleStop() {
@@ -227,4 +227,3 @@ export function GlobalTimer() {
     </>
   )
 }
-
