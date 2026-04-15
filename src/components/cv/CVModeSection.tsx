@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Briefcase, ChevronRight, GraduationCap, Sparkles, Zap } from 'lucide-react'
 import { useDynamicCV } from '@/hooks/useDynamicCV'
 import { Skeleton } from '@/components/ui/Skeleton'
+import type { DynamicCVExperience, DynamicCVProject, Skill } from '@/types/cv'
 
 interface CVModeSectionProps {
   expCount: number
@@ -78,7 +79,7 @@ function DynamicCVPreview() {
           <p className="text-sm text-muted">Sin experiencia derivada de metas completadas.</p>
         ) : (
           <div className="space-y-3">
-            {data.experience.map((item) => (
+            {data.experience.map((item: DynamicCVExperience) => (
               <div key={item.id} className="rounded-lg bg-surface-hover px-3 py-3">
                 <p className="text-sm font-medium text-text">{item.title}</p>
                 {item.description && <p className="mt-1 text-sm text-muted line-clamp-2">{item.description}</p>}
@@ -97,7 +98,7 @@ function DynamicCVPreview() {
           <p className="text-sm text-muted">Sin proyectos vinculados a metas profesionales.</p>
         ) : (
           <div className="space-y-3">
-            {data.projects.map((project) => (
+            {data.projects.map((project: DynamicCVProject) => (
               <div key={project.id} className="rounded-lg bg-surface-hover px-3 py-3">
                 <div className="flex items-center justify-between gap-2">
                   <p className="text-sm font-medium text-text">{project.title}</p>
@@ -121,7 +122,7 @@ function DynamicCVPreview() {
           <p className="text-sm text-muted">Sin skills derivadas de metas o notas.</p>
         ) : (
           <div className="flex flex-wrap gap-2">
-            {data.skills.map((skill) => (
+            {data.skills.map((skill: Skill) => (
               <span key={skill.id} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                 {skill.name}
               </span>
