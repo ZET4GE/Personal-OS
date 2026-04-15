@@ -68,6 +68,14 @@ export function GlobalSearch() {
     router.push(getRouteByType(item.type, item.id))
   }
 
+  const handleMouseDown = (
+    e: React.MouseEvent<HTMLDivElement>,
+    item: GlobalSearchResult,
+  ) => {
+    e.preventDefault()
+    handleClick(item)
+  }
+
   return (
     <div className="relative w-full max-w-md">
       <div className="relative">
@@ -106,8 +114,7 @@ export function GlobalSearch() {
                     {group.items.map((item) => (
                       <div
                         key={`${item.type}-${item.id}`}
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => handleClick(item)}
+                        onMouseDown={(e) => handleMouseDown(e, item)}
                         className="flex w-full cursor-pointer flex-col rounded-lg px-3 py-2 text-left transition-colors hover:bg-surface-hover"
                       >
                         <span className="text-sm text-text">
