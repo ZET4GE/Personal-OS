@@ -96,6 +96,11 @@ export interface DashboardInsight {
   message: string
 }
 
+export interface SmartAlert {
+  type: 'warning' | 'info'
+  message: string
+}
+
 // ─────────────────────────────────────────────────────────────
 // Top-level aggregation
 // ─────────────────────────────────────────────────────────────

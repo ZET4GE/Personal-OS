@@ -163,24 +163,17 @@ export function useTimer() {
   }
 
   function stopTimer() {
-    let snapshot = createInitialState()
+    if (!timer.isRunning || !timer.startTime) {
+      return timer
+    }
 
-    setTimer((current) => {
-      if (!current.isRunning || !current.startTime) {
-        snapshot = current
-        return current
-      }
+    const snapshot = {
+      ...timer,
+      isRunning: false,
+      elapsedTime: Date.now() - timer.startTime,
+    }
 
-      const elapsedTime = Date.now() - current.startTime
-      snapshot = {
-        ...current,
-        isRunning: false,
-        elapsedTime,
-      }
-
-      return snapshot
-    })
-
+    setTimer(snapshot)
     return snapshot
   }
 

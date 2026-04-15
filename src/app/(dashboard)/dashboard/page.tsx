@@ -20,6 +20,7 @@ import { RecentNotes } from '@/components/dashboard/widgets/RecentNotes'
 import { GoalsWidget } from '@/components/dashboard/widgets/GoalsWidget'
 import { DashboardInsights } from '@/components/dashboard/widgets/DashboardInsights'
 import { DashboardGoalsPanel } from '@/components/dashboard/widgets/DashboardGoalsPanel'
+import { SmartAlerts } from '@/components/dashboard/widgets/SmartAlerts'
 import { DashboardCustomizer } from '@/components/dashboard/DashboardCustomizer'
 
 export const metadata: Metadata = { title: 'Dashboard' }
@@ -185,6 +186,7 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col gap-6 animate-fade-in pb-8">
       <DashboardHeader data={data} userName={userName} />
+      <SmartAlerts />
       <DashboardCustomizer widgets={widgets} />
     </div>
   )
