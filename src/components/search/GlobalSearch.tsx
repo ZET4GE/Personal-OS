@@ -77,7 +77,7 @@ export function GlobalSearch() {
   }
 
   return (
-    <div className="relative w-full max-w-md">
+    <div className="relative w-full max-w-md overflow-visible">
       <div className="relative">
         <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
         <input
@@ -93,7 +93,7 @@ export function GlobalSearch() {
       </div>
 
       {showResults && (
-        <div className="absolute left-0 right-0 top-[calc(100%+0.5rem)] z-40 max-h-[28rem] overflow-y-auto rounded-xl border border-border bg-surface p-2 shadow-lg">
+        <div className="absolute left-0 right-0 top-full mt-2 z-[9999] max-h-[28rem] overflow-y-auto rounded-xl border border-border bg-background p-2 shadow-lg">
           {loading ? (
             <div className="flex items-center gap-2 px-3 py-4 text-sm text-muted">
               <Loader2 size={14} className="animate-spin" />
@@ -115,7 +115,7 @@ export function GlobalSearch() {
                       <div
                         key={`${item.type}-${item.id}`}
                         onMouseDown={(e) => handleMouseDown(e, item)}
-                        className="flex w-full cursor-pointer flex-col rounded-lg px-3 py-2 text-left transition-colors hover:bg-surface-hover"
+                        className="flex w-full cursor-pointer flex-col rounded-lg px-3 py-2 text-left transition-colors hover:bg-muted"
                       >
                         <span className="text-sm text-text">
                           [{TYPE_LABELS[item.type]}] {item.title}
