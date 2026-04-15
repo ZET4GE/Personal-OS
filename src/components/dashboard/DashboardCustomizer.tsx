@@ -3,10 +3,12 @@
 import { useMemo, useState } from 'react'
 import {
   DndContext,
+  DragOverlay,
   PointerSensor,
   closestCenter,
   useSensor,
   useSensors,
+  type DragStartEvent,
   type DragEndEvent,
 } from '@dnd-kit/core'
 import {
@@ -16,7 +18,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Edit3, EyeOff, Move, Scaling, Save } from 'lucide-react'
+import { Edit3, EyeOff, Eye, Move, Scaling, Save } from 'lucide-react'
 import { useDashboardConfig } from '@/hooks/useDashboardConfig'
 import type { DashboardWidgetLayout, DashboardWidgetSize } from '@/types/dashboard-config'
 
@@ -70,7 +72,7 @@ function SortableWidget({
 
   const style = {
     transform: CSS.Transform.toString(transform),
-    transition,
+    transition: transition ?? 'transform 180ms ease, opacity 180ms ease',
   }
 
   return (
@@ -80,8 +82,8 @@ function SortableWidget({
       className={[
         'col-span-1',
         SIZE_CLASS[layout.size],
-        editMode ? 'transition-transform duration-200 hover:scale-[1.02]' : '',
-        isDragging ? 'z-50 opacity-80 shadow-2xl' : '',
+        editMode ? 'transition-all duration-200 hover:scale-[1.01]' : '',
+        isDragging ? 'z-50 opacity-65 shadow-2xl rotate-[1deg]' : '',
       ].join(' ')}
     >
       <div
@@ -101,7 +103,7 @@ function SortableWidget({
                 type="button"
                 {...attributes}
                 {...listeners}
-                className="rounded-lg p-2 text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
+                className="cursor-grab rounded-lg p-2 text-muted transition-colors hover:bg-surface-hover hover:text-foreground active:cursor-grabbing"
                 title="Mover"
               >
                 <Move size={14} />
@@ -131,8 +133,31 @@ function SortableWidget({
   )
 }
 
+function WidgetGhost({
+  title,
+  size,
+}: {
+  title: string
+  size: DashboardWidgetSize
+}) {
+  return (
+    <div
+      className={[
+        'min-w-[220px] rounded-2xl border-2 border-dashed border-accent-600/60 bg-surface p-3 shadow-2xl',
+        size === 'lg' ? 'w-[min(720px,80vw)]' : size === 'md' ? 'w-[min(480px,70vw)]' : 'w-[min(320px,60vw)]',
+      ].join(' ')}
+    >
+      <div className="rounded-xl bg-surface-2 px-3 py-2">
+        <p className="text-xs font-semibold text-text">{title}</p>
+        <p className="text-[11px] uppercase tracking-wide text-muted">{size}</p>
+      </div>
+    </div>
+  )
+}
+
 export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
   const [editMode, setEditMode] = useState(false)
+  const [activeId, setActiveId] = useState<string | null>(null)
   const defaultLayout = useMemo<DashboardWidgetLayout[]>(
     () =>
       widgets.map((widget, index) => ({
@@ -145,7 +170,7 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
     [widgets],
   )
   const { layout, loading, error, setLayout } = useDashboardConfig(defaultLayout)
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 8 } }))
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }))
   const layoutMap = useMemo(() => new Map(layout.map((item) => [item.id, item])), [layout])
   const orderedVisibleWidgets = useMemo(
     () =>
@@ -159,6 +184,23 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
         .filter((item) => item.layout.visible),
     [layoutMap, widgets],
   )
+  const hiddenWidgets = useMemo(
+    () =>
+      widgets
+        .map((widget) => ({
+          widget,
+          layout: layoutMap.get(widget.id),
+        }))
+        .filter((item): item is { widget: DashboardWidgetSlot; layout: DashboardWidgetLayout } => Boolean(item.layout))
+        .filter((item) => !item.layout.visible)
+        .sort((a, b) => a.layout.position - b.layout.position),
+    [layoutMap, widgets],
+  )
+  const activeWidget = useMemo(
+    () => widgets.find((widget) => widget.id === activeId) ?? null,
+    [activeId, widgets],
+  )
+  const activeLayout = activeId ? layoutMap.get(activeId) ?? null : null
 
   function updatePositions(nextLayout: DashboardWidgetLayout[]) {
     setLayout(
@@ -169,8 +211,13 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
     )
   }
 
+  function handleDragStart(event: DragStartEvent) {
+    setActiveId(String(event.active.id))
+  }
+
   function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
+    setActiveId(null)
     if (!over || active.id === over.id) return
 
     const oldIndex = layout.findIndex((item) => item.id === active.id)
@@ -178,6 +225,10 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
     if (oldIndex < 0 || newIndex < 0) return
 
     updatePositions(arrayMove(layout, oldIndex, newIndex))
+  }
+
+  function handleDragCancel() {
+    setActiveId(null)
   }
 
   function handleToggleVisible(id: string) {
@@ -195,6 +246,16 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
       current.map((item) =>
         item.id === id
           ? { ...item, size: cycleSize(item.size) }
+          : item,
+      ),
+    )
+  }
+
+  function handleShowWidget(id: string) {
+    setLayout((current) =>
+      current.map((item) =>
+        item.id === id
+          ? { ...item, visible: true }
           : item,
       ),
     )
@@ -226,17 +287,46 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
 
       {error && <p className="text-sm text-red-500">{error}</p>}
 
+      {editMode && hiddenWidgets.length > 0 && (
+        <div className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)]">
+          <div className="mb-3 flex items-center justify-between">
+            <div>
+              <p className="text-sm font-semibold text-text">Widgets ocultos</p>
+              <p className="text-xs text-muted">Puedes restaurarlos cuando quieras.</p>
+            </div>
+            <span className="rounded-full bg-surface-2 px-2 py-1 text-xs text-muted">
+              {hiddenWidgets.length}
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {hiddenWidgets.map(({ widget }) => (
+              <button
+                key={widget.id}
+                type="button"
+                onClick={() => handleShowWidget(widget.id)}
+                className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-muted transition-all hover:border-border-bright hover:text-foreground hover:shadow-sm"
+              >
+                <Eye size={14} />
+                {widget.title}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
+        onDragCancel={handleDragCancel}
       >
         <SortableContext items={orderedVisibleWidgets.map((item) => item.widget.id)} strategy={rectSortingStrategy}>
           <div
             className={[
               'grid grid-cols-1 gap-6 lg:grid-cols-3',
-              editMode ? 'transition-transform duration-200' : '',
-              editMode ? 'scale-[1.02]' : '',
+              editMode ? 'transition-all duration-200 ease-out' : '',
+              editMode ? 'scale-[1.01]' : '',
               loading ? 'opacity-70' : '',
             ].join(' ')}
           >
@@ -254,6 +344,11 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
             ))}
           </div>
         </SortableContext>
+        <DragOverlay dropAnimation={{ duration: 180, easing: 'ease-out' }}>
+          {activeWidget && activeLayout ? (
+            <WidgetGhost title={activeWidget.title} size={activeLayout.size} />
+          ) : null}
+        </DragOverlay>
       </DndContext>
     </div>
   )
