@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl'
 import type { Note } from '@/types/notes'
 import { autoSaveNoteAction, togglePublicAction, togglePinAction, toggleArchiveAction } from '@/app/(dashboard)/notes/actions'
 import { MarkdownRenderer } from '@/components/blog/MarkdownRenderer'
+import { TagSelector } from '@/components/tags/TagSelector'
 
 // ─────────────────────────────────────────────────────────────
 // Wiki-link renderer: replace [[title]] with spans in preview
@@ -249,13 +250,14 @@ export function NoteEditor({ note }: Props) {
 
       {/* Tags input */}
       {showTags && (
-        <div className="border-b border-border px-4 py-2">
+        <div className="border-b border-border px-4 py-2 space-y-2">
           <input
             value={tagInput}
             onChange={(e) => setTagInput(e.target.value)}
             placeholder={t('tagsPlaceholder')}
             className="w-full bg-transparent text-xs text-muted placeholder:text-muted/40 outline-none"
           />
+          <TagSelector entityId={note.id} entityType="note" align="left" />
         </div>
       )}
 

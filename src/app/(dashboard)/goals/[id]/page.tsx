@@ -13,6 +13,7 @@ import { MilestoneList } from '@/components/goals/MilestoneList'
 import { GoalTimeline } from '@/components/goals/GoalTimeline'
 import { GoalUpdateForm } from '@/components/goals/GoalUpdateForm'
 import { GoalStatusActions } from '@/components/goals/GoalStatusActions'
+import { TagSelector } from '@/components/tags/TagSelector'
 import {
   GOAL_COLOR_STYLES, PRIORITY_META,
 } from '@/types/goals'
@@ -127,6 +128,7 @@ export default async function GoalDetailPage({
               color={styles.text}
             />
             <div className="flex items-center gap-2">
+              <TagSelector entityId={goal.id} entityType="goal" align="right" />
               <Link
                 href={`/goals/${id}/edit`}
                 className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:border-border-bright hover:text-foreground"
