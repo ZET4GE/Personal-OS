@@ -35,10 +35,11 @@ function daysUntil(dateStr: string, todayStr: string): number {
 
 async function fetchStats(
   supabase: SupabaseClient,
+  userId: string,
 ): Promise<DashboardStats> {
   const [jobsRes, projectsRes, clientsRes, cpRes] = await Promise.all([
     supabase.from('job_applications').select('id, status'),
-    supabase.from('projects').select('id, status'),
+    supabase.from('projects').select('id, status').eq('user_id', userId),
     supabase.from('clients').select('id'),
     supabase.from('client_projects').select('paid_amount, updated_at'),
   ])
@@ -155,7 +156,7 @@ async function fetchPendingPayments(
         currency:   p.currency,
         budget:     p.budget,
         paidAmount: p.paid_amount,
-      };
+        };
     })
     .slice(0, 5)
 }
@@ -166,6 +167,7 @@ async function fetchPendingPayments(
 
 async function fetchRecentActivity(
   supabase: SupabaseClient,
+  userId: string,
 ): Promise<ActivityItem[]> {
   const [jobsRes, projectsRes, cpRes] = await Promise.all([
     supabase
@@ -176,6 +178,7 @@ async function fetchRecentActivity(
     supabase
       .from('projects')
       .select('id, title, status, created_at, updated_at')
+      .eq('user_id', userId)
       .order('updated_at', { ascending: false })
       .limit(3),
     supabase
@@ -289,11 +292,11 @@ export async function getDashboardData(
 
   const [stats, todayHabits, deadlines, pendingPayments, recentActivity, analytics, integrations] =
     await Promise.all([
-      fetchStats(supabase),
+      fetchStats(supabase, userId),
       fetchTodayHabits(supabase, userId, todayStr),
       fetchDeadlines(supabase, todayStr),
       fetchPendingPayments(supabase),
-      fetchRecentActivity(supabase),
+      fetchRecentActivity(supabase, userId),
       fetchAnalytics(supabase, userId),
       getActiveProviders(supabase, userId),
     ])

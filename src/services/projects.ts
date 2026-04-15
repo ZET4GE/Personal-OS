@@ -22,9 +22,13 @@ function err(msg: string): Err  { return { data: null, error: msg } }
 export async function getProjects(
   supabase: SupabaseClient,
 ): Promise<Result<Project[]>> {
+  const { data: authData, error: authError } = await supabase.auth.getUser()
+  if (authError || !authData.user) return err(authError?.message || 'Unauthorized')
+
   const { data, error } = await supabase
     .from('projects')
     .select('*')
+    .eq('user_id', authData.user.id)
     .order('created_at', { ascending: false })
 
   if (error) return err(error.message)
