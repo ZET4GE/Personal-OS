@@ -24,6 +24,7 @@ export interface TimerState {
   mode: TimerMode
   minimized: boolean
   hidden: boolean
+  transparency: number
   position: TimerPosition
   countdownMinutes: number
   countdownDuration: number
