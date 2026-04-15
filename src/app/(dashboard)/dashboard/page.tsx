@@ -12,6 +12,7 @@ import { TodayHabits } from '@/components/dashboard/widgets/TodayHabits'
 import { StreakWidget } from '@/components/dashboard/widgets/StreakWidget'
 import { UpcomingDeadlines } from '@/components/dashboard/widgets/UpcomingDeadlines'
 import { PendingPayments } from '@/components/dashboard/widgets/PendingPayments'
+import { TimeInvestedWidget } from '@/components/dashboard/widgets/TimeInvestedWidget'
 import { RecentActivity } from '@/components/dashboard/widgets/RecentActivity'
 import { GoogleCalendarWidget } from '@/components/integrations/GoogleCalendarWidget'
 import { GitHubActivityWidget } from '@/components/integrations/GitHubActivityWidget'
@@ -94,6 +95,17 @@ export default async function DashboardPage() {
       title: 'Deadlines',
       defaultSize: 'md' as const,
       content: <UpcomingDeadlines deadlines={data.deadlines} />,
+    },
+    {
+      id: 'time-invested',
+      type: 'time-invested',
+      title: 'Tiempo invertido',
+      defaultSize: 'md' as const,
+      content: (
+        <Suspense fallback={<WidgetSkeleton />}>
+          <TimeInvestedWidget userId={user.id} />
+        </Suspense>
+      ),
     },
     {
       id: 'pending-payments',
