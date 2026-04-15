@@ -14,7 +14,7 @@ import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { LanguageSwitcher } from '@/components/ui/LanguageSwitcher'
 import { NotificationBell } from '@/components/notifications/NotificationBell'
 import { GlobalSearch } from '@/components/search/GlobalSearch'
-import { GlobalTimer } from '@/components/timer/GlobalTimer'
+import { FloatingTimer } from '@/components/timer/FloatingTimer'
 
 const PAGE_ICONS: Record<string, LucideIcon> = {
   '/dashboard':     LayoutDashboard,
@@ -125,10 +125,9 @@ export function Topbar({ userEmail, userName, collapsed, onToggleCollapse }: Top
         <GlobalSearch />
       </div>
 
-      <GlobalTimer />
-
       {/* Right-side actions */}
       <div className="flex items-center gap-0.5">
+        <FloatingTimer />
         <NotificationBell />
         <LanguageSwitcher />
         <ThemeToggle />
