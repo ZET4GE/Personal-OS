@@ -62,6 +62,26 @@ export interface Skill {
   order_index: number
 }
 
+export interface DynamicCVExperience {
+  id: string
+  title: string
+  description: string | null
+  completed_at: string | null
+}
+
+export interface DynamicCVProject {
+  id: string
+  title: string
+  description: string | null
+  is_completed: boolean
+}
+
+export interface DynamicCV {
+  experience: DynamicCVExperience[]
+  projects: DynamicCVProject[]
+  skills: Skill[]
+}
+
 // ─────────────────────────────────────────────────────────────
 // Action results
 // ─────────────────────────────────────────────────────────────
