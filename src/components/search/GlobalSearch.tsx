@@ -17,20 +17,20 @@ const TYPE_LABELS: Record<GlobalSearchResultType, string> = {
 
 const TYPE_ORDER: GlobalSearchResultType[] = ['project', 'goal', 'note', 'habit', 'routine', 'tag']
 
-function getResultHref(result: GlobalSearchResult): string {
-  switch (result.type) {
+function getRouteByType(type: GlobalSearchResultType, id: string): string {
+  switch (type) {
     case 'project':
-      return '/projects'
+      return `/projects/${id}`
     case 'goal':
-      return `/goals/${result.id}`
+      return `/goals/${id}`
     case 'note':
-      return '/notes'
+      return `/notes/${id}`
     case 'habit':
       return '/habits'
     case 'routine':
       return '/routines'
     case 'tag':
-      return '/dashboard'
+      return `/search?tag=${id}`
     default:
       return '/dashboard'
   }
@@ -64,7 +64,7 @@ export function GlobalSearch() {
   function handleSelect(result: GlobalSearchResult) {
     setFocused(false)
     setQuery('')
-    router.push(getResultHref(result))
+    router.push(getRouteByType(result.type, result.id))
   }
 
   return (
