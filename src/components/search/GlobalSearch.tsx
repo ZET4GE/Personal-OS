@@ -1,5 +1,6 @@
 'use client'
 
+import { createPortal } from 'react-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Loader2, Search } from 'lucide-react'
@@ -39,6 +40,7 @@ function getRouteByType(type: GlobalSearchResultType, id: string): string {
 export function GlobalSearch() {
   const router = useRouter()
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const [mounted, setMounted] = useState(false)
   const [query, setQuery] = useState('')
   const [focused, setFocused] = useState(false)
   const { results, loading, error } = useGlobalSearch(query)
@@ -78,6 +80,10 @@ export function GlobalSearch() {
   }
 
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         containerRef.current &&
@@ -107,8 +113,8 @@ export function GlobalSearch() {
         />
       </div>
 
-      {showResults && (
-        <div className="fixed left-1/2 top-[60px] z-[9999] max-h-[28rem] w-[90%] max-w-md -translate-x-1/2 overflow-y-auto rounded-xl border border-border bg-background p-2 shadow-xl">
+      {mounted && showResults && createPortal(
+        <div className="fixed left-1/2 top-[70px] z-[9999] max-h-[28rem] w-[90%] max-w-md -translate-x-1/2 overflow-y-auto rounded-xl border border-border bg-background p-2 shadow-xl">
           {loading ? (
             <div className="flex items-center gap-2 px-3 py-4 text-sm text-muted">
               <Loader2 size={14} className="animate-spin" />
@@ -147,7 +153,8 @@ export function GlobalSearch() {
               ))}
             </div>
           )}
-        </div>
+        </div>,
+        document.body,
       )}
     </div>
   )
