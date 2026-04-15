@@ -32,7 +32,7 @@ export function useGoalProgress(goalId: string): UseGoalProgressResult {
       setProgress(EMPTY_PROGRESS)
       setError(result.error)
     } else {
-      setProgress(result.data)
+      setProgress(result.data ?? EMPTY_PROGRESS)
     }
 
     setLoading(false)
@@ -50,7 +50,7 @@ export function useGoalProgress(goalId: string): UseGoalProgressResult {
           setProgress(EMPTY_PROGRESS)
           setError(result.error)
         } else {
-          setProgress(result.data)
+          setProgress(result.data ?? EMPTY_PROGRESS)
         }
 
         setLoading(false)
