@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { TimerState } from '@/types/time-entries'
 
-const TIMER_STORAGE_KEY = 'personal-os:global-timer'
+const TIMER_STORAGE_KEY = 'personal-os:floating-timer:v2'
 
 function getDefaultPosition() {
   if (typeof window === 'undefined') {
@@ -12,7 +12,7 @@ function getDefaultPosition() {
 
   return {
     x: Math.max(16, window.innerWidth - 360),
-    y: Math.max(80, window.innerHeight - 240),
+    y: Math.max(88, window.innerHeight - 240),
   }
 }
 
@@ -23,7 +23,8 @@ function createInitialState(): TimerState {
     elapsedTime: 0,
     mode: 'tracking',
     minimized: false,
-    hidden: false,
+    hidden: true,
+    transparency: 0.94,
     position: getDefaultPosition(),
     countdownMinutes: 30,
     countdownDuration: 30 * 60 * 1000,
@@ -67,7 +68,8 @@ function getStoredTimerState(): TimerState {
       elapsedTime: normalizedElapsed,
       mode,
       minimized: parsed.minimized ?? false,
-      hidden: parsed.hidden ?? false,
+      hidden: parsed.hidden ?? true,
+      transparency: Math.min(1, Math.max(0.45, parsed.transparency ?? baseState.transparency)),
       position: parsed.position ?? baseState.position,
       countdownMinutes,
       countdownDuration,
@@ -151,6 +153,7 @@ export function useTimer() {
         mode: current.mode,
         minimized: current.minimized,
         hidden: false,
+        transparency: current.transparency,
         position: current.position,
         countdownMinutes: current.countdownMinutes,
         countdownDuration: current.countdownDuration,
@@ -217,6 +220,13 @@ export function useTimer() {
     setTimer((current) => ({ ...current, position }))
   }
 
+  function setTransparency(transparency: number) {
+    setTimer((current) => ({
+      ...current,
+      transparency: Math.min(1, Math.max(0.45, transparency)),
+    }))
+  }
+
   function setCountdownMinutes(minutes: number) {
     const safeMinutes = Math.max(1, Math.floor(minutes) || 1)
 
@@ -245,6 +255,7 @@ export function useTimer() {
     mode: timer.mode,
     minimized: timer.minimized,
     hidden: timer.hidden,
+    transparency: timer.transparency,
     position: timer.position,
     countdownMinutes: timer.countdownMinutes,
     countdownDuration: timer.countdownDuration,
@@ -258,6 +269,7 @@ export function useTimer() {
     setMinimized,
     setHidden,
     setPosition,
+    setTransparency,
     setCountdownMinutes,
     clearFinished,
   }

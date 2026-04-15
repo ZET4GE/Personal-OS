@@ -1,5 +1,6 @@
 'use client'
 
+import { createPortal } from 'react-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Clock3,
@@ -57,6 +58,7 @@ export function FloatingTimer() {
     mode,
     minimized,
     hidden,
+    transparency,
     position,
     countdownMinutes,
     finishedAt,
@@ -68,6 +70,7 @@ export function FloatingTimer() {
     setMinimized,
     setHidden,
     setPosition,
+    setTransparency,
     setCountdownMinutes,
     clearFinished,
   } = useTimer()
@@ -93,6 +96,7 @@ export function FloatingTimer() {
     if (elapsedTime > 0) return `${formattedTime} listo`
     return 'Abrir timer'
   }, [elapsedTime, formattedTime, isRunning])
+  const mounted = typeof document !== 'undefined'
 
   useEffect(() => {
     if (!dragState) return
@@ -142,6 +146,15 @@ export function FloatingTimer() {
   function closePanel() {
     setHidden(true)
     setMinimized(false)
+  }
+
+  function togglePanel() {
+    if (hidden) {
+      openPanel()
+      return
+    }
+
+    closePanel()
   }
 
   function handleDragStart(event: React.MouseEvent<HTMLDivElement>) {
@@ -234,7 +247,7 @@ export function FloatingTimer() {
     <>
       <button
         type="button"
-        onClick={openPanel}
+        onClick={togglePanel}
         title={launcherLabel}
         aria-label={launcherLabel}
         className="relative flex cursor-pointer items-center justify-center rounded-lg p-1.5 text-muted transition-all duration-200 hover:bg-surface-hover hover:text-foreground"
@@ -245,12 +258,16 @@ export function FloatingTimer() {
         ) : null}
       </button>
 
-      {!hidden ? (
+      {mounted && !hidden ? createPortal(
         <div
           ref={panelRef}
-          style={{ left: position.x, top: position.y }}
+          style={{
+            left: position.x,
+            top: position.y,
+            backgroundColor: `color-mix(in srgb, var(--color-surface-elevated) ${Math.round(transparency * 100)}%, transparent)`,
+          }}
           className={[
-            'fixed z-[9998] select-none rounded-2xl border border-border bg-surface-elevated/95 shadow-2xl backdrop-blur-md transition-all duration-200',
+            'fixed z-[10001] select-none rounded-2xl border border-border shadow-2xl backdrop-blur-md transition-all duration-200',
             minimized ? 'w-[156px]' : 'w-[340px]',
             dragState ? 'cursor-grabbing shadow-[0_18px_55px_rgba(0,0,0,0.22)]' : '',
           ].join(' ')}
@@ -366,6 +383,21 @@ export function FloatingTimer() {
                 </label>
               ) : null}
 
+              <label className="mb-4 block">
+                <span className="mb-1.5 block text-sm font-medium text-text">
+                  Transparencia {Math.round(transparency * 100)}%
+                </span>
+                <input
+                  type="range"
+                  min={45}
+                  max={100}
+                  step={1}
+                  value={Math.round(transparency * 100)}
+                  onChange={(event) => setTransparency(Number(event.target.value) / 100)}
+                  className="w-full cursor-pointer accent-accent-600"
+                />
+              </label>
+
               <div className="rounded-2xl bg-surface px-4 py-5 text-center">
                 <p className="text-[11px] uppercase tracking-[0.16em] text-muted">
                   {isCountdown ? 'Tiempo restante' : 'Tiempo en vivo'}
@@ -412,7 +444,8 @@ export function FloatingTimer() {
               </div>
             </div>
           )}
-        </div>
+        </div>,
+        document.body,
       ) : null}
 
       {saveModalOpen ? (
