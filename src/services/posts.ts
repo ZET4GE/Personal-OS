@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Post, PostStatus } from '@/types/posts'
+import type { Post, PostStatus, PostWithAuthor } from '@/types/posts'
 import type { CreatePostData, UpdatePostData } from '@/lib/validations/posts'
 
 // ─────────────────────────────────────────────────────────────
@@ -19,11 +19,13 @@ const err = (msg: string): Err  => ({ data: null, error: msg })
 
 export async function getPosts(
   supabase: SupabaseClient,
+  userId: string,
   statusFilter?: PostStatus,
 ): Promise<Result<Post[]>> {
   let query = supabase
     .from('posts')
     .select('*')
+    .eq('user_id', userId)
     .order('updated_at', { ascending: false })
 
   if (statusFilter) query = query.eq('status', statusFilter)
@@ -68,6 +70,51 @@ export async function getPublicPosts(
   const { data, error } = await query
   if (error) return err(error.message)
   return ok(data as Post[])
+}
+
+export async function getPublicPostsFeed(
+  supabase: SupabaseClient,
+  tag?: string,
+): Promise<Result<PostWithAuthor[]>> {
+  let query = supabase
+    .from('posts')
+    .select('*')
+    .eq('status', 'published')
+    .order('published_at', { ascending: false })
+
+  if (tag) query = query.contains('tags', [tag])
+
+  const { data: posts, error } = await query
+  if (error) return err(error.message)
+
+  const publishedPosts = (posts ?? []) as Post[]
+  if (publishedPosts.length === 0) return ok([])
+
+  const userIds = [...new Set(publishedPosts.map((post) => post.user_id))]
+  const { data: profiles, error: profilesError } = await supabase
+    .from('profiles')
+    .select('id, username, full_name, avatar_url')
+    .in('id', userIds)
+
+  if (profilesError) return err(profilesError.message)
+
+  const profilesById = new Map((profiles ?? []).map((profile) => [profile.id, profile]))
+
+  const feed = publishedPosts.flatMap((post) => {
+    const profile = profilesById.get(post.user_id)
+    if (!profile) return []
+
+    return [{
+      ...post,
+      author: {
+        username:   profile.username,
+        full_name:  profile.full_name,
+        avatar_url: profile.avatar_url,
+      },
+    }]
+  })
+
+  return ok(feed)
 }
 
 export async function getPostBySlug(

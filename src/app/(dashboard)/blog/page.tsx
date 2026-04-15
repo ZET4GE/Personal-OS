@@ -18,14 +18,20 @@ const TAB_ORDER: Array<PostStatus | 'all'> = ['all', 'draft', 'published', 'arch
 export default async function BlogPage({ searchParams }: PageProps) {
   const { status } = await searchParams
 
-  const supabase   = await createClient()
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) return null
+
   const statusFilter = POST_STATUSES.includes(status as PostStatus)
     ? (status as PostStatus)
     : undefined
 
-  const { data: allPosts }      = await getPosts(supabase)
+  const { data: allPosts } = await getPosts(supabase, user.id)
   const { data: filteredPosts } = statusFilter
-    ? await getPosts(supabase, statusFilter)
+    ? await getPosts(supabase, user.id, statusFilter)
     : { data: allPosts }
 
   const posts = filteredPosts ?? []
