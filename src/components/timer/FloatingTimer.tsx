@@ -97,14 +97,16 @@ export function FloatingTimer() {
   useEffect(() => {
     if (!dragState) return
 
+    const activeDrag = dragState
+
     function handleMove(event: MouseEvent) {
       const panelRect = panelRef.current?.getBoundingClientRect()
       const panelWidth = panelRect?.width ?? (minimized ? 152 : 340)
       const panelHeight = panelRect?.height ?? (minimized ? 60 : 320)
 
       setPosition({
-        x: clamp(event.clientX - dragState.offsetX, 8, window.innerWidth - panelWidth - 8),
-        y: clamp(event.clientY - dragState.offsetY, 64, window.innerHeight - panelHeight - 8),
+        x: clamp(event.clientX - activeDrag.offsetX, 8, window.innerWidth - panelWidth - 8),
+        y: clamp(event.clientY - activeDrag.offsetY, 64, window.innerHeight - panelHeight - 8),
       })
     }
 
