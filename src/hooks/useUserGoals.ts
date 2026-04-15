@@ -40,7 +40,7 @@ export function useUserGoals(): UseUserGoalsResult {
       setGoals([])
       setError(result.error)
     } else {
-      setGoals(result.data)
+      setGoals(result.data ?? [])
     }
 
     setLoading(false)
