@@ -3,6 +3,8 @@ import { Suspense } from 'react'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { getDashboardData } from '@/services/dashboard'
+import { getGoals } from '@/services/goals'
+import { getUserOnboarding } from '@/services/onboarding'
 
 import { DashboardHeader } from '@/components/dashboard/widgets/DashboardHeader'
 import { StatsGrid } from '@/components/dashboard/widgets/StatsGrid'
@@ -39,6 +41,15 @@ export default async function DashboardPage() {
   const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) redirect('/login')
+
+  const [goalsResult, onboardingResult] = await Promise.all([
+    getGoals(supabase, user.id),
+    getUserOnboarding(supabase, user.id),
+  ])
+
+  if ((goalsResult.data?.length ?? 0) === 0 && !onboardingResult.data?.completed) {
+    redirect('/onboarding')
+  }
 
   const data = await getDashboardData(supabase, user.id)
   const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario'

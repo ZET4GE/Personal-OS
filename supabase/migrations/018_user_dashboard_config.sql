@@ -35,3 +35,4 @@ using (auth.uid() = user_id);
 
 create index if not exists idx_user_dashboard_config_user_id
   on public.user_dashboard_config (user_id);
+
