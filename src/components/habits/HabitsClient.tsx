@@ -111,7 +111,7 @@ export function HabitsClient({ items, date }: HabitsClientProps) {
             key={item.habit.id}
             item={item}
             onToggle={handleToggle}
-            isLoading={item.isPending}
+            isLoading={item.isPending ?? false}
           />
         ))}
       </div>
