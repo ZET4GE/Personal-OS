@@ -40,9 +40,11 @@ function getRouteByType(type: GlobalSearchResultType, id: string): string {
 export function GlobalSearch() {
   const router = useRouter()
   const containerRef = useRef<HTMLDivElement | null>(null)
+  const inputRef = useRef<HTMLInputElement | null>(null)
   const [mounted, setMounted] = useState(false)
   const [query, setQuery] = useState('')
   const [focused, setFocused] = useState(false)
+  const [position, setPosition] = useState({ top: 0, left: 0, width: 0 })
   const { results, loading, error } = useGlobalSearch(query)
 
   const groupedResults = useMemo(() => {
@@ -84,6 +86,18 @@ export function GlobalSearch() {
   }, [])
 
   useEffect(() => {
+    if (!inputRef.current) return
+
+    const rect = inputRef.current.getBoundingClientRect()
+
+    setPosition({
+      top: rect.bottom + 8,
+      left: rect.left,
+      width: rect.width,
+    })
+  }, [query, focused])
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         containerRef.current &&
@@ -105,6 +119,7 @@ export function GlobalSearch() {
       <div className="relative">
         <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
         <input
+          ref={inputRef}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
@@ -114,7 +129,16 @@ export function GlobalSearch() {
       </div>
 
       {mounted && showResults && createPortal(
-        <div className="fixed left-1/2 top-[70px] z-[9999] max-h-[28rem] w-[90%] max-w-md -translate-x-1/2 overflow-y-auto rounded-xl border border-border bg-background p-2 shadow-xl">
+        <div
+          className="max-h-[28rem] overflow-y-auto rounded-xl border border-border bg-background p-2 shadow-xl"
+          style={{
+            position: 'fixed',
+            top: position.top,
+            left: position.left,
+            width: position.width,
+            zIndex: 9999,
+          }}
+        >
           {loading ? (
             <div className="flex items-center gap-2 px-3 py-4 text-sm text-muted">
               <Loader2 size={14} className="animate-spin" />
