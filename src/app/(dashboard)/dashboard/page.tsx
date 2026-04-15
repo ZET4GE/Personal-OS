@@ -17,6 +17,7 @@ import { RecentNotes } from '@/components/dashboard/widgets/RecentNotes'
 import { GoalsWidget } from '@/components/dashboard/widgets/GoalsWidget'
 import { DashboardInsights } from '@/components/dashboard/widgets/DashboardInsights'
 import { DashboardGoals } from '@/components/dashboard/widgets/DashboardGoals'
+import { DashboardCustomizer } from '@/components/dashboard/DashboardCustomizer'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 
@@ -42,66 +43,126 @@ export default async function DashboardPage() {
   const data = await getDashboardData(supabase, user.id)
   const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario'
   const { google: hasGoogle, github: hasGitHub } = data.integrations
+  const widgets = [
+    {
+      id: 'dashboard-goals',
+      type: 'dashboard-goals',
+      title: 'Metas',
+      defaultSize: 'lg' as const,
+      content: <DashboardGoals />,
+    },
+    {
+      id: 'stats-grid',
+      type: 'stats-grid',
+      title: 'Estadísticas',
+      defaultSize: 'lg' as const,
+      content: <StatsGrid stats={data.stats} />,
+    },
+    {
+      id: 'today-habits',
+      type: 'today-habits',
+      title: 'Hábitos de hoy',
+      defaultSize: 'md' as const,
+      content: <TodayHabits data={data.todayHabits} todayStr={data.todayStr} />,
+    },
+    {
+      id: 'streak-widget',
+      type: 'streak-widget',
+      title: 'Racha',
+      defaultSize: 'sm' as const,
+      content: (
+        <StreakWidget
+          currentStreak={data.todayHabits.habits.reduce((max, h) => Math.max(max, h.streak), 0)}
+          bestStreak={data.todayHabits.bestStreak}
+        />
+      ),
+    },
+    {
+      id: 'upcoming-deadlines',
+      type: 'upcoming-deadlines',
+      title: 'Deadlines',
+      defaultSize: 'md' as const,
+      content: <UpcomingDeadlines deadlines={data.deadlines} />,
+    },
+    {
+      id: 'pending-payments',
+      type: 'pending-payments',
+      title: 'Pagos pendientes',
+      defaultSize: 'md' as const,
+      content: <PendingPayments payments={data.pendingPayments} />,
+    },
+    ...(hasGoogle
+      ? [{
+          id: 'google-calendar',
+          type: 'google-calendar',
+          title: 'Google Calendar',
+          defaultSize: 'md' as const,
+          content: (
+            <Suspense fallback={<WidgetSkeleton />}>
+              <GoogleCalendarWidget userId={user.id} />
+            </Suspense>
+          ),
+        }]
+      : []),
+    ...(hasGitHub
+      ? [{
+          id: 'github-activity',
+          type: 'github-activity',
+          title: 'GitHub',
+          defaultSize: 'md' as const,
+          content: (
+            <Suspense fallback={<WidgetSkeleton />}>
+              <GitHubActivityWidget userId={user.id} />
+            </Suspense>
+          ),
+        }]
+      : []),
+    {
+      id: 'goals-widget',
+      type: 'goals-widget',
+      title: 'Mis metas',
+      defaultSize: 'sm' as const,
+      content: (
+        <Suspense fallback={<WidgetSkeleton />}>
+          <GoalsWidget userId={user.id} />
+        </Suspense>
+      ),
+    },
+    {
+      id: 'dashboard-insights',
+      type: 'dashboard-insights',
+      title: 'Insights',
+      defaultSize: 'sm' as const,
+      content: (
+        <Suspense fallback={<WidgetSkeleton />}>
+          <DashboardInsights userId={user.id} />
+        </Suspense>
+      ),
+    },
+    {
+      id: 'recent-notes',
+      type: 'recent-notes',
+      title: 'Notas recientes',
+      defaultSize: 'sm' as const,
+      content: (
+        <Suspense fallback={<WidgetSkeleton />}>
+          <RecentNotes userId={user.id} />
+        </Suspense>
+      ),
+    },
+    {
+      id: 'recent-activity',
+      type: 'recent-activity',
+      title: 'Actividad reciente',
+      defaultSize: 'lg' as const,
+      content: <RecentActivity activity={data.recentActivity} />,
+    },
+  ]
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in pb-8">
       <DashboardHeader data={data} userName={userName} />
-
-      <DashboardGoals />
-
-      {/* Row 1: Stats */}
-      <StatsGrid stats={data.stats} />
-
-      {/* Row 2: Habits & Streak */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2 flex flex-col">
-          <TodayHabits data={data.todayHabits} todayStr={data.todayStr} />
-        </div>
-        <div className="lg:col-span-1 flex flex-col">
-          <StreakWidget
-            currentStreak={data.todayHabits.habits.reduce((max, h) => Math.max(max, h.streak), 0)}
-            bestStreak={data.todayHabits.bestStreak}
-          />
-        </div>
-      </div>
-
-      {/* Row 3: Deadlines & Payments */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <UpcomingDeadlines deadlines={data.deadlines} />
-        <PendingPayments payments={data.pendingPayments} />
-      </div>
-
-      {/* Row 4: Integration widgets (conditional) */}
-      {(hasGoogle || hasGitHub) && (
-        <div className={`grid grid-cols-1 gap-6 ${hasGoogle && hasGitHub ? 'lg:grid-cols-2' : ''}`}>
-          {hasGoogle && (
-            <Suspense fallback={<WidgetSkeleton />}>
-              <GoogleCalendarWidget userId={user.id} />
-            </Suspense>
-          )}
-          {hasGitHub && (
-            <Suspense fallback={<WidgetSkeleton />}>
-              <GitHubActivityWidget userId={user.id} />
-            </Suspense>
-          )}
-        </div>
-      )}
-
-      {/* Row 5: Goals + Insights + Recent Notes */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <Suspense fallback={<WidgetSkeleton />}>
-          <GoalsWidget userId={user.id} />
-        </Suspense>
-        <Suspense fallback={<WidgetSkeleton />}>
-          <DashboardInsights userId={user.id} />
-        </Suspense>
-        <Suspense fallback={<WidgetSkeleton />}>
-          <RecentNotes userId={user.id} />
-        </Suspense>
-      </div>
-
-      {/* Row 6: Recent Activity */}
-      <RecentActivity activity={data.recentActivity} />
+      <DashboardCustomizer widgets={widgets} />
     </div>
   )
 }
