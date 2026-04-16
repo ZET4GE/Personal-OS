@@ -3,6 +3,7 @@ import type { Goal } from '@/types/goals'
 export type LearningNodeType = 'skill' | 'topic'
 export type LearningRoadmapType = 'free' | 'structured' | 'goal_based'
 export type LearningRoadmapTemplate = 'blank' | 'skill' | 'project' | 'clients' | 'career'
+export type LearningNodeStatus = 'pending' | 'in_progress' | 'completed' | 'blocked'
 
 export interface LearningRoadmap {
   id: string
@@ -24,6 +25,8 @@ export interface LearningNode {
   description: string | null
   type: LearningNodeType
   level: string | null
+  status: LearningNodeStatus
+  completed_at: string | null
   position_x: number | null
   position_y: number | null
   position: number

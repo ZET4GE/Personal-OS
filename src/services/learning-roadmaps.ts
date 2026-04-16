@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Goal } from '@/types/goals'
 import type {
   LearningNode,
+  LearningNodeStatus,
   LearningNodeGoalLink,
   LearningRoadmap,
   LearningRoadmapDetail,
@@ -93,12 +94,16 @@ export async function getLearningRoadmapDetail(
       .map((link) => goalsById.get(link.goal_id))
       .filter((goal): goal is Goal => Boolean(goal))
 
-    const progress = linkedGoals.length === 0
+    const goalProgress = linkedGoals.length === 0
       ? 0
       : linkedGoals.reduce((acc, goal) => acc + Number(goal.progress ?? 0), 0) / linkedGoals.length / 100
+    const status = (node.status ?? 'pending') as LearningNodeStatus
+    const progress = status === 'completed' ? 1 : goalProgress
 
     return {
       ...node,
+      status,
+      completed_at: node.completed_at ?? null,
       goals: linkedGoals,
       progress,
       actions: actionsByNodeId.get(node.id) ?? [],

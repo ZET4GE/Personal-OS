@@ -150,6 +150,7 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
           type: node.type,
           level: type === 'free' ? null : node.level,
           parent_id: type === 'free' ? null : parentId,
+          status: 'pending',
           position: index,
           position_x: type === 'free' ? 120 + index * 280 : null,
           position_y: type === 'free' ? 120 : null,

@@ -2,13 +2,14 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { GripVertical, Plus, Pencil, Save, X, ChevronUp, ChevronDown, Target, ListTodo, Repeat, Clock } from 'lucide-react'
+import { GripVertical, Plus, Pencil, Save, X, ChevronUp, ChevronDown, Target, ListTodo, Repeat, Clock, CheckCircle2, PlayCircle, Ban } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { LearningRoadmapFlow } from './LearningRoadmapFlow'
 import type { Goal } from '@/types/goals'
 import type {
   LearningNodeType,
+  LearningNodeStatus,
   LearningRoadmap,
   LearningRoadmapNode,
 } from '@/types/roadmaps'
@@ -49,8 +50,10 @@ function getNodeProgress(goals: Goal[]) {
 }
 
 function getNextNode(nodes: LearningRoadmapNode[]) {
-  return nodes.find((node) => node.progress > 0 && node.progress < 1)
-    ?? nodes.find((node) => node.progress < 1)
+  return nodes.find((node) => node.status === 'in_progress')
+    ?? nodes.find((node) => node.status === 'pending')
+    ?? nodes.find((node) => node.progress > 0 && node.progress < 1)
+    ?? nodes.find((node) => node.progress < 1 && node.status !== 'blocked')
     ?? nodes.at(-1)
     ?? null
 }
@@ -61,6 +64,20 @@ function getActionLabel(type: LearningRoadmapNode['actions'][number]['entity_typ
   if (type === 'routine') return 'Rutina'
   if (type === 'project') return 'Proyecto'
   return 'Tarea'
+}
+
+function getStatusLabel(status: LearningNodeStatus) {
+  if (status === 'completed') return 'Completado'
+  if (status === 'in_progress') return 'En progreso'
+  if (status === 'blocked') return 'Bloqueado'
+  return 'Pendiente'
+}
+
+function getStatusClass(status: LearningNodeStatus) {
+  if (status === 'completed') return 'bg-emerald-500/10 text-emerald-300'
+  if (status === 'in_progress') return 'bg-cyan-500/10 text-cyan-300'
+  if (status === 'blocked') return 'bg-red-500/10 text-red-300'
+  return 'bg-surface text-muted'
 }
 
 function buildNode(
@@ -259,6 +276,44 @@ export function LearningRoadmapBoard({
     }
   }
 
+  async function updateNodeStatus(nodeId: string, status: LearningNodeStatus) {
+    if (isSaving) return
+    setIsSaving(true)
+
+    const completedAt = status === 'completed' ? new Date().toISOString() : null
+    const previousNodes = nodes
+
+    setNodes((current) =>
+      current.map((node) =>
+        node.id === nodeId
+          ? {
+              ...node,
+              status,
+              completed_at: completedAt,
+              progress: status === 'completed' ? 1 : node.progress,
+            }
+          : node,
+      ),
+    )
+
+    const { error } = await supabase
+      .from('learning_nodes')
+      .update({
+        status,
+        completed_at: completedAt,
+      })
+      .eq('id', nodeId)
+
+    if (error) {
+      setNodes(previousNodes)
+      toast.error(error.message || 'No se pudo actualizar el estado')
+    } else {
+      toast.success(`Nodo marcado como ${getStatusLabel(status).toLowerCase()}`)
+    }
+
+    setIsSaving(false)
+  }
+
   async function syncNodeGoals(nodeId: string, goalIds: string[]) {
     const { error: deleteError } = await supabase
       .from('learning_node_goals')
@@ -298,6 +353,7 @@ export function LearningRoadmapBoard({
         type: draft.type,
         level: roadmap.type === 'free' ? null : draft.level.trim() || 'Fundamentos',
         parent_id: draft.parentId || null,
+        status: 'pending',
         position: nextPosition,
       })
       .select('*')
@@ -326,6 +382,8 @@ export function LearningRoadmapBoard({
           description: data.description ?? null,
           type: data.type as LearningNodeType,
           level: data.level ?? null,
+          status: data.status as LearningNodeStatus,
+          completed_at: data.completed_at ?? null,
           parent_id: data.parent_id ?? null,
           position_x: data.position_x ?? null,
           position_y: data.position_y ?? null,
@@ -393,6 +451,8 @@ export function LearningRoadmapBoard({
                 description: data.description ?? null,
                 type: data.type as LearningNodeType,
                 level: data.level ?? null,
+                status: data.status as LearningNodeStatus,
+                completed_at: data.completed_at ?? null,
                 parent_id: data.parent_id ?? null,
                 position_x: data.position_x ?? null,
                 position_y: data.position_y ?? null,
@@ -750,6 +810,9 @@ export function LearningRoadmapBoard({
                                 {node.level}
                               </span>
                             ) : null}
+                            <span className={`rounded-full px-2 py-1 text-[11px] font-medium ${getStatusClass(node.status)}`}>
+                              {getStatusLabel(node.status)}
+                            </span>
                           </div>
                           {node.description ? (
                             <p className="text-sm leading-6 text-muted">{node.description}</p>
@@ -783,6 +846,35 @@ export function LearningRoadmapBoard({
                             )}
                           </div>
                           <div className="flex flex-wrap gap-2 border-t border-border pt-3">
+                            <button
+                              type="button"
+                              onClick={() => updateNodeStatus(node.id, 'in_progress')}
+                              disabled={isSaving || node.status === 'in_progress'}
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-500/10 px-2.5 py-1.5 text-xs text-cyan-300 transition-colors hover:bg-cyan-500/15 disabled:opacity-50"
+                            >
+                              <PlayCircle size={12} />
+                              Iniciar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => updateNodeStatus(node.id, 'completed')}
+                              disabled={isSaving || node.status === 'completed'}
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-2.5 py-1.5 text-xs text-emerald-300 transition-colors hover:bg-emerald-500/15 disabled:opacity-50"
+                            >
+                              <CheckCircle2 size={12} />
+                              Completar
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => updateNodeStatus(node.id, 'blocked')}
+                              disabled={isSaving || node.status === 'blocked'}
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-red-500/10 px-2.5 py-1.5 text-xs text-red-300 transition-colors hover:bg-red-500/15 disabled:opacity-50"
+                            >
+                              <Ban size={12} />
+                              Bloquear
+                            </button>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
                             <button
                               type="button"
                               onClick={() => createGoalFromNode(node)}
