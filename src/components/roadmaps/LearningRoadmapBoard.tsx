@@ -27,6 +27,8 @@ interface NodeDraft {
   goalIds: string[]
 }
 
+const selectClassName = 'w-full rounded-xl border border-border bg-zinc-950 px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500 [&>option]:bg-zinc-950 [&>option]:text-white'
+
 const EMPTY_DRAFT: NodeDraft = {
   title: '',
   description: '',
@@ -136,6 +138,8 @@ export function LearningRoadmapBoard({
           type: data.type as LearningNodeType,
           level: data.level ?? null,
           parent_id: data.parent_id ?? null,
+          position_x: data.position_x ?? null,
+          position_y: data.position_y ?? null,
         },
         linkedGoals,
       ),
@@ -201,6 +205,8 @@ export function LearningRoadmapBoard({
                 type: data.type as LearningNodeType,
                 level: data.level ?? null,
                 parent_id: data.parent_id ?? null,
+                position_x: data.position_x ?? null,
+                position_y: data.position_y ?? null,
               },
               linkedGoals,
             )
@@ -332,7 +338,7 @@ export function LearningRoadmapBoard({
             <select
               value={draft.type}
               onChange={(event) => setDraft((current) => ({ ...current, type: event.target.value as LearningNodeType }))}
-              className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
+              className={selectClassName}
             >
               <option value="topic">Topic</option>
               <option value="skill">Skill</option>
@@ -348,7 +354,7 @@ export function LearningRoadmapBoard({
             <select
               value={draft.parentId}
               onChange={(event) => setDraft((current) => ({ ...current, parentId: event.target.value }))}
-              className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
+              className={selectClassName}
             >
               <option value="">Sin conexion previa</option>
               {nodes.map((node) => (
@@ -393,7 +399,7 @@ export function LearningRoadmapBoard({
         </button>
       </section>
 
-      <LearningRoadmapFlow nodes={nodes} roadmapType={roadmap.type} />
+      <LearningRoadmapFlow nodes={nodes} roadmapType={roadmap.type} onNodesChange={setNodes} />
 
       <section className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
         <div className="mb-5 flex items-center justify-between">
@@ -437,7 +443,7 @@ export function LearningRoadmapBoard({
                           <select
                             value={currentDraft.type}
                             onChange={(event) => setEditDraft((draftState) => ({ ...draftState, type: event.target.value as LearningNodeType }))}
-                            className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
+                            className={selectClassName}
                           >
                             <option value="topic">Topic</option>
                             <option value="skill">Skill</option>
@@ -453,7 +459,7 @@ export function LearningRoadmapBoard({
                           <select
                             value={currentDraft.parentId}
                             onChange={(event) => setEditDraft((draftState) => ({ ...draftState, parentId: event.target.value }))}
-                            className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
+                            className={selectClassName}
                           >
                             <option value="">Sin conexion previa</option>
                             {nodes

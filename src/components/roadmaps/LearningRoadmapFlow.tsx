@@ -11,7 +11,9 @@ import {
   type Edge,
   type Node,
   type NodeProps,
+  type ReactFlowProps,
 } from '@xyflow/react'
+import { createClient } from '@/lib/supabase/client'
 import '@xyflow/react/dist/style.css'
 import type { LearningRoadmapNode, LearningRoadmapType } from '@/types/roadmaps'
 
@@ -156,10 +158,12 @@ const nodeTypes = {
 interface LearningRoadmapFlowProps {
   nodes: LearningRoadmapNode[]
   roadmapType: LearningRoadmapType
+  onNodesChange?: (nodes: LearningRoadmapNode[]) => void
 }
 
-export function LearningRoadmapFlow({ nodes, roadmapType }: LearningRoadmapFlowProps) {
+export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: LearningRoadmapFlowProps) {
   const [selectedNode, setSelectedNode] = useState<LearningRoadmapNode | null>(null)
+  const supabase = createClient()
   const activeNode = getActiveNode(nodes)
 
   const parentEdges = nodes
@@ -202,8 +206,8 @@ export function LearningRoadmapFlow({ nodes, roadmapType }: LearningRoadmapFlowP
       section: getSectionLabel(node, roadmapType),
     },
     position: {
-      x: (index % 3) * 300,
-      y: Math.floor(index / 3) * 180,
+      x: node.position_x ?? (index % 3) * 300,
+      y: node.position_y ?? Math.floor(index / 3) * 180,
     },
   }))
 
@@ -212,6 +216,26 @@ export function LearningRoadmapFlow({ nodes, roadmapType }: LearningRoadmapFlowP
     : getLayoutedNodes(baseNodes, flowEdges, roadmapType)
 
   const sections = Array.from(new Set(nodes.map((node) => getSectionLabel(node, roadmapType))))
+
+  const handleNodeDragStop: NonNullable<ReactFlowProps<Node<RoadmapFlowNodeData>>['onNodeDragStop']> = async (_, node) => {
+    if (roadmapType !== 'free') return
+
+    const x = Math.round(node.position.x)
+    const y = Math.round(node.position.y)
+
+    onNodesChange?.(
+      nodes.map((item) =>
+        item.id === node.id
+          ? { ...item, position_x: x, position_y: y }
+          : item,
+      ),
+    )
+
+    await supabase
+      .from('learning_nodes')
+      .update({ position_x: x, position_y: y })
+      .eq('id', node.id)
+  }
 
   return (
     <section className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[var(--shadow-card)]">
@@ -251,6 +275,7 @@ export function LearningRoadmapFlow({ nodes, roadmapType }: LearningRoadmapFlowP
           fitView
           fitViewOptions={{ padding: 0.2 }}
           onNodeClick={(_, node) => setSelectedNode(node.data.node)}
+          onNodeDragStop={handleNodeDragStop}
         >
           <Background color="#334155" gap={20} />
           <Controls className="!border-border !bg-surface !text-text" />

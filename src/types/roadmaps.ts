@@ -21,6 +21,8 @@ export interface LearningNode {
   description: string | null
   type: LearningNodeType
   level: string | null
+  position_x: number | null
+  position_y: number | null
   position: number
   created_at: string
 }
