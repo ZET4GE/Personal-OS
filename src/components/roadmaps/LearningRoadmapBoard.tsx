@@ -81,6 +81,136 @@ export function LearningRoadmapBoard({
   const nextNode = getNextNode(nodes)
   const averageProgress = Math.round(nodes.reduce((acc, node) => acc + node.progress, 0) / Math.max(nodes.length, 1) * 100)
 
+  async function getUserId() {
+    const { data: { user }, error } = await supabase.auth.getUser()
+    if (error || !user) throw new Error('Sesion invalida')
+    return user.id
+  }
+
+  async function linkEntityToPrimaryGoal(entityType: string, entityId: string, userId: string) {
+    if (!roadmap.primary_goal_id) return
+
+    const { error } = await supabase.rpc('link_entity_to_goal', {
+      p_goal_id: roadmap.primary_goal_id,
+      p_entity_type: entityType,
+      p_entity_id: entityId,
+      p_user_id: userId,
+    })
+
+    if (error) throw new Error(error.message)
+  }
+
+  async function createGoalFromNode(node: LearningRoadmapNode) {
+    if (isSaving) return
+    setIsSaving(true)
+
+    try {
+      const userId = await getUserId()
+      const { data, error } = await supabase
+        .from('goals')
+        .insert({
+          user_id: userId,
+          title: node.title,
+          description: node.description || `Sub-meta generada desde el roadmap: ${roadmap.title}`,
+          category: roadmap.type === 'goal_based' ? 'learning' : 'personal',
+          priority: 'medium',
+          color: 'cyan',
+          icon: '🎯',
+          is_public: false,
+        })
+        .select('*')
+        .single()
+
+      if (error || !data) throw new Error(error?.message || 'No se pudo crear la sub-meta')
+
+      await syncNodeGoals(node.id, [data.id, ...node.goals.map((goal) => goal.id)])
+      setNodes((current) =>
+        current.map((item) =>
+          item.id === node.id
+            ? buildNode(item, [data as Goal, ...item.goals])
+            : item,
+        ),
+      )
+      toast.success('Sub-meta creada y conectada')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No se pudo crear la sub-meta')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  async function createHabitFromNode(node: LearningRoadmapNode) {
+    if (isSaving) return
+    setIsSaving(true)
+
+    try {
+      const userId = await getUserId()
+      const { data, error } = await supabase
+        .from('habits')
+        .insert({
+          user_id: userId,
+          name: node.title,
+          description: node.description || `Habito generado desde el roadmap: ${roadmap.title}`,
+          icon: '🎯',
+          color: 'teal',
+          frequency: 'daily',
+          target_days: [1, 2, 3, 4, 5, 6, 0],
+          is_active: true,
+        })
+        .select('id')
+        .single()
+
+      if (error || !data) throw new Error(error?.message || 'No se pudo crear el habito')
+
+      await linkEntityToPrimaryGoal('habit', String(data.id), userId)
+      toast.success(roadmap.primary_goal_id ? 'Habito creado y vinculado a la meta' : 'Habito creado')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No se pudo crear el habito')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  async function createRoutineFromNode(node: LearningRoadmapNode) {
+    if (isSaving) return
+    setIsSaving(true)
+
+    try {
+      const userId = await getUserId()
+      const { data, error } = await supabase
+        .from('routines')
+        .insert({
+          user_id: userId,
+          name: node.title,
+          description: node.description || `Rutina generada desde el roadmap: ${roadmap.title}`,
+          time_of_day: 'morning',
+          estimated_minutes: 30,
+          is_active: true,
+        })
+        .select('id')
+        .single()
+
+      if (error || !data) throw new Error(error?.message || 'No se pudo crear la rutina')
+
+      await supabase
+        .from('routine_items')
+        .insert({
+          routine_id: data.id,
+          user_id: userId,
+          title: `Trabajar en: ${node.title}`,
+          duration_minutes: 30,
+          order_index: 0,
+        })
+
+      await linkEntityToPrimaryGoal('routine', String(data.id), userId)
+      toast.success(roadmap.primary_goal_id ? 'Rutina creada y vinculada a la meta' : 'Rutina creada')
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No se pudo crear la rutina')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
   async function syncNodeGoals(nodeId: string, goalIds: string[]) {
     const { error: deleteError } = await supabase
       .from('learning_node_goals')
@@ -351,18 +481,33 @@ export function LearningRoadmapBoard({
               {nextNode?.description ?? 'Define el primer paso del camino y conectalo con una meta.'}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
-              <Link href="/goals" className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted transition-colors hover:text-text">
+              <button
+                type="button"
+                onClick={() => nextNode && createGoalFromNode(nextNode)}
+                disabled={!nextNode || isSaving}
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted transition-colors hover:text-text disabled:cursor-not-allowed disabled:opacity-50"
+              >
                 <Target size={13} />
                 Crear sub-meta
-              </Link>
-              <Link href="/habits" className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted transition-colors hover:text-text">
+              </button>
+              <button
+                type="button"
+                onClick={() => nextNode && createHabitFromNode(nextNode)}
+                disabled={!nextNode || isSaving}
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted transition-colors hover:text-text disabled:cursor-not-allowed disabled:opacity-50"
+              >
                 <ListTodo size={13} />
                 Crear habito
-              </Link>
-              <Link href="/routines" className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted transition-colors hover:text-text">
+              </button>
+              <button
+                type="button"
+                onClick={() => nextNode && createRoutineFromNode(nextNode)}
+                disabled={!nextNode || isSaving}
+                className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted transition-colors hover:text-text disabled:cursor-not-allowed disabled:opacity-50"
+              >
                 <Repeat size={13} />
                 Crear rutina
-              </Link>
+              </button>
               <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted transition-colors hover:text-text">
                 <Clock size={13} />
                 Registrar tiempo
@@ -588,6 +733,35 @@ export function LearningRoadmapBoard({
                             ) : (
                               <span className="text-xs text-muted">Sin metas conectadas</span>
                             )}
+                          </div>
+                          <div className="flex flex-wrap gap-2 border-t border-border pt-3">
+                            <button
+                              type="button"
+                              onClick={() => createGoalFromNode(node)}
+                              disabled={isSaving}
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-cyan-500/10 px-2.5 py-1.5 text-xs text-cyan-300 transition-colors hover:bg-cyan-500/15 disabled:opacity-50"
+                            >
+                              <Target size={12} />
+                              Sub-meta
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => createHabitFromNode(node)}
+                              disabled={isSaving}
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-surface px-2.5 py-1.5 text-xs text-muted transition-colors hover:text-text disabled:opacity-50"
+                            >
+                              <ListTodo size={12} />
+                              Habito
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => createRoutineFromNode(node)}
+                              disabled={isSaving}
+                              className="inline-flex items-center gap-1.5 rounded-lg bg-surface px-2.5 py-1.5 text-xs text-muted transition-colors hover:text-text disabled:opacity-50"
+                            >
+                              <Repeat size={12} />
+                              Rutina
+                            </button>
                           </div>
                         </>
                       )}
