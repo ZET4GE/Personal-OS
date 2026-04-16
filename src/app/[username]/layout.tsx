@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
+import { WINFLogo } from '@/components/brand/WINFLogo'
 import '../globals.css'
 
 // El layout público es independiente del dashboard shell.
@@ -24,9 +25,9 @@ export default async function PublicLayout({
       >
         <Link
           href="/"
-          className="text-sm font-semibold tracking-tight text-accent-600"
+          className="text-sm font-semibold tracking-tight text-text"
         >
-          Personal OS
+          <WINFLogo markClassName="h-6 w-6 text-text" wordmarkClassName="text-sm font-semibold tracking-tight text-text" />
         </Link>
 
         {user ? (

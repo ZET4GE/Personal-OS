@@ -1,6 +1,6 @@
-# Personal OS
+# WINF
 
-Workspace personal que combina un **dashboard privado** con un **perfil público**. Gestiona postulaciones laborales, proyectos y tu CV desde un solo lugar.
+Work in One Framework. WINF combina metas, proyectos, tiempo, habitos y perfil publico en un solo lugar.
 
 ## Features
 
@@ -39,7 +39,7 @@ Workspace personal que combina un **dashboard privado** con un **perfil público
 
 ```bash
 git clone <repo-url>
-cd personal-os
+cd winf
 npm install
 ```
 

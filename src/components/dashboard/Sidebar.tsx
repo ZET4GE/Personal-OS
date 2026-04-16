@@ -9,6 +9,7 @@ import { useTranslations } from 'next-intl'
 import { useUIStore } from '@/stores/ui.store'
 import { NavLink } from './NavLink'
 import type { EnabledModule } from '@/types/onboarding'
+import { WINFLogo } from '@/components/brand/WINFLogo'
 
 type NavItem = {
   href: string
@@ -101,19 +102,10 @@ export function Sidebar({ collapsed, enabledModules }: { collapsed: boolean; ena
           ].join(' ')}
         >
           {collapsed ? (
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-600 text-xs font-bold text-white shadow-sm shadow-accent-600/40">
-              P
-            </div>
+            <WINFLogo showWordmark={false} markClassName="h-7 w-7 text-text" />
           ) : (
             <>
-              <div className="flex items-center gap-2.5">
-                <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-600 text-xs font-bold text-white shadow-sm shadow-accent-600/40">
-                  P
-                </div>
-                <span className="text-sm font-semibold tracking-tight text-text">
-                  Personal OS
-                </span>
-              </div>
+              <WINFLogo markClassName="h-7 w-7 text-text" wordmarkClassName="text-sm font-semibold tracking-tight text-text" />
               <button
                 className="rounded-md p-1 text-muted transition-colors hover:bg-surface-hover hover:text-foreground md:hidden"
                 onClick={() => setSidebarOpen(false)}

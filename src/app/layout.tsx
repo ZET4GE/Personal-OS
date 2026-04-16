@@ -10,15 +10,18 @@ const geistMono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin']
 
 export const metadata: Metadata = {
   title: {
-    default:  'Personal OS',
-    template: '%s | Personal OS',
+    default:  'WINF',
+    template: '%s | WINF',
   },
-  description: 'Organizá tu vida profesional, gestioná proyectos, trackeá hábitos y creá tu portafolio público. Gratis.',
+  description: 'Work in One Framework: metas, proyectos, habitos, tiempo y perfil publico en un solo lugar.',
+  icons: {
+    icon: '/winf-mark.svg',
+  },
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_APP_URL ?? 'https://winf.com.ar',
   ),
   openGraph: {
-    siteName: 'Personal OS',
+    siteName: 'WINF',
     locale:   'es_AR',
   },
 }

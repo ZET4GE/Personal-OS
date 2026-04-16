@@ -173,8 +173,8 @@ export function CVDocument({ profile, experience, education, skills }: CVDocumen
     <Document
       title={`CV · ${displayName}`}
       author={displayName}
-      creator="Personal OS"
-      producer="Personal OS · @react-pdf/renderer"
+      creator="WINF"
+      producer="WINF · @react-pdf/renderer"
     >
       <Page size="A4" style={styles.page}>
 

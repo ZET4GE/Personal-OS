@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: profile.full_name ?? `@${username}`,
-    description: profile.bio ?? `Perfil de @${username} en Personal OS`,
+    description: profile.bio ?? `Perfil de @${username} en WINF`,
     openGraph: {
       title: profile.full_name ?? `@${username}`,
       description: profile.bio ?? undefined,

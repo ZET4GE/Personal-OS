@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { MessageCircle, ExternalLink } from 'lucide-react'
+import { WINFLogo } from '@/components/brand/WINFLogo'
 
 const LINKS = {
   producto: [
@@ -31,15 +32,14 @@ export function Footer() {
         <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <div className="flex items-center gap-2.5">
-              <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-600 text-xs font-bold text-white">
-                P
-              </div>
-              <span className="text-sm font-semibold text-text">Personal OS</span>
-            </div>
+            <WINFLogo
+              showTagline
+              markClassName="h-8 w-8 text-text"
+              wordmarkClassName="text-sm font-semibold tracking-tight text-text"
+            />
             <p className="mt-3 text-xs leading-relaxed text-muted">
-              Tu workspace personal y portafolio público.
-              Organizado, todo en un lugar.
+              Work in One Framework: metas, proyectos, tiempo y perfil publico
+              en un solo lugar.
             </p>
             <div className="mt-4 flex gap-2">
               {SOCIAL.map((s) => (
@@ -118,7 +118,7 @@ export function Footer() {
         {/* Bottom bar */}
         <div className="mt-10 flex flex-col items-center justify-between gap-4 border-t border-border pt-8 sm:flex-row">
           <p className="text-xs text-muted">
-            © {new Date().getFullYear()} Personal OS. Hecho con ❤️ en Argentina.
+            © {new Date().getFullYear()} WINF. Hecho en Argentina.
           </p>
           <p className="text-xs text-muted">
             Plan gratuito disponible · Próximamente planes Pro

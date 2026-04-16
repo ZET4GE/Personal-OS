@@ -30,22 +30,21 @@ export function Hero() {
           {/* Badge */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent-600/20 bg-accent-600/5 px-3.5 py-1.5 text-xs font-medium text-accent-600 dark:text-accent-400">
             <Sparkles size={12} className="shrink-0" />
-            Plan gratuito · Sin tarjeta de crédito
+            WINF - Work in One Framework
           </div>
 
           {/* Headline */}
           <h1 className="max-w-4xl text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-            Tu{' '}
+            Cumpli tus metas con{' '}
             <span className="bg-gradient-to-r from-accent-500 via-blue-400 to-violet-500 bg-clip-text text-transparent">
-              workspace personal
+              un sistema guiado
             </span>
-            {' '}y portafolio público
           </h1>
 
           {/* Subheadline */}
           <p className="mt-5 max-w-2xl text-base text-muted sm:text-lg">
-            Organizá tu vida profesional, trackeá tus hábitos, gestioná proyectos
-            freelance y mostrá tu trabajo al mundo. Todo en un solo lugar.
+            Organiza metas, roadmaps, proyectos, habitos, tiempo y perfil publico.
+            Todo conectado en un solo framework de trabajo.
           </p>
 
           {/* CTAs */}

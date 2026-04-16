@@ -93,7 +93,7 @@ export function FeaturesGrid() {
             </span>
           </h2>
           <p className="mt-4 text-muted">
-            No más saltar entre apps. Personal OS reúne todo lo que necesitás
+            No más saltar entre apps. WINF reúne todo lo que necesitás
             para organizarte y mostrar tu trabajo en un solo lugar.
           </p>
         </div>

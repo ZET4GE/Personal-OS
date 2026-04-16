@@ -6,6 +6,7 @@ import { Menu, X } from 'lucide-react'
 import { ThemeToggle } from '@/components/ui/ThemeToggle'
 import { AuthModal } from '@/components/auth/AuthModal'
 import { useAuthModal } from '@/stores/auth-modal.store'
+import { WINFLogo } from '@/components/brand/WINFLogo'
 
 interface NavbarProps {
   initialModal?: 'login' | 'signup'
@@ -46,10 +47,7 @@ export function Navbar({ initialModal }: NavbarProps) {
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:px-6">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-600 text-xs font-bold text-white shadow-sm">
-              P
-            </div>
-            <span className="text-sm font-semibold tracking-tight text-text">Personal OS</span>
+            <WINFLogo markClassName="h-7 w-7 text-text" wordmarkClassName="text-sm font-semibold tracking-tight text-text" />
           </Link>
 
           {/* Desktop nav */}

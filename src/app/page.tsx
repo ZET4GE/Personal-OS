@@ -16,20 +16,20 @@ import { Footer }         from '@/components/landing/Footer'
 // ─────────────────────────────────────────────────────────────
 
 export const metadata: Metadata = {
-  title:       'Personal OS — Tu workspace personal y portafolio público',
-  description: 'Organizá tu vida profesional, gestioná proyectos, trackeá hábitos y creá tu portafolio público. Gratis, para siempre.',
-  keywords:    ['workspace personal', 'portfolio', 'job tracker', 'habitos', 'freelance', 'cv builder'],
+  title:       'WINF - Work in One Framework',
+  description: 'Organiza metas, proyectos, habitos, tiempo y perfil publico en un solo framework de trabajo.',
+  keywords:    ['metas', 'productividad', 'portfolio', 'job tracker', 'habitos', 'freelance', 'cv builder'],
   openGraph: {
-    title:       'Personal OS — Tu workspace personal y portafolio público',
-    description: 'Organizá tu vida profesional, gestioná proyectos, trackeá hábitos y creá tu portafolio público. Gratis.',
+    title:       'WINF - Work in One Framework',
+    description: 'Organiza metas, proyectos, habitos, tiempo y perfil publico en un solo lugar.',
     type:        'website',
-    siteName:    'Personal OS',
+    siteName:    'WINF',
     locale:      'es_AR',
   },
   twitter: {
     card:        'summary_large_image',
-    title:       'Personal OS',
-    description: 'Tu workspace personal y portafolio público. Gratis.',
+    title:       'WINF',
+    description: 'Work in One Framework para lograr metas con seguimiento real.',
   },
 }
 

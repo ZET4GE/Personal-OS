@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { useAuthModal } from '@/stores/auth-modal.store'
 import { loginAction, signupAction, forgotPasswordAction } from '@/app/(auth)/actions/auth.actions'
 import { OAuthButtons } from './OAuthButtons'
+import { WINFLogo } from '@/components/brand/WINFLogo'
 
 // ─────────────────────────────────────────────────────────────
 // Sub-forms
@@ -211,10 +212,7 @@ export function AuthModal() {
       >
         {/* Header */}
         <div className="flex items-center justify-between border-b border-border px-6 py-4">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-600 text-xs font-bold text-white">P</div>
-            <span className="text-sm font-semibold text-text">Personal OS</span>
-          </div>
+          <WINFLogo markClassName="h-7 w-7 text-text" wordmarkClassName="text-sm font-semibold text-text" />
           <button
             onClick={closeModal}
             className="rounded-lg p-1.5 text-muted transition-colors hover:bg-surface-hover hover:text-foreground"

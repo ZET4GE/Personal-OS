@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { WINFLogo } from '@/components/brand/WINFLogo'
 
 type Stage = 'verifying' | 'ready' | 'error'
 
@@ -65,10 +66,7 @@ export default function ResetPasswordPage() {
     <div className="flex min-h-screen items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-6">
         {/* Logo */}
-        <div className="flex items-center gap-2.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-accent-600 text-xs font-bold text-white">P</div>
-          <span className="text-sm font-semibold text-text">Personal OS</span>
-        </div>
+        <WINFLogo markClassName="h-7 w-7 text-text" wordmarkClassName="text-sm font-semibold text-text" />
 
         {stage === 'verifying' && (
           <div className="space-y-2 text-center py-8">

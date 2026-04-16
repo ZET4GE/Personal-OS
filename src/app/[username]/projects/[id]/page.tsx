@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: `${project.title} · ${displayName}`,
-    description: project.description ?? `Proyecto de ${displayName} en Personal OS`,
+    description: project.description ?? `Proyecto de ${displayName} en WINF`,
     openGraph: {
       title: `${project.title} · ${displayName}`,
       description: project.description ?? undefined,

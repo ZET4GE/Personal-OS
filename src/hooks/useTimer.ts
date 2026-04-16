@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { TimerState } from '@/types/time-entries'
 
-const TIMER_STORAGE_KEY = 'personal-os:floating-timer:v2'
+const TIMER_STORAGE_KEY = 'winf:floating-timer:v2'
+const LEGACY_TIMER_STORAGE_KEY = 'personal-os:floating-timer:v2'
 
 function getDefaultPosition() {
   if (typeof window === 'undefined') {
@@ -36,7 +37,9 @@ function getStoredTimerState(): TimerState {
   const baseState = createInitialState()
   if (typeof window === 'undefined') return baseState
 
-  const raw = window.localStorage.getItem(TIMER_STORAGE_KEY)
+  const raw =
+    window.localStorage.getItem(TIMER_STORAGE_KEY) ??
+    window.localStorage.getItem(LEGACY_TIMER_STORAGE_KEY)
   if (!raw) return baseState
 
   try {
@@ -77,6 +80,7 @@ function getStoredTimerState(): TimerState {
     }
   } catch {
     window.localStorage.removeItem(TIMER_STORAGE_KEY)
+    window.localStorage.removeItem(LEGACY_TIMER_STORAGE_KEY)
     return baseState
   }
 }
@@ -96,6 +100,7 @@ export function useTimer() {
   useEffect(() => {
     if (typeof window === 'undefined') return
     window.localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(timer))
+    window.localStorage.removeItem(LEGACY_TIMER_STORAGE_KEY)
   }, [timer])
 
   useEffect(() => {

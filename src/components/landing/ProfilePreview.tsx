@@ -71,7 +71,7 @@ function ProfileMockup() {
         {/* Projects grid */}
         <div className="grid grid-cols-2 gap-2.5">
           {[
-            { name: 'Personal OS', tech: 'Next.js · Supabase', stars: 48 },
+            { name: 'WINF', tech: 'Next.js · Supabase', stars: 48 },
             { name: 'CLI Tools', tech: 'Rust · Clap', stars: 23 },
             { name: 'Portfolio API', tech: 'Go · Fiber', stars: 17 },
             { name: 'UI Kit', tech: 'React · Tailwind', stars: 31 },
