@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import dagre from 'dagre'
 import {
   Background,
   Controls,
@@ -18,7 +19,12 @@ type RoadmapFlowNodeData = {
   label: string
   progress: number
   node: LearningRoadmapNode
+  isActive: boolean
+  section: string
 }
+
+const NODE_WIDTH = 240
+const NODE_HEIGHT = 118
 
 function getProgressColor(progress: number) {
   if (progress < 30) return 'border-red-500/40 bg-red-500/10 text-red-200'
@@ -32,19 +38,97 @@ function getProgressBar(progress: number) {
   return 'bg-emerald-500'
 }
 
+function getSectionLabel(node: LearningRoadmapNode) {
+  if (node.type === 'skill') return 'Avanzado'
+  return 'Fundamentos'
+}
+
+function getActiveNode(nodes: LearningRoadmapNode[]) {
+  return nodes.find((node) => node.progress > 0 && node.progress < 1)
+    ?? nodes.find((node) => node.progress < 1)
+    ?? nodes.at(-1)
+    ?? null
+}
+
+function getActivePath(edgeList: Edge[], activeNodeId: string | null) {
+  if (!activeNodeId) return new Set<string>()
+
+  const activeEdgeIds = new Set<string>()
+  let cursor = activeNodeId
+
+  while (cursor) {
+    const edge = edgeList.find((item) => item.target === cursor)
+    if (!edge) break
+
+    activeEdgeIds.add(edge.id)
+    cursor = edge.source
+  }
+
+  return activeEdgeIds
+}
+
+function getLayoutedNodes(
+  flowNodes: Node<RoadmapFlowNodeData>[],
+  flowEdges: Edge[],
+) {
+  const graph = new dagre.graphlib.Graph()
+  graph.setDefaultEdgeLabel(() => ({}))
+  graph.setGraph({
+    rankdir: 'TB',
+    align: 'UL',
+    nodesep: 80,
+    ranksep: 110,
+    marginx: 40,
+    marginy: 40,
+  })
+
+  flowNodes.forEach((node) => {
+    graph.setNode(node.id, { width: NODE_WIDTH, height: NODE_HEIGHT })
+  })
+
+  flowEdges.forEach((edge) => {
+    graph.setEdge(edge.source, edge.target)
+  })
+
+  dagre.layout(graph)
+
+  return flowNodes.map((node) => {
+    const position = graph.node(node.id)
+
+    return {
+      ...node,
+      position: {
+        x: position.x - NODE_WIDTH / 2,
+        y: position.y - NODE_HEIGHT / 2,
+      },
+    }
+  })
+}
+
 function RoadmapNode({ data, selected }: NodeProps<Node<RoadmapFlowNodeData>>) {
   const progress = Math.round(data.progress)
 
   return (
     <div
       className={[
-        'min-w-48 rounded-2xl border px-4 py-3 shadow-xl backdrop-blur transition-all duration-200',
-        'hover:scale-[1.03] hover:shadow-cyan-500/10',
+        'w-[240px] rounded-2xl border px-4 py-3 shadow-xl backdrop-blur transition-all duration-200',
+        'hover:scale-[1.03] hover:shadow-cyan-500/20',
+        data.isActive ? 'scale-105 ring-2 ring-cyan-400/80 shadow-cyan-500/20' : '',
         selected ? 'ring-2 ring-cyan-400/70' : '',
         getProgressColor(progress),
       ].join(' ')}
     >
       <Handle type="target" position={Position.Top} className="!border-cyan-400 !bg-surface" />
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <span className="rounded-full bg-black/25 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/60">
+          {data.section}
+        </span>
+        {data.isActive ? (
+          <span className="rounded-full bg-cyan-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-200">
+            Actual
+          </span>
+        ) : null}
+      </div>
       <p className="text-sm font-semibold leading-snug">{data.label}</p>
       <div className="mt-3 space-y-1.5">
         <div className="flex items-center justify-between text-[11px] text-white/70">
@@ -73,61 +157,91 @@ interface LearningRoadmapFlowProps {
 
 export function LearningRoadmapFlow({ nodes }: LearningRoadmapFlowProps) {
   const [selectedNode, setSelectedNode] = useState<LearningRoadmapNode | null>(null)
+  const activeNode = getActiveNode(nodes)
 
-  const flowNodes: Node<RoadmapFlowNodeData>[] = nodes.map((node, index) => ({
+  const parentEdges = nodes
+    .filter((node) => Boolean(node.parent_id))
+    .map((node) => ({
+      id: `${node.parent_id}-${node.id}`,
+      source: String(node.parent_id),
+      target: node.id,
+    }))
+
+  const fallbackEdges = nodes.slice(1).map((node, index) => ({
+    id: `${nodes[index].id}-${node.id}`,
+    source: nodes[index].id,
+    target: node.id,
+  }))
+
+  const rawEdges = parentEdges.length > 0 ? parentEdges : fallbackEdges
+  const activePath = getActivePath(rawEdges, activeNode?.id ?? null)
+
+  const flowEdges: Edge[] = rawEdges.map((edge) => {
+    const isActive = activePath.has(edge.id)
+
+    return {
+      ...edge,
+      animated: isActive,
+      type: 'smoothstep',
+      style: {
+        stroke: isActive ? '#22d3ee' : '#64748b',
+        strokeWidth: isActive ? 3 : 1.5,
+      },
+      markerEnd: {
+        type: 'arrowclosed',
+        color: isActive ? '#22d3ee' : '#64748b',
+      },
+    }
+  })
+
+  const baseNodes: Node<RoadmapFlowNodeData>[] = nodes.map((node) => ({
     id: node.id,
     type: 'roadmapNode',
     data: {
       label: node.title,
       progress: Math.round(node.progress * 100),
       node,
+      isActive: node.id === activeNode?.id,
+      section: getSectionLabel(node),
     },
-    position: {
-      x: (index % 3) * 280,
-      y: Math.floor(index / 3) * 190,
-    },
+    position: { x: 0, y: 0 },
   }))
 
-  const parentEdges: Edge[] = nodes
-    .filter((node) => Boolean(node.parent_id))
-    .map((node) => ({
-      id: `${node.parent_id}-${node.id}`,
-      source: String(node.parent_id),
-      target: node.id,
-      animated: true,
-      className: 'stroke-cyan-400',
-    }))
+  const flowNodes = getLayoutedNodes(baseNodes, flowEdges)
 
-  const fallbackEdges: Edge[] = nodes.slice(1).map((node, index) => ({
-    id: `${nodes[index].id}-${node.id}`,
-    source: nodes[index].id,
-    target: node.id,
-    animated: true,
-    className: 'stroke-cyan-400',
-  }))
-
-  const flowEdges = parentEdges.length > 0 ? parentEdges : fallbackEdges
+  const sections = Array.from(new Set(nodes.map(getSectionLabel)))
 
   return (
     <section className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[var(--shadow-card)]">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div>
           <h2 className="text-sm font-semibold text-text">Mapa visual</h2>
-          <p className="text-xs text-muted">Zoom, pan y nodos arrastrables</p>
+          <p className="text-xs text-muted">Camino ordenado automaticamente, zoom, pan y nodos arrastrables</p>
         </div>
-        {selectedNode ? (
-          <span className="rounded-full bg-cyan-500/10 px-2.5 py-1 text-xs font-medium text-cyan-400">
-            {selectedNode.title}
-          </span>
-        ) : null}
+        <div className="flex flex-wrap justify-end gap-2">
+          {sections.map((section) => (
+            <span
+              key={section}
+              className="rounded-full border border-border bg-surface-2 px-2.5 py-1 text-xs font-medium text-muted"
+            >
+              {section}
+            </span>
+          ))}
+          {selectedNode ? (
+            <span className="rounded-full bg-cyan-500/10 px-2.5 py-1 text-xs font-medium text-cyan-400">
+              {selectedNode.title}
+            </span>
+          ) : null}
+        </div>
       </div>
 
-      <div className="h-[520px] bg-[radial-gradient(circle_at_top,#0b1220_0%,#050507_55%)]">
+      <div className="h-[620px] bg-[radial-gradient(circle_at_top,#0b1220_0%,#050507_55%)]">
         <ReactFlow
           nodes={flowNodes}
           edges={flowEdges}
           nodeTypes={nodeTypes}
           fitView
+          fitViewOptions={{ padding: 0.2 }}
           onNodeClick={(_, node) => setSelectedNode(node.data.node)}
         >
           <Background color="#334155" gap={20} />
