@@ -6,6 +6,7 @@ import { GripVertical, Plus, Pencil, Save, X, ChevronUp, ChevronDown, Target, Li
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { LearningRoadmapFlow } from './LearningRoadmapFlow'
+import { RoadmapExecutionPanel } from './RoadmapExecutionPanel'
 import type { Goal } from '@/types/goals'
 import type {
   LearningNodeType,
@@ -102,10 +103,14 @@ export function LearningRoadmapBoard({
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editDraft, setEditDraft] = useState<NodeDraft>(EMPTY_DRAFT)
   const [isSaving, setIsSaving] = useState(false)
+  const [statusFilter, setStatusFilter] = useState<LearningNodeStatus | 'all'>('all')
   const supabase = createClient()
   const primaryGoal = availableGoals.find((goal) => goal.id === roadmap.primary_goal_id) ?? null
   const nextNode = getNextNode(nodes)
   const averageProgress = Math.round(nodes.reduce((acc, node) => acc + node.progress, 0) / Math.max(nodes.length, 1) * 100)
+  const filteredNodes = statusFilter === 'all'
+    ? nodes
+    : nodes.filter((node) => node.status === statusFilter)
 
   async function getUserId() {
     const { data: { user }, error } = await supabase.auth.getUser()
@@ -312,6 +317,11 @@ export function LearningRoadmapBoard({
     }
 
     setIsSaving(false)
+  }
+
+  function handleFlowNodesChange(updatedNodes: LearningRoadmapNode[]) {
+    const updatedMap = new Map(updatedNodes.map((node) => [node.id, node]))
+    setNodes((current) => current.map((node) => updatedMap.get(node.id) ?? node))
   }
 
   async function syncNodeGoals(nodeId: string, goalIds: string[]) {
@@ -561,6 +571,14 @@ export function LearningRoadmapBoard({
         </div>
       </section>
 
+      <RoadmapExecutionPanel
+        roadmap={roadmap}
+        nodes={nodes}
+        primaryGoal={primaryGoal}
+        activeFilter={statusFilter}
+        onFilterChange={setStatusFilter}
+      />
+
       <section className="grid gap-4 lg:grid-cols-[1.1fr_1.4fr]">
         <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/10 p-5 shadow-[var(--shadow-card)]">
           <div className="mb-3 flex items-center gap-2">
@@ -710,7 +728,7 @@ export function LearningRoadmapBoard({
         </button>
       </section>
 
-      <LearningRoadmapFlow nodes={nodes} roadmapType={roadmap.type} onNodesChange={setNodes} />
+      <LearningRoadmapFlow nodes={filteredNodes} roadmapType={roadmap.type} onNodesChange={handleFlowNodesChange} />
 
       <section className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
         <div className="mb-5 flex items-center justify-between">
@@ -721,7 +739,7 @@ export function LearningRoadmapBoard({
         </div>
 
         <div className="space-y-4">
-          {nodes.map((node, index) => {
+          {filteredNodes.map((node, index) => {
             const isEditing = editingId === node.id
             const progress = Math.round(node.progress * 100)
             const currentDraft = isEditing ? editDraft : null
@@ -773,7 +791,7 @@ export function LearningRoadmapBoard({
                             className={selectClassName}
                           >
                             <option value="">Sin conexion previa</option>
-                            {nodes
+                      {nodes
                               .filter((candidate) => candidate.id !== node.id)
                               .map((candidate) => (
                                 <option key={candidate.id} value={candidate.id}>
@@ -940,7 +958,7 @@ export function LearningRoadmapBoard({
                       <button
                         type="button"
                         onClick={() => moveNode(node.id, 1)}
-                        disabled={index === nodes.length - 1 || isSaving}
+                        disabled={index === filteredNodes.length - 1 || isSaving}
                         className="rounded-lg border border-border bg-surface px-2 py-2 text-muted transition-colors hover:text-text disabled:opacity-40"
                       >
                         <ChevronDown size={14} />
@@ -979,10 +997,10 @@ export function LearningRoadmapBoard({
             )
           })}
 
-          {nodes.length === 0 ? (
+          {filteredNodes.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border bg-surface-2 px-5 py-12 text-center">
-              <p className="text-sm font-medium text-text">Todavia no hay nodos</p>
-              <p className="mt-1 text-sm text-muted">Agrega el primero para empezar a ordenar el aprendizaje.</p>
+              <p className="text-sm font-medium text-text">No hay nodos para este filtro</p>
+              <p className="mt-1 text-sm text-muted">Cambia el filtro o agrega un nuevo nodo.</p>
             </div>
           ) : null}
         </div>

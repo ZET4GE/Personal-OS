@@ -37,6 +37,20 @@ function getProgressColor(progress: number) {
   return 'border-emerald-500/40 bg-emerald-500/10 text-emerald-100'
 }
 
+function getNodeStatusClass(node: LearningRoadmapNode, progress: number) {
+  if (node.status === 'completed') return 'border-emerald-500/50 bg-emerald-500/10 text-emerald-100'
+  if (node.status === 'in_progress') return 'border-cyan-500/60 bg-cyan-500/10 text-cyan-100'
+  if (node.status === 'blocked') return 'border-red-500/60 bg-red-500/10 text-red-100'
+  return getProgressColor(progress)
+}
+
+function getNodeStatusLabel(node: LearningRoadmapNode) {
+  if (node.status === 'completed') return 'Hecho'
+  if (node.status === 'in_progress') return 'Actual'
+  if (node.status === 'blocked') return 'Bloqueado'
+  return 'Pendiente'
+}
+
 function getProgressBar(progress: number) {
   if (progress < 30) return 'bg-red-500'
   if (progress < 70) return 'bg-amber-500'
@@ -123,7 +137,7 @@ function RoadmapNode({ data, selected }: NodeProps<Node<RoadmapFlowNodeData>>) {
         'hover:scale-[1.03] hover:shadow-cyan-500/20',
         data.isActive ? 'scale-105 ring-2 ring-cyan-400/80 shadow-cyan-500/20' : '',
         selected ? 'ring-2 ring-cyan-400/70' : '',
-        getProgressColor(progress),
+        getNodeStatusClass(data.node, progress),
       ].join(' ')}
     >
       <Handle
@@ -135,11 +149,9 @@ function RoadmapNode({ data, selected }: NodeProps<Node<RoadmapFlowNodeData>>) {
         <span className="rounded-full bg-black/25 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/60">
           {data.section}
         </span>
-        {data.isActive ? (
-          <span className="rounded-full bg-cyan-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-cyan-200">
-            Actual
-          </span>
-        ) : null}
+        <span className="rounded-full bg-black/25 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/70">
+          {getNodeStatusLabel(data.node)}
+        </span>
       </div>
       <p className="text-sm font-semibold leading-snug">{data.label}</p>
       <div className="mt-3 space-y-1.5">
