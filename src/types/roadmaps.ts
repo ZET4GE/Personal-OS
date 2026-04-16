@@ -14,6 +14,7 @@ export interface LearningRoadmap {
 export interface LearningNode {
   id: string
   roadmap_id: string
+  parent_id?: string | null
   title: string
   description: string | null
   type: LearningNodeType

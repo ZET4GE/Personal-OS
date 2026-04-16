@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { GripVertical, Plus, Pencil, Save, X, ChevronUp, ChevronDown, Target } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
+import { LearningRoadmapFlow } from './LearningRoadmapFlow'
 import type { Goal } from '@/types/goals'
 import type {
   LearningNodeType,
@@ -347,11 +348,13 @@ export function LearningRoadmapBoard({
         </button>
       </section>
 
+      <LearningRoadmapFlow nodes={nodes} />
+
       <section className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
         <div className="mb-5 flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-text">Mapa de aprendizaje</h2>
-            <p className="text-xs text-muted">Lista vertical con progreso y conexion con metas</p>
+            <h2 className="text-sm font-semibold text-text">Editor de nodos</h2>
+            <p className="text-xs text-muted">Gestiona contenido, metas y orden del roadmap</p>
           </div>
         </div>
 
