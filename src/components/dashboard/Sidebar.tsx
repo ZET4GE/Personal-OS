@@ -3,55 +3,70 @@
 import {
   LayoutDashboard, Briefcase, FolderOpen, FileText,
   Settings, X, BarChart3, Users, Wallet, Target, ListChecks, PenLine, StickyNote, Crosshair, GitBranch,
+  type LucideIcon,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useUIStore } from '@/stores/ui.store'
 import { NavLink } from './NavLink'
+import type { EnabledModule } from '@/types/onboarding'
 
-export function Sidebar({ collapsed }: { collapsed: boolean }) {
+type NavItem = {
+  href: string
+  icon: LucideIcon
+  label: string
+  module?: EnabledModule
+}
+
+type NavGroup = {
+  label: string
+  items: NavItem[]
+}
+
+export function Sidebar({ collapsed, enabledModules }: { collapsed: boolean; enabledModules: EnabledModule[] }) {
   const { sidebarOpen, setSidebarOpen } = useUIStore()
   const t = useTranslations('nav')
+  const enabled = new Set(enabledModules)
 
-  const NAV_GROUPS = [
+  const NAV_GROUPS: NavGroup[] = [
     {
       label: 'PRINCIPAL',
       items: [
         { href: '/dashboard', icon: LayoutDashboard, label: t('dashboard') },
+        { href: '/goals',    icon: Crosshair,  label: t('goals')    },
+        { href: '/roadmaps', icon: GitBranch, label: t('roadmaps') },
+      ],
+    },
+    {
+      label: 'ACCION',
+      items: [
+        { href: '/projects',  icon: FolderOpen, label: t('projects'), module: 'projects' },
+        { href: '/habits',   icon: Target,     label: t('habits'), module: 'habits' },
+        { href: '/routines', icon: ListChecks, label: t('routines'), module: 'routines' },
       ],
     },
     {
       label: 'TRABAJO',
       items: [
-        { href: '/jobs',      icon: Briefcase,  label: t('jobs')      },
-        { href: '/projects',  icon: FolderOpen, label: t('projects')  },
-        { href: '/clients',   icon: Users,      label: t('clients')   },
-        { href: '/freelance', icon: Wallet,     label: t('freelance') },
-      ],
-    },
-    {
-      label: 'PERSONAL',
-      items: [
-        { href: '/habits',   icon: Target,     label: t('habits')   },
-        { href: '/routines', icon: ListChecks, label: t('routines') },
-        { href: '/goals',    icon: Crosshair,  label: t('goals')    },
+        { href: '/jobs',      icon: Briefcase,  label: t('jobs'), module: 'jobs' },
+        { href: '/clients',   icon: Users,      label: t('clients'), module: 'clients' },
+        { href: '/freelance', icon: Wallet,     label: t('freelance'), module: 'freelance' },
       ],
     },
     {
       label: 'CONOCIMIENTO',
       items: [
-        { href: '/notes', icon: StickyNote, label: t('notes') },
-        { href: '/roadmaps', icon: GitBranch, label: t('roadmaps') },
+        { href: '/notes', icon: StickyNote, label: t('notes'), module: 'notes' },
       ],
     },
     {
-      label: 'PERFIL',
+      label: 'PERFIL PUBLICO',
       items: [
-        { href: '/cv',        icon: FileText,  label: t('cv')        },
-        { href: '/blog',      icon: PenLine,   label: t('blog')      },
-        { href: '/analytics', icon: BarChart3, label: t('analytics') },
+        { href: '/cv',        icon: FileText,  label: t('cv'), module: 'cv' },
+        { href: '/blog',      icon: PenLine,   label: t('blog'), module: 'blog' },
+        { href: '/analytics', icon: BarChart3, label: t('analytics'), module: 'analytics' },
       ],
     },
-  ] as const
+  ]
 
   const BOTTOM_ITEMS = [
     { href: '/settings', icon: Settings, label: t('settings') },
@@ -112,7 +127,11 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
 
         {/* Nav principal con grupos */}
         <nav className="flex flex-1 flex-col overflow-y-auto px-2 py-3 gap-4">
-          {NAV_GROUPS.map((group) => (
+          {NAV_GROUPS.map((group) => {
+            const visibleItems = group.items.filter((item) => !item.module || enabled.has(item.module))
+            if (visibleItems.length === 0) return null
+
+            return (
             <div key={group.label}>
               {!collapsed && (
                 <p className="mb-1 px-2.5 text-[10px] font-semibold tracking-widest text-muted/50 uppercase select-none">
@@ -120,12 +139,12 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
                 </p>
               )}
               <div className="flex flex-col gap-0.5">
-                {group.items.map((item) => (
+                {visibleItems.map((item) => (
                   <NavLink key={item.href} {...item} collapsed={collapsed} />
                 ))}
               </div>
             </div>
-          ))}
+          )})}
         </nav>
 
         {/* Nav inferior */}

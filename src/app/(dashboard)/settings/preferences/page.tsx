@@ -1,13 +1,30 @@
 import type { Metadata } from 'next'
 import { getTranslations, getLocale } from 'next-intl/server'
+import { redirect } from 'next/navigation'
 import { LanguageSwitcherFull } from '@/components/ui/LanguageSwitcherFull'
 import { SettingsNav } from '@/components/settings/SettingsNav'
+import { ModulePreferencesForm } from '@/components/settings/ModulePreferencesForm'
+import { createClient } from '@/lib/supabase/server'
+import { getUserOnboarding } from '@/services/onboarding'
 
 export const metadata: Metadata = { title: 'Preferencias' }
 
 export default async function PreferencesPage() {
   const t      = await getTranslations('settings')
   const locale = await getLocale()
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) redirect('/login')
+
+  const onboardingResult = await getUserOnboarding(supabase, user.id)
+  const { data: goals } = await supabase
+    .from('goals')
+    .select('id, title, status')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -24,6 +41,8 @@ export default async function PreferencesPage() {
         </div>
         <LanguageSwitcherFull currentLocale={locale} />
       </section>
+
+      <ModulePreferencesForm initialOnboarding={onboardingResult.data ?? null} goals={goals ?? []} />
     </div>
   )
 }

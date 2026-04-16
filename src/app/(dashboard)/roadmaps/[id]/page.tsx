@@ -9,16 +9,8 @@ export async function generateMetadata({
 }: {
   params: Promise<{ id: string }>
 }): Promise<Metadata> {
-  const { id } = await params
-  const supabase = await createClient()
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) return { title: 'Roadmap' }
-
-  const result = await getLearningRoadmapDetail(supabase, id, user.id)
-  return { title: result.data?.roadmap.title ?? 'Roadmap' }
+  await params
+  return { title: 'Roadmap' }
 }
 
 export default async function LearningRoadmapPage({

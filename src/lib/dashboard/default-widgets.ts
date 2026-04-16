@@ -2,17 +2,17 @@ import type { DashboardWidgetLayout } from '@/types/dashboard-config'
 
 export const DEFAULT_DASHBOARD_WIDGETS: DashboardWidgetLayout[] = [
   { id: 'dashboard-goals', type: 'dashboard-goals', visible: true, size: 'lg', position: 0 },
-  { id: 'stats-grid', type: 'stats-grid', visible: true, size: 'lg', position: 1 },
+  { id: 'stats-grid', type: 'stats-grid', visible: false, size: 'lg', position: 1 },
   { id: 'today-habits', type: 'today-habits', visible: true, size: 'md', position: 2 },
   { id: 'streak-widget', type: 'streak-widget', visible: true, size: 'sm', position: 3 },
   { id: 'upcoming-deadlines', type: 'upcoming-deadlines', visible: true, size: 'md', position: 4 },
   { id: 'time-invested', type: 'time-invested', visible: true, size: 'md', position: 5 },
   { id: 'pending-payments', type: 'pending-payments', visible: true, size: 'md', position: 6 },
-  { id: 'google-calendar', type: 'google-calendar', visible: true, size: 'md', position: 7 },
-  { id: 'github-activity', type: 'github-activity', visible: true, size: 'md', position: 8 },
-  { id: 'goals-widget', type: 'goals-widget', visible: true, size: 'sm', position: 9 },
-  { id: 'dashboard-insights', type: 'dashboard-insights', visible: true, size: 'sm', position: 10 },
-  { id: 'recent-notes', type: 'recent-notes', visible: true, size: 'sm', position: 11 },
+  { id: 'google-calendar', type: 'google-calendar', visible: false, size: 'md', position: 7 },
+  { id: 'github-activity', type: 'github-activity', visible: false, size: 'md', position: 8 },
+  { id: 'goals-widget', type: 'goals-widget', visible: false, size: 'sm', position: 9 },
+  { id: 'dashboard-insights', type: 'dashboard-insights', visible: false, size: 'sm', position: 10 },
+  { id: 'recent-notes', type: 'recent-notes', visible: false, size: 'sm', position: 11 },
   { id: 'recent-activity', type: 'recent-activity', visible: true, size: 'lg', position: 12 },
 ]
 

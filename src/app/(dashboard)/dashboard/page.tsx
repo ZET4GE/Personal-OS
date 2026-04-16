@@ -6,7 +6,6 @@ import { getDashboardData } from '@/services/dashboard'
 import { getGoals } from '@/services/goals'
 import { getUserOnboarding } from '@/services/onboarding'
 
-import { DashboardHeader } from '@/components/dashboard/widgets/DashboardHeader'
 import { StatsGrid } from '@/components/dashboard/widgets/StatsGrid'
 import { TodayHabits } from '@/components/dashboard/widgets/TodayHabits'
 import { StreakWidget } from '@/components/dashboard/widgets/StreakWidget'
@@ -21,6 +20,7 @@ import { GoalsWidget } from '@/components/dashboard/widgets/GoalsWidget'
 import { DashboardInsights } from '@/components/dashboard/widgets/DashboardInsights'
 import { DashboardGoalsPanel } from '@/components/dashboard/widgets/DashboardGoalsPanel'
 import { DashboardCustomizer } from '@/components/dashboard/DashboardCustomizer'
+import { FocusDashboard } from '@/components/dashboard/focus/FocusDashboard'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 
@@ -55,6 +55,12 @@ export default async function DashboardPage() {
   const data = await getDashboardData(supabase, user.id)
   const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario'
   const { google: hasGoogle, github: hasGitHub } = data.integrations
+  const goals = goalsResult.data ?? []
+  const activeGoal =
+    goals.find((goal) => goal.id === onboardingResult.data?.primary_goal_id)
+    ?? goals.find((goal) => goal.status === 'active')
+    ?? goals[0]
+    ?? null
   const widgets = [
     {
       id: 'dashboard-goals',
@@ -68,6 +74,7 @@ export default async function DashboardPage() {
       type: 'stats-grid',
       title: 'Estadísticas',
       defaultSize: 'xl' as const,
+      defaultVisible: false,
       content: <StatsGrid stats={data.stats} />,
     },
     {
@@ -120,6 +127,7 @@ export default async function DashboardPage() {
           type: 'google-calendar',
           title: 'Google Calendar',
           defaultSize: 'md' as const,
+          defaultVisible: false,
           content: (
             <Suspense fallback={<WidgetSkeleton />}>
               <GoogleCalendarWidget userId={user.id} />
@@ -133,6 +141,7 @@ export default async function DashboardPage() {
           type: 'github-activity',
           title: 'GitHub',
           defaultSize: 'md' as const,
+          defaultVisible: false,
           content: (
             <Suspense fallback={<WidgetSkeleton />}>
               <GitHubActivityWidget userId={user.id} />
@@ -145,6 +154,7 @@ export default async function DashboardPage() {
       type: 'goals-widget',
       title: 'Mis metas',
       defaultSize: 'sm' as const,
+      defaultVisible: false,
       content: (
         <Suspense fallback={<WidgetSkeleton />}>
           <GoalsWidget userId={user.id} />
@@ -156,6 +166,7 @@ export default async function DashboardPage() {
       type: 'dashboard-insights',
       title: 'Insights',
       defaultSize: 'sm' as const,
+      defaultVisible: false,
       content: (
         <Suspense fallback={<WidgetSkeleton />}>
           <DashboardInsights userId={user.id} />
@@ -167,6 +178,7 @@ export default async function DashboardPage() {
       type: 'recent-notes',
       title: 'Notas recientes',
       defaultSize: 'sm' as const,
+      defaultVisible: false,
       content: (
         <Suspense fallback={<WidgetSkeleton />}>
           <RecentNotes userId={user.id} />
@@ -185,8 +197,23 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in pb-8">
-      <DashboardHeader data={data} userName={userName} />
-      <DashboardCustomizer widgets={widgets} />
+      <div>
+        <p className="text-sm text-muted">Hola, {userName}</p>
+        <h1 className="text-2xl font-semibold tracking-tight text-text">Tu foco de hoy</h1>
+      </div>
+
+      <FocusDashboard
+        activeGoal={activeGoal}
+        dashboardData={data}
+      />
+
+      <section className="space-y-4">
+        <div>
+          <h2 className="text-sm font-semibold text-text">Widgets adicionales</h2>
+          <p className="text-xs text-muted">Informacion secundaria que puedes editar u ocultar.</p>
+        </div>
+        <DashboardCustomizer widgets={widgets} />
+      </section>
     </div>
   )
 }

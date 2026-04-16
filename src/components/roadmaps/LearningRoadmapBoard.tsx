@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import { GripVertical, Plus, Pencil, Save, X, ChevronUp, ChevronDown, Target, ListTodo, Repeat, Clock, CheckCircle2, PlayCircle, Ban } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
-import { LearningRoadmapFlow } from './LearningRoadmapFlow'
 import { RoadmapExecutionPanel } from './RoadmapExecutionPanel'
 import type { Goal } from '@/types/goals'
 import type {
@@ -40,6 +40,18 @@ const EMPTY_DRAFT: NodeDraft = {
   parentId: '',
   goalIds: [],
 }
+
+const LearningRoadmapFlow = dynamic(
+  () => import('./LearningRoadmapFlow').then((module) => module.LearningRoadmapFlow),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="rounded-2xl border border-border bg-surface p-6 text-sm text-muted">
+        Cargando editor visual...
+      </div>
+    ),
+  },
+)
 
 function getTypeLabel(type: LearningNodeType) {
   return type === 'skill' ? 'Skill' : 'Topic'
@@ -104,6 +116,7 @@ export function LearningRoadmapBoard({
   const [editDraft, setEditDraft] = useState<NodeDraft>(EMPTY_DRAFT)
   const [isSaving, setIsSaving] = useState(false)
   const [statusFilter, setStatusFilter] = useState<LearningNodeStatus | 'all'>('all')
+  const [mode, setMode] = useState<'execute' | 'edit'>('execute')
   const supabase = createClient()
   const primaryGoal = availableGoals.find((goal) => goal.id === roadmap.primary_goal_id) ?? null
   const nextNode = getNextNode(nodes)
@@ -571,6 +584,35 @@ export function LearningRoadmapBoard({
         </div>
       </section>
 
+      <div className="flex flex-wrap gap-2 rounded-2xl border border-border bg-surface p-2 shadow-[var(--shadow-card)]">
+        <button
+          type="button"
+          onClick={() => setMode('execute')}
+          className={[
+            'flex-1 rounded-xl px-4 py-2 text-sm font-medium transition-colors',
+            mode === 'execute'
+              ? 'bg-accent-600 text-white'
+              : 'text-muted hover:bg-surface-hover hover:text-text',
+          ].join(' ')}
+        >
+          Ejecutar
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode('edit')}
+          className={[
+            'flex-1 rounded-xl px-4 py-2 text-sm font-medium transition-colors',
+            mode === 'edit'
+              ? 'bg-accent-600 text-white'
+              : 'text-muted hover:bg-surface-hover hover:text-text',
+          ].join(' ')}
+        >
+          Editar roadmap
+        </button>
+      </div>
+
+      {mode === 'execute' ? (
+        <>
       <RoadmapExecutionPanel
         roadmap={roadmap}
         nodes={nodes}
@@ -642,6 +684,10 @@ export function LearningRoadmapBoard({
           </div>
         </div>
       </section>
+
+        </>
+      ) : (
+        <>
 
       <section className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
         <div className="mb-4 flex items-center gap-2">
@@ -1005,6 +1051,8 @@ export function LearningRoadmapBoard({
           ) : null}
         </div>
       </section>
+        </>
+      )}
     </div>
   )
 }

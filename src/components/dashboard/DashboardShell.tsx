@@ -4,14 +4,16 @@ import { useState } from 'react'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { QuickCapture } from '@/components/notes/QuickCapture'
+import type { EnabledModule } from '@/types/onboarding'
 
 interface DashboardShellProps {
   userEmail: string
   userName?: string
+  enabledModules: EnabledModule[]
   children: React.ReactNode
 }
 
-export function DashboardShell({ userEmail, userName, children }: DashboardShellProps) {
+export function DashboardShell({ userEmail, userName, enabledModules, children }: DashboardShellProps) {
   const [collapsed, setCollapsed] = useState(false)
 
   return (
@@ -22,7 +24,7 @@ export function DashboardShell({ userEmail, userName, children }: DashboardShell
         className="pointer-events-none fixed right-0 top-0 -z-10 h-[500px] w-[500px] rounded-full bg-accent-600/[0.04] blur-3xl dark:bg-accent-600/[0.07]"
       />
 
-      <Sidebar collapsed={collapsed} />
+      <Sidebar collapsed={collapsed} enabledModules={enabledModules} />
 
       <div
         className={[
