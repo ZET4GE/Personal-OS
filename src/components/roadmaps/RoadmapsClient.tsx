@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { GitBranch, Plus } from 'lucide-react'
+import { GitBranch, Pencil, Plus, Save, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import type { LearningRoadmap, LearningRoadmapType } from '@/types/roadmaps'
@@ -12,11 +12,37 @@ interface RoadmapsClientProps {
   roadmaps: LearningRoadmap[]
 }
 
+const ROADMAP_TYPES: { value: LearningRoadmapType; label: string; desc: string }[] = [
+  {
+    value: 'free',
+    label: 'Libre',
+    desc: 'Canvas flexible. Conectas nodos como quieras, ideal para ideas sueltas o exploracion.',
+  },
+  {
+    value: 'structured',
+    label: 'Plan de estudio',
+    desc: 'Camino guiado por niveles. Ordena fundamentos, intermedio y avanzado.',
+  },
+  {
+    value: 'goal_based',
+    label: 'Basado en metas',
+    desc: 'Igual que plan de estudio, pero el avance sale de las metas conectadas.',
+  },
+]
+
+function getRoadmapTypeLabel(type: LearningRoadmapType) {
+  return ROADMAP_TYPES.find((item) => item.value === type)?.label ?? 'Libre'
+}
+
 export function RoadmapsClient({ roadmaps: initialRoadmaps }: RoadmapsClientProps) {
   const [roadmaps, setRoadmaps] = useState(initialRoadmaps)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
   const [type, setType] = useState<LearningRoadmapType>('free')
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editTitle, setEditTitle] = useState('')
+  const [editDescription, setEditDescription] = useState('')
+  const [editType, setEditType] = useState<LearningRoadmapType>('free')
   const [isSaving, setIsSaving] = useState(false)
   const router = useRouter()
   const supabase = createClient()
@@ -65,6 +91,62 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps }: RoadmapsClientProp
     router.refresh()
   }
 
+  function startEdit(roadmap: LearningRoadmap) {
+    setEditingId(roadmap.id)
+    setEditTitle(roadmap.title)
+    setEditDescription(roadmap.description ?? '')
+    setEditType(roadmap.type)
+  }
+
+  async function handleUpdateRoadmap(id: string) {
+    if (!editTitle.trim() || isSaving) return
+    setIsSaving(true)
+
+    const { data, error } = await supabase
+      .from('learning_roadmaps')
+      .update({
+        title: editTitle.trim(),
+        description: editDescription.trim() || null,
+        type: editType,
+      })
+      .eq('id', id)
+      .select('*')
+      .single()
+
+    if (error || !data) {
+      toast.error(error?.message || 'No se pudo actualizar')
+      setIsSaving(false)
+      return
+    }
+
+    setRoadmaps((current) => current.map((item) => (item.id === id ? data as LearningRoadmap : item)))
+    setEditingId(null)
+    setIsSaving(false)
+    toast.success('Roadmap actualizado')
+    router.refresh()
+  }
+
+  async function handleDeleteRoadmap(id: string) {
+    if (!window.confirm('Eliminar este roadmap? Esta accion no se puede deshacer.')) return
+    setIsSaving(true)
+
+    const { error } = await supabase
+      .from('learning_roadmaps')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      toast.error(error.message || 'No se pudo eliminar')
+      setIsSaving(false)
+      return
+    }
+
+    setRoadmaps((current) => current.filter((item) => item.id !== id))
+    setIsSaving(false)
+    toast.success('Roadmap eliminado')
+    router.refresh()
+  }
+
   return (
     <div className="space-y-6">
       <section className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
@@ -98,18 +180,14 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps }: RoadmapsClientProp
         </div>
 
         <div className="mt-4 grid gap-2 md:grid-cols-3">
-          {[
-            { value: 'free', label: '🧠 Libre', desc: 'Ideas sin estructura fija' },
-            { value: 'structured', label: '📚 Plan de estudio', desc: 'Niveles ordenados' },
-            { value: 'goal_based', label: '🎯 Basado en metas', desc: 'Progreso por goals' },
-          ].map((item) => {
+          {ROADMAP_TYPES.map((item) => {
             const isSelected = type === item.value
 
             return (
               <button
                 key={item.value}
                 type="button"
-                onClick={() => setType(item.value as LearningRoadmapType)}
+                onClick={() => setType(item.value)}
                 className={[
                   'rounded-xl border px-4 py-3 text-left transition-all hover:scale-[1.01]',
                   isSelected
@@ -118,7 +196,7 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps }: RoadmapsClientProp
                 ].join(' ')}
               >
                 <p className="text-sm font-semibold">{item.label}</p>
-                <p className="mt-1 text-xs opacity-75">{item.desc}</p>
+                <p className="mt-1 text-xs leading-5 opacity-75">{item.desc}</p>
               </button>
             )
           })}
@@ -133,18 +211,13 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps }: RoadmapsClientProp
       ) : (
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {roadmaps.map((roadmap) => (
-            <Link
+            <div
               key={roadmap.id}
-              href={`/roadmaps/${roadmap.id}`}
               className="group rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:border-border-bright"
             >
               <div className="mb-3 flex items-center justify-between">
                 <span className="rounded-full bg-cyan-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-400">
-                  {roadmap.type === 'free'
-                    ? 'Libre'
-                    : roadmap.type === 'structured'
-                    ? 'Plan'
-                    : 'Metas'}
+                  {getRoadmapTypeLabel(roadmap.type)}
                 </span>
                 {roadmap.is_public ? (
                   <span className="rounded-full bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-400">
@@ -152,13 +225,80 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps }: RoadmapsClientProp
                   </span>
                 ) : null}
               </div>
-              <h2 className="text-lg font-semibold text-text transition-colors group-hover:text-white">
-                {roadmap.title}
-              </h2>
-              <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted">
-                {roadmap.description || 'Sin descripcion'}
-              </p>
-            </Link>
+
+              {editingId === roadmap.id ? (
+                <div className="space-y-3">
+                  <input
+                    value={editTitle}
+                    onChange={(event) => setEditTitle(event.target.value)}
+                    className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent-500"
+                  />
+                  <textarea
+                    value={editDescription}
+                    onChange={(event) => setEditDescription(event.target.value)}
+                    rows={3}
+                    className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent-500"
+                  />
+                  <select
+                    value={editType}
+                    onChange={(event) => setEditType(event.target.value as LearningRoadmapType)}
+                    className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent-500"
+                  >
+                    {ROADMAP_TYPES.map((option) => (
+                      <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                  </select>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateRoadmap(roadmap.id)}
+                      disabled={isSaving || !editTitle.trim()}
+                      className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium text-white disabled:opacity-50"
+                    >
+                      <Save size={13} />
+                      Guardar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setEditingId(null)}
+                      className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted hover:text-text"
+                    >
+                      <X size={13} />
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <Link href={`/roadmaps/${roadmap.id}`} className="block">
+                    <h2 className="text-lg font-semibold text-text transition-colors group-hover:text-white">
+                      {roadmap.title}
+                    </h2>
+                    <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted">
+                      {roadmap.description || 'Sin descripcion'}
+                    </p>
+                  </Link>
+                  <div className="mt-4 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => startEdit(roadmap)}
+                      className="inline-flex items-center gap-1 rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted hover:text-text"
+                    >
+                      <Pencil size={13} />
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteRoadmap(roadmap.id)}
+                      className="inline-flex items-center gap-1 rounded-lg border border-red-500/30 px-3 py-2 text-xs font-medium text-red-300 hover:bg-red-500/10"
+                    >
+                      <Trash2 size={13} />
+                      Borrar
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
           ))}
         </section>
       )}

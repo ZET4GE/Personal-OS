@@ -23,6 +23,7 @@ interface NodeDraft {
   description: string
   type: LearningNodeType
   level: string
+  parentId: string
   goalIds: string[]
 }
 
@@ -31,6 +32,7 @@ const EMPTY_DRAFT: NodeDraft = {
   description: '',
   type: 'topic',
   level: '',
+  parentId: '',
   goalIds: [],
 }
 
@@ -104,6 +106,7 @@ export function LearningRoadmapBoard({
         description: draft.description.trim() || null,
         type: draft.type,
         level: roadmap.type === 'free' ? null : draft.level.trim() || 'Fundamentos',
+        parent_id: draft.parentId || null,
         position: nextPosition,
       })
       .select('*')
@@ -132,6 +135,7 @@ export function LearningRoadmapBoard({
           description: data.description ?? null,
           type: data.type as LearningNodeType,
           level: data.level ?? null,
+          parent_id: data.parent_id ?? null,
         },
         linkedGoals,
       ),
@@ -148,6 +152,7 @@ export function LearningRoadmapBoard({
       description: node.description ?? '',
       type: node.type,
       level: node.level ?? '',
+      parentId: node.parent_id ?? '',
       goalIds: node.goals.map((goal) => goal.id),
     })
   }
@@ -163,6 +168,7 @@ export function LearningRoadmapBoard({
         description: editDraft.description.trim() || null,
         type: editDraft.type,
         level: roadmap.type === 'free' ? null : editDraft.level.trim() || 'Fundamentos',
+        parent_id: editDraft.parentId || null,
       })
       .eq('id', nodeId)
       .select('*')
@@ -194,6 +200,7 @@ export function LearningRoadmapBoard({
                 description: data.description ?? null,
                 type: data.type as LearningNodeType,
                 level: data.level ?? null,
+                parent_id: data.parent_id ?? null,
               },
               linkedGoals,
             )
@@ -271,6 +278,13 @@ export function LearningRoadmapBoard({
             {roadmap.description ? (
               <p className="max-w-3xl text-sm leading-6 text-muted">{roadmap.description}</p>
             ) : null}
+            <p className="max-w-3xl text-xs leading-5 text-muted">
+              {roadmap.type === 'free'
+                ? 'Libre: usa el canvas como mapa mental. Las conexiones son manuales y no hay orden obligatorio.'
+                : roadmap.type === 'structured'
+                ? 'Plan de estudio: los nodos se ordenan por niveles y las conexiones marcan prerequisitos.'
+                : 'Basado en metas: funciona como plan guiado y el progreso se calcula desde las metas conectadas.'}
+            </p>
           </div>
 
           <div className="grid grid-cols-3 gap-2 rounded-xl border border-border bg-surface-2 p-2 text-center">
@@ -331,6 +345,18 @@ export function LearningRoadmapBoard({
                 className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
               />
             ) : null}
+            <select
+              value={draft.parentId}
+              onChange={(event) => setDraft((current) => ({ ...current, parentId: event.target.value }))}
+              className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
+            >
+              <option value="">Sin conexion previa</option>
+              {nodes.map((node) => (
+                <option key={node.id} value={node.id}>
+                  Conectar despues de: {node.title}
+                </option>
+              ))}
+            </select>
           </div>
 
           <div className="rounded-xl border border-border bg-surface-2 p-3">
@@ -424,6 +450,20 @@ export function LearningRoadmapBoard({
                               className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
                             />
                           ) : null}
+                          <select
+                            value={currentDraft.parentId}
+                            onChange={(event) => setEditDraft((draftState) => ({ ...draftState, parentId: event.target.value }))}
+                            className="w-full rounded-xl border border-border bg-surface px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
+                          >
+                            <option value="">Sin conexion previa</option>
+                            {nodes
+                              .filter((candidate) => candidate.id !== node.id)
+                              .map((candidate) => (
+                                <option key={candidate.id} value={candidate.id}>
+                                  Conectar despues de: {candidate.title}
+                                </option>
+                              ))}
+                          </select>
                           <div className="grid gap-2 rounded-xl border border-border bg-surface p-3 md:grid-cols-2">
                             {availableGoals.map((goal) => (
                               <label

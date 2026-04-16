@@ -170,17 +170,7 @@ export function LearningRoadmapFlow({ nodes, roadmapType }: LearningRoadmapFlowP
       target: node.id,
     }))
 
-  const fallbackEdges = nodes.slice(1).map((node, index) => ({
-    id: `${nodes[index].id}-${node.id}`,
-    source: nodes[index].id,
-    target: node.id,
-  }))
-
-  const rawEdges = roadmapType === 'free'
-    ? parentEdges
-    : parentEdges.length > 0
-    ? parentEdges
-    : fallbackEdges
+  const rawEdges = parentEdges
   const activePath = getActivePath(rawEdges, activeNode?.id ?? null)
 
   const flowEdges: Edge[] = rawEdges.map((edge) => {
@@ -232,8 +222,8 @@ export function LearningRoadmapFlow({ nodes, roadmapType }: LearningRoadmapFlowP
             {roadmapType === 'free'
               ? 'Modo libre con zoom, pan y nodos arrastrables'
               : roadmapType === 'structured'
-              ? 'Plan por niveles ordenado automaticamente'
-              : 'Plan por niveles con progreso conectado a metas'}
+              ? 'Plan por niveles. Las conexiones son prerequisitos manuales.'
+              : 'Plan por niveles con progreso conectado a metas y prerequisitos manuales.'}
           </p>
         </div>
         <div className="flex flex-wrap justify-end gap-2">
