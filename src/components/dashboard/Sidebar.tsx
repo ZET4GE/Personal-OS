@@ -2,7 +2,7 @@
 
 import {
   LayoutDashboard, Briefcase, FolderOpen, FileText,
-  Settings, X, BarChart3, Users, Wallet, Target, ListChecks, PenLine, StickyNote, Crosshair,
+  Settings, X, BarChart3, Users, Wallet, Target, ListChecks, PenLine, StickyNote, Crosshair, GitBranch,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import { useUIStore } from '@/stores/ui.store'
@@ -40,6 +40,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
       label: 'CONOCIMIENTO',
       items: [
         { href: '/notes', icon: StickyNote, label: t('notes') },
+        { href: '/roadmaps', icon: GitBranch, label: t('roadmaps') },
       ],
     },
     {
