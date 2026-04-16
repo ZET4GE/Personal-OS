@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation'
 import { GitBranch, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
-import type { LearningRoadmap } from '@/types/roadmaps'
+import type { LearningRoadmap, LearningRoadmapType } from '@/types/roadmaps'
 
 interface RoadmapsClientProps {
   roadmaps: LearningRoadmap[]
@@ -16,6 +16,7 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps }: RoadmapsClientProp
   const [roadmaps, setRoadmaps] = useState(initialRoadmaps)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [type, setType] = useState<LearningRoadmapType>('free')
   const [isSaving, setIsSaving] = useState(false)
   const router = useRouter()
   const supabase = createClient()
@@ -41,6 +42,7 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps }: RoadmapsClientProp
         user_id: user.id,
         title: title.trim(),
         description: description.trim() || null,
+        type,
         is_public: false,
       })
       .select('*')
@@ -56,6 +58,7 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps }: RoadmapsClientProp
     setRoadmaps((current) => [newRoadmap, ...current])
     setTitle('')
     setDescription('')
+    setType('free')
     setIsSaving(false)
     toast.success('Roadmap creado')
     router.push(`/roadmaps/${newRoadmap.id}`)
@@ -93,6 +96,33 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps }: RoadmapsClientProp
             {isSaving ? 'Creando...' : 'Nuevo roadmap'}
           </button>
         </div>
+
+        <div className="mt-4 grid gap-2 md:grid-cols-3">
+          {[
+            { value: 'free', label: '🧠 Libre', desc: 'Ideas sin estructura fija' },
+            { value: 'structured', label: '📚 Plan de estudio', desc: 'Niveles ordenados' },
+            { value: 'goal_based', label: '🎯 Basado en metas', desc: 'Progreso por goals' },
+          ].map((item) => {
+            const isSelected = type === item.value
+
+            return (
+              <button
+                key={item.value}
+                type="button"
+                onClick={() => setType(item.value as LearningRoadmapType)}
+                className={[
+                  'rounded-xl border px-4 py-3 text-left transition-all hover:scale-[1.01]',
+                  isSelected
+                    ? 'border-cyan-500/60 bg-cyan-500/10 text-cyan-100'
+                    : 'border-border bg-surface-2 text-muted hover:text-text',
+                ].join(' ')}
+              >
+                <p className="text-sm font-semibold">{item.label}</p>
+                <p className="mt-1 text-xs opacity-75">{item.desc}</p>
+              </button>
+            )
+          })}
+        </div>
       </section>
 
       {roadmaps.length === 0 ? (
@@ -110,7 +140,11 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps }: RoadmapsClientProp
             >
               <div className="mb-3 flex items-center justify-between">
                 <span className="rounded-full bg-cyan-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-400">
-                  Roadmap
+                  {roadmap.type === 'free'
+                    ? 'Libre'
+                    : roadmap.type === 'structured'
+                    ? 'Plan'
+                    : 'Metas'}
                 </span>
                 {roadmap.is_public ? (
                   <span className="rounded-full bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-400">

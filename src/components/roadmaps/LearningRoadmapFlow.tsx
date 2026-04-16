@@ -13,7 +13,7 @@ import {
   type NodeProps,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
-import type { LearningRoadmapNode } from '@/types/roadmaps'
+import type { LearningRoadmapNode, LearningRoadmapType } from '@/types/roadmaps'
 
 type RoadmapFlowNodeData = {
   label: string
@@ -38,7 +38,8 @@ function getProgressBar(progress: number) {
   return 'bg-emerald-500'
 }
 
-function getSectionLabel(node: LearningRoadmapNode) {
+function getSectionLabel(node: LearningRoadmapNode, roadmapType: LearningRoadmapType) {
+  if (roadmapType !== 'free' && node.level) return node.level
   if (node.type === 'skill') return 'Avanzado'
   return 'Fundamentos'
 }
@@ -70,14 +71,15 @@ function getActivePath(edgeList: Edge[], activeNodeId: string | null) {
 function getLayoutedNodes(
   flowNodes: Node<RoadmapFlowNodeData>[],
   flowEdges: Edge[],
+  roadmapType: LearningRoadmapType,
 ) {
   const graph = new dagre.graphlib.Graph()
   graph.setDefaultEdgeLabel(() => ({}))
   graph.setGraph({
-    rankdir: 'TB',
+    rankdir: roadmapType === 'free' ? 'LR' : 'TB',
     align: 'UL',
-    nodesep: 80,
-    ranksep: 110,
+    nodesep: roadmapType === 'free' ? 100 : 80,
+    ranksep: roadmapType === 'free' ? 120 : 110,
     marginx: 40,
     marginy: 40,
   })
@@ -153,9 +155,10 @@ const nodeTypes = {
 
 interface LearningRoadmapFlowProps {
   nodes: LearningRoadmapNode[]
+  roadmapType: LearningRoadmapType
 }
 
-export function LearningRoadmapFlow({ nodes }: LearningRoadmapFlowProps) {
+export function LearningRoadmapFlow({ nodes, roadmapType }: LearningRoadmapFlowProps) {
   const [selectedNode, setSelectedNode] = useState<LearningRoadmapNode | null>(null)
   const activeNode = getActiveNode(nodes)
 
@@ -173,7 +176,11 @@ export function LearningRoadmapFlow({ nodes }: LearningRoadmapFlowProps) {
     target: node.id,
   }))
 
-  const rawEdges = parentEdges.length > 0 ? parentEdges : fallbackEdges
+  const rawEdges = roadmapType === 'free'
+    ? parentEdges
+    : parentEdges.length > 0
+    ? parentEdges
+    : fallbackEdges
   const activePath = getActivePath(rawEdges, activeNode?.id ?? null)
 
   const flowEdges: Edge[] = rawEdges.map((edge) => {
@@ -194,29 +201,40 @@ export function LearningRoadmapFlow({ nodes }: LearningRoadmapFlowProps) {
     }
   })
 
-  const baseNodes: Node<RoadmapFlowNodeData>[] = nodes.map((node) => ({
+  const baseNodes: Node<RoadmapFlowNodeData>[] = nodes.map((node, index) => ({
     id: node.id,
     type: 'roadmapNode',
     data: {
       label: node.title,
       progress: Math.round(node.progress * 100),
       node,
-      isActive: node.id === activeNode?.id,
-      section: getSectionLabel(node),
+      isActive: roadmapType !== 'free' && node.id === activeNode?.id,
+      section: getSectionLabel(node, roadmapType),
     },
-    position: { x: 0, y: 0 },
+    position: {
+      x: (index % 3) * 300,
+      y: Math.floor(index / 3) * 180,
+    },
   }))
 
-  const flowNodes = getLayoutedNodes(baseNodes, flowEdges)
+  const flowNodes = roadmapType === 'free'
+    ? baseNodes
+    : getLayoutedNodes(baseNodes, flowEdges, roadmapType)
 
-  const sections = Array.from(new Set(nodes.map(getSectionLabel)))
+  const sections = Array.from(new Set(nodes.map((node) => getSectionLabel(node, roadmapType))))
 
   return (
     <section className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[var(--shadow-card)]">
       <div className="flex items-center justify-between border-b border-border px-5 py-4">
         <div>
           <h2 className="text-sm font-semibold text-text">Mapa visual</h2>
-          <p className="text-xs text-muted">Camino ordenado automaticamente, zoom, pan y nodos arrastrables</p>
+          <p className="text-xs text-muted">
+            {roadmapType === 'free'
+              ? 'Modo libre con zoom, pan y nodos arrastrables'
+              : roadmapType === 'structured'
+              ? 'Plan por niveles ordenado automaticamente'
+              : 'Plan por niveles con progreso conectado a metas'}
+          </p>
         </div>
         <div className="flex flex-wrap justify-end gap-2">
           {sections.map((section) => (

@@ -1,12 +1,14 @@
 import type { Goal } from '@/types/goals'
 
 export type LearningNodeType = 'skill' | 'topic'
+export type LearningRoadmapType = 'free' | 'structured' | 'goal_based'
 
 export interface LearningRoadmap {
   id: string
   user_id: string
   title: string
   description: string | null
+  type: LearningRoadmapType
   is_public: boolean
   created_at: string
 }
@@ -18,6 +20,7 @@ export interface LearningNode {
   title: string
   description: string | null
   type: LearningNodeType
+  level: string | null
   position: number
   created_at: string
 }
