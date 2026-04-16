@@ -6,6 +6,7 @@ import type {
   LearningRoadmap,
   LearningRoadmapDetail,
   LearningRoadmapNode,
+  RoadmapNodeAction,
 } from '@/types/roadmaps'
 
 type Ok<T> = { data: T; error: null }
@@ -45,13 +46,20 @@ export async function getLearningRoadmapDetail(
 
   const nodeIds = (nodes ?? []).map((node) => String(node.id))
 
-  const [linksRes, goalsRes] = await Promise.all([
+  const [linksRes, actionsRes, goalsRes] = await Promise.all([
     nodeIds.length === 0
       ? Promise.resolve({ data: [], error: null })
       : supabase
           .from('learning_node_goals')
           .select('*')
           .in('node_id', nodeIds),
+    nodeIds.length === 0
+      ? Promise.resolve({ data: [], error: null })
+      : supabase
+          .from('roadmap_node_actions')
+          .select('*')
+          .in('node_id', nodeIds)
+          .order('created_at', { ascending: false }),
     supabase
       .from('goals')
       .select('*')
@@ -60,16 +68,24 @@ export async function getLearningRoadmapDetail(
   ])
 
   if (linksRes.error) return err(linksRes.error.message)
+  if (actionsRes.error) return err(actionsRes.error.message)
   if (goalsRes.error) return err(goalsRes.error.message)
 
   const availableGoals = (goalsRes.data ?? []) as Goal[]
   const goalsById = new Map(availableGoals.map((goal) => [goal.id, goal]))
   const linksByNodeId = new Map<string, LearningNodeGoalLink[]>()
+  const actionsByNodeId = new Map<string, RoadmapNodeAction[]>()
 
   for (const link of (linksRes.data ?? []) as LearningNodeGoalLink[]) {
     const current = linksByNodeId.get(link.node_id) ?? []
     current.push(link)
     linksByNodeId.set(link.node_id, current)
+  }
+
+  for (const action of (actionsRes.data ?? []) as RoadmapNodeAction[]) {
+    const current = actionsByNodeId.get(action.node_id) ?? []
+    current.push(action)
+    actionsByNodeId.set(action.node_id, current)
   }
 
   const hydratedNodes: LearningRoadmapNode[] = ((nodes ?? []) as LearningNode[]).map((node) => {
@@ -85,6 +101,7 @@ export async function getLearningRoadmapDetail(
       ...node,
       goals: linkedGoals,
       progress,
+      actions: actionsByNodeId.get(node.id) ?? [],
     }
   })
 

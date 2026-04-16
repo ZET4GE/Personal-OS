@@ -55,14 +55,23 @@ function getNextNode(nodes: LearningRoadmapNode[]) {
     ?? null
 }
 
+function getActionLabel(type: LearningRoadmapNode['actions'][number]['entity_type']) {
+  if (type === 'goal') return 'Sub-meta'
+  if (type === 'habit') return 'Habito'
+  if (type === 'routine') return 'Rutina'
+  if (type === 'project') return 'Proyecto'
+  return 'Tarea'
+}
+
 function buildNode(
-  node: Omit<LearningRoadmapNode, 'goals' | 'progress'>,
+  node: Omit<LearningRoadmapNode, 'goals' | 'progress' | 'actions'> & { actions?: LearningRoadmapNode['actions'] },
   goals: Goal[],
 ): LearningRoadmapNode {
   return {
     ...node,
     goals,
     progress: getNodeProgress(goals) / 100,
+    actions: node.actions ?? [],
   }
 }
 
@@ -100,6 +109,28 @@ export function LearningRoadmapBoard({
     if (error) throw new Error(error.message)
   }
 
+  async function registerNodeAction(
+    nodeId: string,
+    entityType: 'goal' | 'habit' | 'routine' | 'project' | 'task',
+    entityId: string,
+  ) {
+    const { data, error } = await supabase
+      .from('roadmap_node_actions')
+      .upsert(
+        {
+          node_id: nodeId,
+          entity_type: entityType,
+          entity_id: entityId,
+        },
+        { onConflict: 'node_id,entity_type,entity_id' },
+      )
+      .select('*')
+      .single()
+
+    if (error || !data) throw new Error(error?.message || 'No se pudo registrar la accion')
+    return data as LearningRoadmapNode['actions'][number]
+  }
+
   async function createGoalFromNode(node: LearningRoadmapNode) {
     if (isSaving) return
     setIsSaving(true)
@@ -123,11 +154,12 @@ export function LearningRoadmapBoard({
 
       if (error || !data) throw new Error(error?.message || 'No se pudo crear la sub-meta')
 
+      const action = await registerNodeAction(node.id, 'goal', String(data.id))
       await syncNodeGoals(node.id, [data.id, ...node.goals.map((goal) => goal.id)])
       setNodes((current) =>
         current.map((item) =>
           item.id === node.id
-            ? buildNode(item, [data as Goal, ...item.goals])
+            ? buildNode({ ...item, actions: [action, ...item.actions] }, [data as Goal, ...item.goals])
             : item,
         ),
       )
@@ -162,7 +194,15 @@ export function LearningRoadmapBoard({
 
       if (error || !data) throw new Error(error?.message || 'No se pudo crear el habito')
 
+      const action = await registerNodeAction(node.id, 'habit', String(data.id))
       await linkEntityToPrimaryGoal('habit', String(data.id), userId)
+      setNodes((current) =>
+        current.map((item) =>
+          item.id === node.id
+            ? { ...item, actions: [action, ...item.actions] }
+            : item,
+        ),
+      )
       toast.success(roadmap.primary_goal_id ? 'Habito creado y vinculado a la meta' : 'Habito creado')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'No se pudo crear el habito')
@@ -202,7 +242,15 @@ export function LearningRoadmapBoard({
           order_index: 0,
         })
 
+      const action = await registerNodeAction(node.id, 'routine', String(data.id))
       await linkEntityToPrimaryGoal('routine', String(data.id), userId)
+      setNodes((current) =>
+        current.map((item) =>
+          item.id === node.id
+            ? { ...item, actions: [action, ...item.actions] }
+            : item,
+        ),
+      )
       toast.success(roadmap.primary_goal_id ? 'Rutina creada y vinculada a la meta' : 'Rutina creada')
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'No se pudo crear la rutina')
@@ -762,6 +810,27 @@ export function LearningRoadmapBoard({
                               <Repeat size={12} />
                               Rutina
                             </button>
+                          </div>
+                          <div className="rounded-xl border border-border bg-surface p-3">
+                            <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
+                              Acciones creadas desde este nodo
+                            </p>
+                            {node.actions.length > 0 ? (
+                              <div className="flex flex-wrap gap-2">
+                                {node.actions.map((action) => (
+                                  <span
+                                    key={action.id}
+                                    className="rounded-full bg-surface-2 px-2.5 py-1 text-xs text-text"
+                                  >
+                                    {getActionLabel(action.entity_type)}
+                                  </span>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-xs text-muted">
+                                Todavia no generaste sub-metas, habitos o rutinas desde este nodo.
+                              </p>
+                            )}
                           </div>
                         </>
                       )}

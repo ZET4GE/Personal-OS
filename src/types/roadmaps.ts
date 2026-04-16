@@ -36,9 +36,18 @@ export interface LearningNodeGoalLink {
   goal_id: string
 }
 
+export interface RoadmapNodeAction {
+  id: string
+  node_id: string
+  entity_type: 'goal' | 'habit' | 'routine' | 'project' | 'task'
+  entity_id: string
+  created_at: string
+}
+
 export interface LearningRoadmapNode extends LearningNode {
   goals: Goal[]
   progress: number
+  actions: RoadmapNodeAction[]
 }
 
 export interface LearningRoadmapDetail {
