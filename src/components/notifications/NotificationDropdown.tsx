@@ -1,18 +1,20 @@
 'use client'
 
 import Link from 'next/link'
-import { CheckCheck, Trash2 } from 'lucide-react'
+import { AlertTriangle, CheckCheck, Info, Trash2 } from 'lucide-react'
+import type { SmartAlert } from '@/types/dashboard'
 import type { Notification } from '@/types/notifications'
 import { NotificationItem } from './NotificationItem'
 import { markAllAsReadAction, deleteAllReadAction } from '@/app/(dashboard)/notifications/actions'
 
 interface Props {
-  notifications:    Notification[]
-  loading:          boolean
-  onRead:           (id: string) => void
-  onDelete:         (id: string) => void
-  onReadAll:        () => void
-  onClose:          () => void
+  notifications: Notification[]
+  loading: boolean
+  onRead: (id: string) => void
+  onDelete: (id: string) => void
+  onReadAll: () => void
+  onClose: () => void
+  smartAlerts?: SmartAlert[]
 }
 
 export function NotificationDropdown({
@@ -22,9 +24,10 @@ export function NotificationDropdown({
   onDelete,
   onReadAll,
   onClose,
+  smartAlerts = [],
 }: Props) {
-  const hasUnread = notifications.some((n) => !n.is_read)
-  const hasRead   = notifications.some((n) => n.is_read)
+  const hasUnread = notifications.some((item) => !item.is_read)
+  const hasRead = notifications.some((item) => item.is_read)
 
   async function handleReadAll() {
     onReadAll()
@@ -33,13 +36,11 @@ export function NotificationDropdown({
 
   async function handleDeleteAllRead() {
     await deleteAllReadAction()
-    // let page revalidate — items will disappear on next fetch
     window.location.reload()
   }
 
   return (
-    <div className="absolute right-0 top-full z-50 mt-2 w-80 overflow-hidden rounded-xl border border-border bg-surface shadow-[var(--shadow-card-hover)]">
-      {/* header */}
+    <div className="w-[min(420px,calc(100vw-24px))] overflow-hidden rounded-xl border border-border bg-surface shadow-[0_24px_80px_rgba(0,0,0,0.45)]">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <h3 className="text-sm font-semibold text-text">Notificaciones</h3>
         <div className="flex items-center gap-2">
@@ -47,7 +48,7 @@ export function NotificationDropdown({
             <button
               onClick={handleReadAll}
               className="flex items-center gap-1 rounded px-2 py-1 text-xs text-accent-500 transition-colors hover:bg-accent-500/10"
-              title="Marcar todas como leídas"
+              title="Marcar todas como leidas"
             >
               <CheckCheck size={13} />
               <span>Leer todo</span>
@@ -57,7 +58,7 @@ export function NotificationDropdown({
             <button
               onClick={handleDeleteAllRead}
               className="flex items-center gap-1 rounded px-2 py-1 text-xs text-text/40 transition-colors hover:bg-surface-2 hover:text-text/70"
-              title="Borrar las leídas"
+              title="Borrar leidas"
             >
               <Trash2 size={13} />
             </button>
@@ -65,12 +66,11 @@ export function NotificationDropdown({
         </div>
       </div>
 
-      {/* list */}
-      <div className="max-h-96 overflow-y-auto">
+      <div className="max-h-[70vh] overflow-y-auto p-2">
         {loading ? (
-          <div className="space-y-1 p-2">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="flex gap-3 rounded-lg px-3 py-3">
+          <div className="space-y-1">
+            {[...Array(4)].map((_, index) => (
+              <div key={index} className="flex gap-3 rounded-lg px-3 py-3">
                 <div className="h-8 w-8 shrink-0 animate-pulse rounded-full bg-surface-3" />
                 <div className="flex-1 space-y-2">
                   <div className="h-3 w-3/4 animate-pulse rounded bg-surface-3" />
@@ -79,17 +79,48 @@ export function NotificationDropdown({
               </div>
             ))}
           </div>
-        ) : notifications.length === 0 ? (
+        ) : notifications.length === 0 && smartAlerts.length === 0 ? (
           <div className="flex flex-col items-center gap-2 py-10 text-text/40">
             <CheckCheck size={32} strokeWidth={1.5} />
-            <p className="text-sm">Todo al día</p>
+            <p className="text-sm">Todo al dia</p>
           </div>
         ) : (
-          <div className="p-2 space-y-0.5">
-            {notifications.map((n) => (
+          <div className="space-y-2">
+            {smartAlerts.length > 0 && (
+              <div className="rounded-xl border border-border bg-surface-2 p-2">
+                <p className="mb-1.5 px-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
+                  Alertas inteligentes
+                </p>
+                <div className="space-y-1">
+                  {smartAlerts.map((alert, index) => {
+                    const isWarning = alert.type === 'warning'
+                    const Icon = isWarning ? AlertTriangle : Info
+
+                    return (
+                      <Link
+                        key={`${alert.type}-${index}`}
+                        href={isWarning ? '/goals' : '/habits'}
+                        onClick={onClose}
+                        className={[
+                          'flex items-start gap-2 rounded-lg px-2.5 py-2 text-xs transition-colors',
+                          isWarning
+                            ? 'bg-red-500/10 text-red-100 hover:bg-red-500/15'
+                            : 'bg-amber-500/10 text-amber-100 hover:bg-amber-500/15',
+                        ].join(' ')}
+                      >
+                        <Icon size={14} className={isWarning ? 'mt-0.5 text-red-400' : 'mt-0.5 text-amber-400'} />
+                        <span className="leading-5">{alert.message}</span>
+                      </Link>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {notifications.map((notification) => (
               <NotificationItem
-                key={n.id}
-                notification={n}
+                key={notification.id}
+                notification={notification}
                 onRead={onRead}
                 onDelete={onDelete}
                 compact
@@ -99,8 +130,7 @@ export function NotificationDropdown({
         )}
       </div>
 
-      {/* footer */}
-      {notifications.length > 0 && (
+      {(notifications.length > 0 || smartAlerts.length > 0) && (
         <div className="border-t border-border px-4 py-2.5">
           <Link
             href="/notifications"

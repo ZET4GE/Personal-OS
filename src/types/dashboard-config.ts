@@ -1,4 +1,4 @@
-export type DashboardWidgetSize = 'sm' | 'md' | 'lg'
+export type DashboardWidgetSize = 'sm' | 'md' | 'lg' | 'xl'
 
 export interface DashboardWidgetLayout {
   id: string

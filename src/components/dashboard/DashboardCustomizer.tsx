@@ -18,7 +18,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Edit3, EyeOff, Eye, Move, Scaling, Save } from 'lucide-react'
+import { Edit3, EyeOff, Eye, Move, RotateCcw, Scaling, Save } from 'lucide-react'
 import { useDashboardConfig } from '@/hooks/useDashboardConfig'
 import type { DashboardWidgetLayout, DashboardWidgetSize } from '@/types/dashboard-config'
 
@@ -27,6 +27,7 @@ interface DashboardWidgetSlot {
   type: string
   title: string
   defaultSize: DashboardWidgetSize
+  defaultVisible?: boolean
   content: React.ReactNode
 }
 
@@ -35,14 +36,16 @@ interface DashboardCustomizerProps {
 }
 
 const SIZE_CLASS: Record<DashboardWidgetSize, string> = {
-  sm: 'lg:col-span-1',
-  md: 'lg:col-span-2',
-  lg: 'lg:col-span-3',
+  sm: 'xl:col-span-1',
+  md: 'xl:col-span-2',
+  lg: 'xl:col-span-3',
+  xl: 'xl:col-span-4',
 }
 
 function cycleSize(size: DashboardWidgetSize): DashboardWidgetSize {
   if (size === 'sm') return 'md'
   if (size === 'md') return 'lg'
+  if (size === 'lg') return 'xl'
   return 'sm'
 }
 
@@ -82,28 +85,28 @@ function SortableWidget({
       className={[
         'col-span-1',
         SIZE_CLASS[layout.size],
-        editMode ? 'transition-all duration-200 hover:scale-[1.01]' : '',
-        isDragging ? 'z-50 opacity-65 shadow-2xl rotate-[1deg]' : '',
+        editMode ? 'transition-all duration-150 hover:scale-[1.005]' : '',
+        isDragging ? 'z-50 opacity-80 shadow-2xl' : '',
       ].join(' ')}
     >
       <div
         className={[
           'h-full',
-          editMode ? 'rounded-2xl border-2 border-dashed border-accent-600/50 p-2 shadow-lg' : '',
+          editMode ? 'rounded-2xl border border-dashed border-accent-600/50 p-1.5 shadow-lg' : '',
         ].join(' ')}
       >
         {editMode && (
-          <div className="mb-2 flex items-center justify-between rounded-xl bg-surface-2 px-3 py-2">
+          <div className="mb-1.5 flex items-center justify-between rounded-xl bg-surface-2 px-2.5 py-1.5">
             <div className="min-w-0">
               <p className="truncate text-xs font-semibold text-text">{widget.title}</p>
-              <p className="text-[11px] uppercase tracking-wide text-muted">{layout.size}</p>
+              <p className="text-[10px] uppercase tracking-wide text-muted">{layout.size}</p>
             </div>
             <div className="flex items-center gap-1">
               <button
                 type="button"
                 {...attributes}
                 {...listeners}
-                className="cursor-grab rounded-lg p-2 text-muted transition-colors hover:bg-surface-hover hover:text-foreground active:cursor-grabbing"
+                className="cursor-grab rounded-lg p-1.5 text-muted transition-colors hover:bg-surface-hover hover:text-foreground active:cursor-grabbing"
                 title="Mover"
               >
                 <Move size={14} />
@@ -111,15 +114,15 @@ function SortableWidget({
               <button
                 type="button"
                 onClick={() => onResize(widget.id)}
-                className="rounded-lg p-2 text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
-                title="Redimensionar"
+                className="rounded-lg p-1.5 text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
+                title="Cambiar tamaÃ±o"
               >
                 <Scaling size={14} />
               </button>
               <button
                 type="button"
                 onClick={() => onToggleVisible(widget.id)}
-                className="rounded-lg p-2 text-muted transition-colors hover:bg-surface-hover hover:text-red-500"
+                className="rounded-lg p-1.5 text-muted transition-colors hover:bg-surface-hover hover:text-red-500"
                 title="Ocultar"
               >
                 <EyeOff size={14} />
@@ -144,7 +147,7 @@ function WidgetGhost({
     <div
       className={[
         'min-w-[220px] rounded-2xl border-2 border-dashed border-accent-600/60 bg-surface p-3 shadow-2xl',
-        size === 'lg' ? 'w-[min(720px,80vw)]' : size === 'md' ? 'w-[min(480px,70vw)]' : 'w-[min(320px,60vw)]',
+        size === 'xl' ? 'w-[min(960px,85vw)]' : size === 'lg' ? 'w-[min(720px,80vw)]' : size === 'md' ? 'w-[min(480px,70vw)]' : 'w-[min(320px,60vw)]',
       ].join(' ')}
     >
       <div className="rounded-xl bg-surface-2 px-3 py-2">
@@ -163,14 +166,14 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
       widgets.map((widget, index) => ({
         id: widget.id,
         type: widget.type,
-        visible: true,
+        visible: widget.defaultVisible ?? true,
         size: widget.defaultSize,
         position: index,
       })),
     [widgets],
   )
   const { layout, loading, error, setLayout } = useDashboardConfig(defaultLayout)
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }))
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 2 } }))
   const layoutMap = useMemo(() => new Map(layout.map((item) => [item.id, item])), [layout])
   const orderedVisibleWidgets = useMemo(
     () =>
@@ -261,6 +264,10 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
     )
   }
 
+  function handleResetCompactLayout() {
+    setLayout(defaultLayout)
+  }
+
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-center justify-between">
@@ -285,10 +292,26 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
         </button>
       </div>
 
+      {editMode && (
+        <div className="flex items-center justify-between rounded-2xl border border-border bg-surface p-3 shadow-[var(--shadow-card)]">
+          <p className="text-xs text-muted">
+            Tip: usa el boton de tamaño para pasar por sm, md, lg y xl. El grid rellena huecos automaticamente.
+          </p>
+          <button
+            type="button"
+            onClick={handleResetCompactLayout}
+            className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-border bg-surface-2 px-3 py-1.5 text-xs text-muted transition-colors hover:text-text"
+          >
+            <RotateCcw size={13} />
+            Layout compacto
+          </button>
+        </div>
+      )}
+
       {error && <p className="text-sm text-red-500">{error}</p>}
 
       {editMode && hiddenWidgets.length > 0 && (
-        <div className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)]">
+        <div className="rounded-2xl border border-border bg-surface p-3 shadow-[var(--shadow-card)]">
           <div className="mb-3 flex items-center justify-between">
             <div>
               <p className="text-sm font-semibold text-text">Widgets ocultos</p>
@@ -304,7 +327,7 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
                 key={widget.id}
                 type="button"
                 onClick={() => handleShowWidget(widget.id)}
-                className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-muted transition-all hover:border-border-bright hover:text-foreground hover:shadow-sm"
+                className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface-2 px-3 py-1.5 text-xs text-muted transition-all hover:border-border-bright hover:text-foreground hover:shadow-sm"
               >
                 <Eye size={14} />
                 {widget.title}
@@ -324,9 +347,8 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
         <SortableContext items={orderedVisibleWidgets.map((item) => item.widget.id)} strategy={rectSortingStrategy}>
           <div
             className={[
-              'grid grid-cols-1 gap-6 lg:grid-cols-3',
+              'grid grid-flow-dense grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4',
               editMode ? 'transition-all duration-200 ease-out' : '',
-              editMode ? 'scale-[1.01]' : '',
               loading ? 'opacity-70' : '',
             ].join(' ')}
           >

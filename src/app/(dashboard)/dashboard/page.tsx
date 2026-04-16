@@ -20,7 +20,6 @@ import { RecentNotes } from '@/components/dashboard/widgets/RecentNotes'
 import { GoalsWidget } from '@/components/dashboard/widgets/GoalsWidget'
 import { DashboardInsights } from '@/components/dashboard/widgets/DashboardInsights'
 import { DashboardGoalsPanel } from '@/components/dashboard/widgets/DashboardGoalsPanel'
-import { SmartAlerts } from '@/components/dashboard/widgets/SmartAlerts'
 import { DashboardCustomizer } from '@/components/dashboard/DashboardCustomizer'
 
 export const metadata: Metadata = { title: 'Dashboard' }
@@ -61,14 +60,14 @@ export default async function DashboardPage() {
       id: 'dashboard-goals',
       type: 'dashboard-goals',
       title: 'Metas',
-      defaultSize: 'lg' as const,
+      defaultSize: 'md' as const,
       content: <DashboardGoalsPanel />,
     },
     {
       id: 'stats-grid',
       type: 'stats-grid',
       title: 'Estadísticas',
-      defaultSize: 'lg' as const,
+      defaultSize: 'xl' as const,
       content: <StatsGrid stats={data.stats} />,
     },
     {
@@ -178,7 +177,8 @@ export default async function DashboardPage() {
       id: 'recent-activity',
       type: 'recent-activity',
       title: 'Actividad reciente',
-      defaultSize: 'lg' as const,
+      defaultSize: 'md' as const,
+      defaultVisible: false,
       content: <RecentActivity activity={data.recentActivity} />,
     },
   ]
@@ -186,7 +186,6 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col gap-6 animate-fade-in pb-8">
       <DashboardHeader data={data} userName={userName} />
-      <SmartAlerts />
       <DashboardCustomizer widgets={widgets} />
     </div>
   )
