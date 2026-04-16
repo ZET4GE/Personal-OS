@@ -47,7 +47,7 @@ export async function getLearningRoadmapDetail(
 
   const nodeIds = (nodes ?? []).map((node) => String(node.id))
 
-  const [linksRes, actionsRes, goalsRes] = await Promise.all([
+  const [linksRes, actionsRes, progressRes, goalsRes] = await Promise.all([
     nodeIds.length === 0
       ? Promise.resolve({ data: [], error: null })
       : supabase
@@ -61,6 +61,12 @@ export async function getLearningRoadmapDetail(
           .select('*')
           .in('node_id', nodeIds)
           .order('created_at', { ascending: false }),
+    Promise.all(
+      nodeIds.map(async (nodeId) => {
+        const { data, error } = await supabase.rpc('get_roadmap_node_progress', { p_node_id: nodeId })
+        return { nodeId, progress: Number(data ?? 0), error }
+      }),
+    ),
     supabase
       .from('goals')
       .select('*')
@@ -72,10 +78,14 @@ export async function getLearningRoadmapDetail(
   if (actionsRes.error) return err(actionsRes.error.message)
   if (goalsRes.error) return err(goalsRes.error.message)
 
+  const progressError = progressRes.find((item) => item.error)
+  if (progressError?.error) return err(progressError.error.message)
+
   const availableGoals = (goalsRes.data ?? []) as Goal[]
   const goalsById = new Map(availableGoals.map((goal) => [goal.id, goal]))
   const linksByNodeId = new Map<string, LearningNodeGoalLink[]>()
   const actionsByNodeId = new Map<string, RoadmapNodeAction[]>()
+  const progressByNodeId = new Map(progressRes.map((item) => [item.nodeId, item.progress]))
 
   for (const link of (linksRes.data ?? []) as LearningNodeGoalLink[]) {
     const current = linksByNodeId.get(link.node_id) ?? []
@@ -94,11 +104,13 @@ export async function getLearningRoadmapDetail(
       .map((link) => goalsById.get(link.goal_id))
       .filter((goal): goal is Goal => Boolean(goal))
 
-    const goalProgress = linkedGoals.length === 0
+    const status = (node.status ?? 'pending') as LearningNodeStatus
+    const fallbackProgress = linkedGoals.length === 0
       ? 0
       : linkedGoals.reduce((acc, goal) => acc + Number(goal.progress ?? 0), 0) / linkedGoals.length / 100
-    const status = (node.status ?? 'pending') as LearningNodeStatus
-    const progress = status === 'completed' ? 1 : goalProgress
+    const progress = status === 'completed'
+      ? 1
+      : progressByNodeId.get(node.id) ?? fallbackProgress
 
     return {
       ...node,
