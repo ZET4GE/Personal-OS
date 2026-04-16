@@ -14,7 +14,14 @@ export default async function RoadmapsPage() {
 
   if (!user) redirect('/login')
 
-  const result = await getLearningRoadmaps(supabase, user.id)
+  const [result, goalsResult] = await Promise.all([
+    getLearningRoadmaps(supabase, user.id),
+    supabase
+      .from('goals')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false }),
+  ])
 
-  return <RoadmapsClient roadmaps={result.data ?? []} />
+  return <RoadmapsClient roadmaps={result.data ?? []} availableGoals={goalsResult.data ?? []} />
 }

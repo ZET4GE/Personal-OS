@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { GripVertical, Plus, Pencil, Save, X, ChevronUp, ChevronDown, Target } from 'lucide-react'
+import Link from 'next/link'
+import { GripVertical, Plus, Pencil, Save, X, ChevronUp, ChevronDown, Target, ListTodo, Repeat, Clock } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { LearningRoadmapFlow } from './LearningRoadmapFlow'
@@ -47,6 +48,13 @@ function getNodeProgress(goals: Goal[]) {
   return goals.reduce((acc, goal) => acc + Number(goal.progress ?? 0), 0) / goals.length
 }
 
+function getNextNode(nodes: LearningRoadmapNode[]) {
+  return nodes.find((node) => node.progress > 0 && node.progress < 1)
+    ?? nodes.find((node) => node.progress < 1)
+    ?? nodes.at(-1)
+    ?? null
+}
+
 function buildNode(
   node: Omit<LearningRoadmapNode, 'goals' | 'progress'>,
   goals: Goal[],
@@ -69,6 +77,9 @@ export function LearningRoadmapBoard({
   const [editDraft, setEditDraft] = useState<NodeDraft>(EMPTY_DRAFT)
   const [isSaving, setIsSaving] = useState(false)
   const supabase = createClient()
+  const primaryGoal = availableGoals.find((goal) => goal.id === roadmap.primary_goal_id) ?? null
+  const nextNode = getNextNode(nodes)
+  const averageProgress = Math.round(nodes.reduce((acc, node) => acc + node.progress, 0) / Math.max(nodes.length, 1) * 100)
 
   async function syncNodeGoals(nodeId: string, goalIds: string[]) {
     const { error: deleteError } = await supabase
@@ -305,10 +316,57 @@ export function LearningRoadmapBoard({
               <p className="text-[11px] uppercase tracking-[0.2em] text-muted">Con metas</p>
             </div>
             <div className="rounded-lg bg-surface px-3 py-2">
-              <p className="text-lg font-semibold text-text">
-                {Math.round(nodes.reduce((acc, node) => acc + node.progress, 0) / Math.max(nodes.length, 1) * 100)}%
-              </p>
+              <p className="text-lg font-semibold text-text">{averageProgress}%</p>
               <p className="text-[11px] uppercase tracking-[0.2em] text-muted">Promedio</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="grid gap-4 lg:grid-cols-[1.1fr_1.4fr]">
+        <div className="rounded-2xl border border-cyan-500/20 bg-cyan-500/10 p-5 shadow-[var(--shadow-card)]">
+          <div className="mb-3 flex items-center gap-2">
+            <Target size={16} className="text-cyan-300" />
+            <h2 className="text-sm font-semibold text-cyan-100">Meta que guia este roadmap</h2>
+          </div>
+          <p className="text-lg font-semibold text-text">{primaryGoal?.title ?? 'Sin meta principal'}</p>
+          <p className="mt-2 text-sm leading-6 text-muted">
+            {primaryGoal
+              ? 'Todo nodo conectado a esta meta puede alimentar progreso, habitos, rutinas y tiempo.'
+              : 'Asigna una meta principal desde la lista de roadmaps para convertir este mapa en un plan accionable.'}
+          </p>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-semibold text-text">Siguiente accion recomendada</h2>
+              <p className="text-xs text-muted">El roadmap debe llevarte a ejecutar, no solo a ordenar ideas.</p>
+            </div>
+            <span className="rounded-full bg-surface-2 px-2.5 py-1 text-xs text-muted">{averageProgress}% total</span>
+          </div>
+          <div className="rounded-xl border border-border bg-surface-2 p-4">
+            <p className="text-sm font-semibold text-text">{nextNode?.title ?? 'Crea el primer nodo'}</p>
+            <p className="mt-1 text-sm leading-6 text-muted">
+              {nextNode?.description ?? 'Define el primer paso del camino y conectalo con una meta.'}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link href="/goals" className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted transition-colors hover:text-text">
+                <Target size={13} />
+                Crear sub-meta
+              </Link>
+              <Link href="/habits" className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted transition-colors hover:text-text">
+                <ListTodo size={13} />
+                Crear habito
+              </Link>
+              <Link href="/routines" className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted transition-colors hover:text-text">
+                <Repeat size={13} />
+                Crear rutina
+              </Link>
+              <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted transition-colors hover:text-text">
+                <Clock size={13} />
+                Registrar tiempo
+              </Link>
             </div>
           </div>
         </div>

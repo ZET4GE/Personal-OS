@@ -2,6 +2,7 @@ import type { Goal } from '@/types/goals'
 
 export type LearningNodeType = 'skill' | 'topic'
 export type LearningRoadmapType = 'free' | 'structured' | 'goal_based'
+export type LearningRoadmapTemplate = 'blank' | 'skill' | 'project' | 'clients' | 'career'
 
 export interface LearningRoadmap {
   id: string
@@ -9,6 +10,8 @@ export interface LearningRoadmap {
   title: string
   description: string | null
   type: LearningRoadmapType
+  primary_goal_id: string | null
+  template: LearningRoadmapTemplate
   is_public: boolean
   created_at: string
 }

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import dagre from 'dagre'
 import {
   Background,
@@ -8,11 +8,13 @@ import {
   Handle,
   Position,
   ReactFlow,
+  type Connection,
   type Edge,
   type Node,
   type NodeProps,
   type ReactFlowProps,
 } from '@xyflow/react'
+import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import '@xyflow/react/dist/style.css'
 import type { LearningRoadmapNode, LearningRoadmapType } from '@/types/roadmaps'
@@ -23,6 +25,7 @@ type RoadmapFlowNodeData = {
   node: LearningRoadmapNode
   isActive: boolean
   section: string
+  roadmapType: LearningRoadmapType
 }
 
 const NODE_WIDTH = 240
@@ -111,6 +114,7 @@ function getLayoutedNodes(
 
 function RoadmapNode({ data, selected }: NodeProps<Node<RoadmapFlowNodeData>>) {
   const progress = Math.round(data.progress)
+  const isFree = data.roadmapType === 'free'
 
   return (
     <div
@@ -122,7 +126,11 @@ function RoadmapNode({ data, selected }: NodeProps<Node<RoadmapFlowNodeData>>) {
         getProgressColor(progress),
       ].join(' ')}
     >
-      <Handle type="target" position={Position.Top} className="!border-cyan-400 !bg-surface" />
+      <Handle
+        type="target"
+        position={isFree ? Position.Left : Position.Top}
+        className="!h-3 !w-3 !border-cyan-400 !bg-surface"
+      />
       <div className="mb-2 flex items-center justify-between gap-2">
         <span className="rounded-full bg-black/25 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/60">
           {data.section}
@@ -146,7 +154,11 @@ function RoadmapNode({ data, selected }: NodeProps<Node<RoadmapFlowNodeData>>) {
           />
         </div>
       </div>
-      <Handle type="source" position={Position.Bottom} className="!border-cyan-400 !bg-surface" />
+      <Handle
+        type="source"
+        position={isFree ? Position.Right : Position.Bottom}
+        className="!h-3 !w-3 !border-cyan-400 !bg-surface"
+      />
     </div>
   )
 }
@@ -204,6 +216,7 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
       node,
       isActive: roadmapType !== 'free' && node.id === activeNode?.id,
       section: getSectionLabel(node, roadmapType),
+      roadmapType,
     },
     position: {
       x: node.position_x ?? (index % 3) * 300,
@@ -236,6 +249,29 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
       .update({ position_x: x, position_y: y })
       .eq('id', node.id)
   }
+
+  const handleConnect = useCallback(async (connection: Connection) => {
+    if (!connection.source || !connection.target || connection.source === connection.target) return
+
+    onNodesChange?.(
+      nodes.map((node) =>
+        node.id === connection.target
+          ? { ...node, parent_id: connection.source }
+          : node,
+      ),
+    )
+
+    const { error } = await supabase
+      .from('learning_nodes')
+      .update({ parent_id: connection.source })
+      .eq('id', connection.target)
+
+    if (error) {
+      toast.error(error.message || 'No se pudo conectar')
+    } else {
+      toast.success('Conexion creada')
+    }
+  }, [nodes, onNodesChange, supabase])
 
   return (
     <section className="overflow-hidden rounded-2xl border border-border bg-surface shadow-[var(--shadow-card)]">
@@ -276,6 +312,7 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
           fitViewOptions={{ padding: 0.2 }}
           onNodeClick={(_, node) => setSelectedNode(node.data.node)}
           onNodeDragStop={handleNodeDragStop}
+          onConnect={handleConnect}
         >
           <Background color="#334155" gap={20} />
           <Controls className="!border-border !bg-surface !text-text" />
