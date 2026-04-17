@@ -1,10 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/server'
-import { getJobs } from '@/services/jobs'
+import { getJobTrackerStats, getJobs } from '@/services/jobs'
 import { JobsClient } from '@/components/jobs/JobsClient'
 import { JOB_STATUS_LABELS, JOB_STATUSES } from '@/types/jobs'
-import type { JobStatus } from '@/types/jobs'
+import type { JobStatus, JobTrackerStats } from '@/types/jobs'
 
 export const metadata: Metadata = { title: 'Empleos' }
 
@@ -29,7 +29,26 @@ export default async function JobsPage({ searchParams }: PageProps) {
     : undefined
 
   const supabase = await createClient()
-  const { data: jobs } = await getJobs(supabase, statusFilter)
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  const [jobsResult, statsResult] = await Promise.all([
+    getJobs(supabase, statusFilter),
+    user ? getJobTrackerStats(supabase, user.id) : Promise.resolve({ data: null, error: null }),
+  ])
+
+  const stats: JobTrackerStats =
+    statsResult.data ?? {
+      total_jobs: 0,
+      active_applications: 0,
+      interviews: 0,
+      offers: 0,
+      rejected: 0,
+      upcoming_interviews: 0,
+      overdue_followups: 0,
+      response_rate: 0,
+    }
 
   return (
     <div className="space-y-6">
@@ -53,7 +72,7 @@ export default async function JobsPage({ searchParams }: PageProps) {
       </nav>
 
       {/* Lista con optimistic updates */}
-      <JobsClient jobs={jobs ?? []} />
+      <JobsClient jobs={jobsResult.data ?? []} stats={stats} />
     </div>
   )
 }

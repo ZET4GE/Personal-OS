@@ -1,17 +1,21 @@
 'use client'
 
 import { useOptimistic, useTransition, useRef } from 'react'
-import { Plus, Briefcase } from 'lucide-react'
+import type { ComponentType } from 'react'
+import { useRouter } from 'next/navigation'
+import { AlertTriangle, Briefcase, CalendarClock, Plus, Target, TrendingUp } from 'lucide-react'
 import { toast } from 'sonner'
 import {
+  createJobInterviewAction,
   createJobAction,
-  updateJobAction,
+  deleteJobInterviewAction,
   deleteJobAction,
+  updateJobAction,
   updateStatusAction,
 } from '@/app/(dashboard)/jobs/actions'
 import { JobCard } from './JobCard'
 import { JobForm, type JobFormHandle } from './JobForm'
-import type { JobApplication } from '@/types/jobs'
+import type { JobApplication, JobTrackerStats } from '@/types/jobs'
 
 // ─────────────────────────────────────────────────────────────
 // Optimistic state
@@ -46,12 +50,14 @@ function optimisticReducer(state: OptimisticJob[], op: OptimisticOp): Optimistic
 
 interface JobsClientProps {
   jobs: JobApplication[]
+  stats: JobTrackerStats
 }
 
-export function JobsClient({ jobs }: JobsClientProps) {
+export function JobsClient({ jobs, stats }: JobsClientProps) {
   const [optimisticJobs, dispatch] = useOptimistic(jobs, optimisticReducer)
   const [, startTransition] = useTransition()
   const formRef = useRef<JobFormHandle>(null)
+  const router = useRouter()
 
   // ── Abrir modal ─────────────────────────────────────────────
 
@@ -75,9 +81,14 @@ export function JobsClient({ jobs }: JobsClientProps) {
       status:     (formData.get('status') as JobApplication['status']) ?? 'applied',
       link:       (formData.get('link') as string) || null,
       notes:      (formData.get('notes') as string) || null,
+      priority:   (formData.get('priority') as JobApplication['priority']) ?? 'medium',
+      source:     (formData.get('source') as string) || null,
+      salary_range: (formData.get('salary_range') as string) || null,
+      next_follow_up_at: (formData.get('next_follow_up_at') as string) || null,
       applied_at: (formData.get('applied_at') as string) || now,
       created_at: now,
       updated_at: now,
+      interviews: [],
       isOptimistic: true,
     }
 
@@ -99,6 +110,10 @@ export function JobsClient({ jobs }: JobsClientProps) {
       status:     formData.get('status') as JobApplication['status'],
       link:       (formData.get('link') as string) || null,
       notes:      (formData.get('notes') as string) || null,
+      priority:   formData.get('priority') as JobApplication['priority'],
+      source:     (formData.get('source') as string) || null,
+      salary_range: (formData.get('salary_range') as string) || null,
+      next_follow_up_at: (formData.get('next_follow_up_at') as string) || null,
       applied_at: String(formData.get('applied_at') ?? ''),
     }
 
@@ -136,6 +151,28 @@ export function JobsClient({ jobs }: JobsClientProps) {
     })
   }
 
+  function handleCreateInterview(formData: FormData) {
+    startTransition(async () => {
+      const result = await createJobInterviewAction(formData)
+      if (result.error) toast.error(result.error)
+      else {
+        toast.success('Entrevista agregada')
+        router.refresh()
+      }
+    })
+  }
+
+  function handleDeleteInterview(formData: FormData) {
+    startTransition(async () => {
+      const result = await deleteJobInterviewAction(formData)
+      if (result.error) toast.error(result.error)
+      else {
+        toast.success('Entrevista eliminada')
+        router.refresh()
+      }
+    })
+  }
+
   // ── Render ──────────────────────────────────────────────────
 
   return (
@@ -154,6 +191,18 @@ export function JobsClient({ jobs }: JobsClientProps) {
           <Plus size={16} />
           Agregar
         </button>
+      </div>
+
+      <div className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard icon={Briefcase} label="Activas" value={stats.active_applications} />
+        <StatCard icon={CalendarClock} label="Entrevistas proximas" value={stats.upcoming_interviews} />
+        <StatCard icon={TrendingUp} label="Respuesta" value={`${stats.response_rate}%`} />
+        <StatCard
+          icon={stats.overdue_followups > 0 ? AlertTriangle : Target}
+          label="Seguimientos vencidos"
+          value={stats.overdue_followups}
+          tone={stats.overdue_followups > 0 ? 'danger' : 'neutral'}
+        />
       </div>
 
       {/* Lista o empty state */}
@@ -176,6 +225,8 @@ export function JobsClient({ jobs }: JobsClientProps) {
               onEdit={openEdit}
               onDelete={handleDelete}
               onStatusChange={handleStatusChange}
+              onCreateInterview={handleCreateInterview}
+              onDeleteInterview={handleDeleteInterview}
             />
           ))}
         </div>
@@ -188,5 +239,33 @@ export function JobsClient({ jobs }: JobsClientProps) {
         onSubmitUpdate={handleUpdate}
       />
     </>
+  )
+}
+
+function StatCard({
+  icon: Icon,
+  label,
+  value,
+  tone = 'neutral',
+}: {
+  icon: ComponentType<{ size?: number; className?: string }>
+  label: string
+  value: number | string
+  tone?: 'neutral' | 'danger'
+}) {
+  return (
+    <div
+      className="rounded-xl border bg-surface p-4"
+      style={{ borderColor: 'var(--color-border)' }}
+    >
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted">{label}</p>
+        <Icon
+          size={16}
+          className={tone === 'danger' ? 'text-red-400' : 'text-accent-500'}
+        />
+      </div>
+      <p className="mt-3 text-2xl font-semibold">{value}</p>
+    </div>
   )
 }

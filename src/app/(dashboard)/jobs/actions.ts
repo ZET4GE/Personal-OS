@@ -2,8 +2,20 @@
 
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
-import { CreateJobSchema, UpdateJobSchema, UpdateStatusSchema } from '@/lib/validations/jobs'
-import { createJob, updateJob, updateJobStatus, deleteJob } from '@/services/jobs'
+import {
+  CreateJobInterviewSchema,
+  CreateJobSchema,
+  UpdateJobSchema,
+  UpdateStatusSchema,
+} from '@/lib/validations/jobs'
+import {
+  createJob,
+  createJobInterview,
+  deleteJob,
+  deleteJobInterview,
+  updateJob,
+  updateJobStatus,
+} from '@/services/jobs'
 import type { JobActionResult } from '@/types/jobs'
 
 // ─────────────────────────────────────────────────────────────
@@ -89,6 +101,34 @@ export async function deleteJobAction(formData: FormData): Promise<JobActionResu
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
   const { error } = await deleteJob(supabase, id)
+  if (error) return { error }
+
+  revalidatePath('/jobs')
+  return { ok: true }
+}
+
+export async function createJobInterviewAction(formData: FormData): Promise<JobActionResult> {
+  const { supabase, user } = await getAuthedClient()
+
+  const parsed = CreateJobInterviewSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Datos invalidos' }
+  }
+
+  const result = await createJobInterview(supabase, user.id, parsed.data)
+  if (result.error) return { error: result.error }
+
+  revalidatePath('/jobs')
+  return { interview: result.data! }
+}
+
+export async function deleteJobInterviewAction(formData: FormData): Promise<JobActionResult> {
+  const { supabase } = await getAuthedClient()
+
+  const id = formData.get('id')
+  if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
+
+  const { error } = await deleteJobInterview(supabase, id)
   if (error) return { error }
 
   revalidatePath('/jobs')

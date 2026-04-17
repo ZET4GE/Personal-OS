@@ -1,7 +1,15 @@
 'use client'
 
 import { ExternalLink, Pencil, Trash2 } from 'lucide-react'
-import { JOB_STATUS_LABELS, JOB_STATUS_STYLES, JOB_STATUSES } from '@/types/jobs'
+import {
+  JOB_INTERVIEW_STAGE_LABELS,
+  JOB_INTERVIEW_STAGES,
+  JOB_PRIORITY_LABELS,
+  JOB_PRIORITY_STYLES,
+  JOB_STATUS_LABELS,
+  JOB_STATUS_STYLES,
+  JOB_STATUSES,
+} from '@/types/jobs'
 import type { JobApplication } from '@/types/jobs'
 import { formatDate } from '@/lib/utils'
 import { TagSelector } from '@/components/tags/TagSelector'
@@ -11,9 +19,28 @@ interface JobCardProps {
   onEdit:         (job: JobApplication) => void
   onDelete:       (formData: FormData) => void
   onStatusChange: (formData: FormData) => void
+  onCreateInterview: (formData: FormData) => void
+  onDeleteInterview: (formData: FormData) => void
 }
 
-export function JobCard({ job, onEdit, onDelete, onStatusChange }: JobCardProps) {
+export function JobCard({
+  job,
+  onEdit,
+  onDelete,
+  onStatusChange,
+  onCreateInterview,
+  onDeleteInterview,
+}: JobCardProps) {
+  const interviews = job.interviews ?? []
+  const nextInterview = interviews.find((interview) => {
+    return new Date(interview.scheduled_at).getTime() >= Date.now()
+      && (interview.outcome ?? 'pending') === 'pending'
+  })
+  const followUpOverdue =
+    job.next_follow_up_at
+    && new Date(job.next_follow_up_at).getTime() < Date.now()
+    && ['applied', 'interview'].includes(job.status)
+
   return (
     <article
       className={[
@@ -45,7 +72,14 @@ export function JobCard({ job, onEdit, onDelete, onStatusChange }: JobCardProps)
             )}
           </div>
           <p className="text-sm text-muted truncate">{job.role}</p>
-          <p className="mt-1 text-xs text-muted">{formatDate(job.applied_at)}</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2 text-xs text-muted">
+            <span>{formatDate(job.applied_at)}</span>
+            <span className={['rounded-full px-2 py-0.5 font-medium', JOB_PRIORITY_STYLES[job.priority ?? 'medium']].join(' ')}>
+              {JOB_PRIORITY_LABELS[job.priority ?? 'medium']}
+            </span>
+            {job.source && <span>{job.source}</span>}
+            {job.salary_range && <span>{job.salary_range}</span>}
+          </div>
         </div>
 
         {/* Status + acciones */}
@@ -110,6 +144,21 @@ export function JobCard({ job, onEdit, onDelete, onStatusChange }: JobCardProps)
         </div>
       </div>
 
+      {(job.next_follow_up_at || nextInterview) && (
+        <div className="mt-3 grid gap-2 border-t pt-3 text-xs sm:grid-cols-2" style={{ borderColor: 'var(--color-border)' }}>
+          {job.next_follow_up_at && (
+            <p className={followUpOverdue ? 'font-medium text-red-400' : 'text-muted'}>
+              Seguimiento: {formatDate(job.next_follow_up_at)}
+            </p>
+          )}
+          {nextInterview && (
+            <p className="font-medium text-blue-300">
+              Proxima entrevista: {formatDate(nextInterview.scheduled_at)}
+            </p>
+          )}
+        </div>
+      )}
+
       {/* Notas expandibles */}
       {job.notes && (
         <p className="mt-3 border-t pt-3 text-xs text-muted leading-relaxed line-clamp-2"
@@ -117,6 +166,81 @@ export function JobCard({ job, onEdit, onDelete, onStatusChange }: JobCardProps)
           {job.notes}
         </p>
       )}
+
+      <div className="mt-3 border-t pt-3" style={{ borderColor: 'var(--color-border)' }}>
+        <details className="group/interview">
+          <summary className="cursor-pointer list-none text-xs font-medium text-accent-400 transition-colors hover:text-accent-300">
+            + Agregar entrevista
+          </summary>
+
+          <form action={onCreateInterview} className="mt-3 grid gap-2 sm:grid-cols-4">
+            <input type="hidden" name="job_id" value={job.id} />
+            <input
+              name="title"
+              type="text"
+              placeholder="Entrevista"
+              className={smallInputCls}
+            />
+            <input
+              name="scheduled_at"
+              type="datetime-local"
+              required
+              className={smallInputCls}
+            />
+            <select name="stage" defaultValue="screening" className={smallInputCls}>
+              {JOB_INTERVIEW_STAGES.map((stage) => (
+                <option key={stage} value={stage}>
+                  {JOB_INTERVIEW_STAGE_LABELS[stage]}
+                </option>
+              ))}
+            </select>
+            <button
+              type="submit"
+              disabled={job.isOptimistic}
+              className="rounded-lg bg-accent-600 px-3 py-2 text-xs font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            >
+              Guardar
+            </button>
+          </form>
+        </details>
+
+        {interviews.length > 0 && (
+          <div className="mt-3 space-y-2">
+            {interviews.map((interview) => (
+              <div
+                key={interview.id}
+                className="flex items-center justify-between gap-3 rounded-lg bg-surface-hover px-3 py-2 text-xs"
+              >
+                <div className="min-w-0">
+                  <p className="font-medium text-text">{interview.title}</p>
+                  <p className="text-muted">
+                    {JOB_INTERVIEW_STAGE_LABELS[interview.stage]} - {formatDate(interview.scheduled_at)}
+                  </p>
+                </div>
+                <form
+                  action={onDeleteInterview}
+                  onSubmit={(e) => {
+                    if (!confirm('Eliminar esta entrevista?')) e.preventDefault()
+                  }}
+                >
+                  <input type="hidden" name="id" value={interview.id} />
+                  <button
+                    type="submit"
+                    className="rounded p-1.5 text-slate-400 hover:bg-red-900/20 hover:text-red-400"
+                    aria-label="Eliminar entrevista"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </form>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </article>
   )
 }
+
+const smallInputCls =
+  'w-full rounded-lg border border-border bg-surface px-3 py-2 text-xs outline-none transition-colors ' +
+  'focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20'

@@ -2,7 +2,7 @@
 
 import { useRef, useImperativeHandle, forwardRef, useState } from 'react'
 import { X } from 'lucide-react'
-import { JOB_STATUS_LABELS, JOB_STATUSES } from '@/types/jobs'
+import { JOB_PRIORITIES, JOB_PRIORITY_LABELS, JOB_STATUS_LABELS, JOB_STATUSES } from '@/types/jobs'
 import type { JobApplication } from '@/types/jobs'
 
 // ─────────────────────────────────────────────────────────────
@@ -72,10 +72,12 @@ export const JobForm = forwardRef<JobFormHandle, JobFormProps>(
       ? editData.applied_at.slice(0, 10)
       : new Date().toISOString().slice(0, 10)
 
+    const defaultFollowUp = toDateTimeLocal(editData?.next_follow_up_at)
+
     return (
       <dialog
         ref={dialogRef}
-        className="m-auto w-full max-w-md rounded-2xl border bg-surface p-0 shadow-xl backdrop:bg-black/50 open:flex open:flex-col"
+        className="m-auto max-h-[90vh] w-full max-w-md overflow-hidden rounded-2xl border bg-surface p-0 shadow-xl backdrop:bg-black/50 open:flex open:flex-col"
         style={{ borderColor: 'var(--color-border)' }}
         onClose={() => setError(null)}
       >
@@ -96,7 +98,7 @@ export const JobForm = forwardRef<JobFormHandle, JobFormProps>(
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4 p-5">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-4 overflow-y-auto p-5">
           {/* Company */}
           <Field label="Empresa *" htmlFor="company">
             <input
@@ -151,6 +153,33 @@ export const JobForm = forwardRef<JobFormHandle, JobFormProps>(
             </Field>
           </div>
 
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Prioridad" htmlFor="priority">
+              <select
+                id="priority"
+                name="priority"
+                defaultValue={editData?.priority ?? 'medium'}
+                className={inputCls}
+              >
+                {JOB_PRIORITIES.map((priority) => (
+                  <option key={priority} value={priority}>
+                    {JOB_PRIORITY_LABELS[priority]}
+                  </option>
+                ))}
+              </select>
+            </Field>
+
+            <Field label="Proximo seguimiento" htmlFor="next_follow_up_at">
+              <input
+                id="next_follow_up_at"
+                name="next_follow_up_at"
+                type="datetime-local"
+                defaultValue={defaultFollowUp}
+                className={inputCls}
+              />
+            </Field>
+          </div>
+
           {/* Link */}
           <Field label="Enlace a la oferta" htmlFor="link">
             <input
@@ -162,6 +191,30 @@ export const JobForm = forwardRef<JobFormHandle, JobFormProps>(
               className={inputCls}
             />
           </Field>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Field label="Fuente" htmlFor="source">
+              <input
+                id="source"
+                name="source"
+                type="text"
+                defaultValue={editData?.source ?? ''}
+                placeholder="LinkedIn, referido..."
+                className={inputCls}
+              />
+            </Field>
+
+            <Field label="Rango salarial" htmlFor="salary_range">
+              <input
+                id="salary_range"
+                name="salary_range"
+                type="text"
+                defaultValue={editData?.salary_range ?? ''}
+                placeholder="USD 2k - 3k"
+                className={inputCls}
+              />
+            </Field>
+          </div>
 
           {/* Notes */}
           <Field label="Notas" htmlFor="notes">
@@ -232,3 +285,13 @@ const inputCls =
   'w-full rounded-lg border px-3 py-2 text-sm bg-surface outline-none transition-colors ' +
   'focus:ring-2 focus:ring-accent-500/30 focus:border-accent-500 ' +
   'dark:bg-slate-900 placeholder:text-slate-400'
+
+function toDateTimeLocal(value?: string | null) {
+  if (!value) return ''
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return ''
+
+  const local = new Date(date.getTime() - date.getTimezoneOffset() * 60_000)
+  return local.toISOString().slice(0, 16)
+}
