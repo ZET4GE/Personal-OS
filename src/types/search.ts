@@ -16,3 +16,16 @@ export interface GlobalSearchResult {
   title: string
   description: string | null
 }
+
+export interface AdvancedSearchResult extends GlobalSearchResult {
+  status: string | null
+  updated_at: string
+  tags: string[]
+}
+
+export interface AdvancedSearchFilters {
+  query: string
+  type: GlobalSearchResultType | 'all'
+  tagId: string | null
+  status: string
+}
