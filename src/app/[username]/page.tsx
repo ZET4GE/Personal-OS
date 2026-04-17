@@ -1,11 +1,13 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { FileText } from 'lucide-react'
+import { FileText, GitBranch } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getProfileByUsername, getPublicProjectsByUsername } from '@/services/profiles'
+import { getPublicLearningRoadmapsByUser } from '@/services/learning-roadmaps'
 import { PublicHeader } from '@/components/public/PublicHeader'
 import { PublicProjectsGrid } from '@/components/public/PublicProjectsGrid'
+import { PublicRoadmapsGrid } from '@/components/public/PublicRoadmapsGrid'
 import { TrackingPixel } from '@/components/analytics/TrackingPixel'
 
 // ─────────────────────────────────────────────────────────────
@@ -56,10 +58,13 @@ export default async function PublicProfilePage({ params }: PageProps) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // Fetch proyectos públicos en paralelo (ya tenemos el profile.id)
-  const { data: projects } = await getPublicProjectsByUsername(supabase, profile.id)
+  const [{ data: projects }, { data: roadmaps }] = await Promise.all([
+    getPublicProjectsByUsername(supabase, profile.id),
+    getPublicLearningRoadmapsByUser(supabase, profile.id),
+  ])
 
   return (
-    <main className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
+    <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
       <TrackingPixel pageType="profile" ownerId={profile.id} currentUserId={user?.id ?? null} />
       {/* Header: avatar, nombre, bio, links */}
       <PublicHeader profile={profile} />
@@ -73,6 +78,13 @@ export default async function PublicProfilePage({ params }: PageProps) {
           Proyectos
         </h2>
         <Link
+          href={`/${username}/roadmaps`}
+          className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-muted transition-colors hover:text-foreground"
+        >
+          <GitBranch size={13} />
+          Roadmaps
+        </Link>
+        <Link
           href={`/${username}/cv`}
           className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-muted transition-colors hover:text-foreground"
         >
@@ -81,7 +93,24 @@ export default async function PublicProfilePage({ params }: PageProps) {
         </Link>
       </nav>
 
-      <PublicProjectsGrid projects={projects ?? []} username={username} />
+      {(roadmaps ?? []).length > 0 && (
+        <section className="mb-10">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h2 className="text-sm font-semibold text-foreground">Roadmaps publicados</h2>
+            <Link href={`/${username}/roadmaps`} className="text-sm font-medium text-muted hover:text-foreground">
+              Ver todos
+            </Link>
+          </div>
+          <PublicRoadmapsGrid roadmaps={(roadmaps ?? []).slice(0, 3)} username={username} />
+        </section>
+      )}
+
+      <section>
+        <div className="mb-4">
+          <h2 className="text-sm font-semibold text-foreground">Proyectos publicados</h2>
+        </div>
+        <PublicProjectsGrid projects={projects ?? []} username={username} />
+      </section>
     </main>
   )
 }
