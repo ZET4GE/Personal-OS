@@ -76,7 +76,7 @@ export function NotificationBell() {
       </button>
 
       {mounted && isOpen && createPortal(
-        <div ref={dropdownRef} className="fixed right-4 top-14 z-[9999]">
+        <div ref={dropdownRef} className="fixed right-3 top-14 z-[100000] pointer-events-auto sm:right-4">
           <NotificationDropdown
             notifications={notifications}
             loading={loading}

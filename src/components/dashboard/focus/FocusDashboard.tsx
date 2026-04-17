@@ -156,7 +156,7 @@ export function FocusDashboard({ activeGoal, dashboardData }: FocusDashboardProp
               <ListChecks size={15} className="mb-2 text-emerald-400" />
               Habitos
             </Link>
-            <Link href="/dashboard" className="rounded-xl bg-surface-2 px-3 py-3 text-sm text-text transition-colors hover:bg-surface-hover">
+            <Link href="/search" className="rounded-xl bg-surface-2 px-3 py-3 text-sm text-text transition-colors hover:bg-surface-hover">
               <Search size={15} className="mb-2 text-violet-400" />
               Buscar
             </Link>

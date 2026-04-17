@@ -17,7 +17,6 @@ import { GoogleCalendarWidget } from '@/components/integrations/GoogleCalendarWi
 import { GitHubActivityWidget } from '@/components/integrations/GitHubActivityWidget'
 import { RecentNotes } from '@/components/dashboard/widgets/RecentNotes'
 import { GoalsWidget } from '@/components/dashboard/widgets/GoalsWidget'
-import { DashboardInsights } from '@/components/dashboard/widgets/DashboardInsights'
 import { DashboardGoalsPanel } from '@/components/dashboard/widgets/DashboardGoalsPanel'
 import { DashboardCustomizer } from '@/components/dashboard/DashboardCustomizer'
 import { FocusDashboard } from '@/components/dashboard/focus/FocusDashboard'
@@ -89,6 +88,7 @@ export default async function DashboardPage() {
       type: 'streak-widget',
       title: 'Racha',
       defaultSize: 'sm' as const,
+      defaultVisible: false,
       content: (
         <StreakWidget
           currentStreak={data.todayHabits.habits.reduce((max, h) => Math.max(max, h.streak), 0)}
@@ -101,6 +101,7 @@ export default async function DashboardPage() {
       type: 'upcoming-deadlines',
       title: 'Deadlines',
       defaultSize: 'md' as const,
+      defaultVisible: false,
       content: <UpcomingDeadlines deadlines={data.deadlines} />,
     },
     {
@@ -119,6 +120,7 @@ export default async function DashboardPage() {
       type: 'pending-payments',
       title: 'Pagos pendientes',
       defaultSize: 'md' as const,
+      defaultVisible: false,
       content: <PendingPayments payments={data.pendingPayments} />,
     },
     ...(hasGoogle
@@ -162,18 +164,6 @@ export default async function DashboardPage() {
       ),
     },
     {
-      id: 'dashboard-insights',
-      type: 'dashboard-insights',
-      title: 'Insights',
-      defaultSize: 'sm' as const,
-      defaultVisible: false,
-      content: (
-        <Suspense fallback={<WidgetSkeleton />}>
-          <DashboardInsights userId={user.id} />
-        </Suspense>
-      ),
-    },
-    {
       id: 'recent-notes',
       type: 'recent-notes',
       title: 'Notas recientes',
@@ -207,13 +197,21 @@ export default async function DashboardPage() {
         dashboardData={data}
       />
 
-      <section className="space-y-4">
-        <div>
-          <h2 className="text-sm font-semibold text-text">Widgets adicionales</h2>
-          <p className="text-xs text-muted">Informacion secundaria que puedes editar u ocultar.</p>
+      <details className="group rounded-2xl border border-border bg-surface/60 p-4 shadow-[var(--shadow-card)]">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
+          <div>
+            <h2 className="text-sm font-semibold text-text">Widgets adicionales</h2>
+            <p className="text-xs text-muted">Informacion secundaria. Abrila solo cuando la necesites.</p>
+          </div>
+          <span className="rounded-full border border-border px-3 py-1 text-xs text-muted transition-colors group-open:bg-surface-2">
+            <span className="group-open:hidden">Mostrar</span>
+            <span className="hidden group-open:inline">Ocultar</span>
+          </span>
+        </summary>
+        <div className="mt-5">
+          <DashboardCustomizer widgets={widgets} />
         </div>
-        <DashboardCustomizer widgets={widgets} />
-      </section>
+      </details>
     </div>
   )
 }
