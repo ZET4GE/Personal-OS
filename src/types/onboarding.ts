@@ -7,6 +7,7 @@ export type EnabledModule =
   | 'jobs'
   | 'clients'
   | 'freelance'
+  | 'finance'
   | 'notes'
   | 'cv'
   | 'blog'

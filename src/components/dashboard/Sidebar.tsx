@@ -2,7 +2,7 @@
 
 import {
   LayoutDashboard, Briefcase, FolderOpen, FileText,
-  Settings, X, BarChart3, Users, Wallet, Target, ListChecks, PenLine, StickyNote, Crosshair, GitBranch, Clock3,
+  Settings, X, BarChart3, Users, Wallet, Banknote, Target, ListChecks, PenLine, StickyNote, Crosshair, GitBranch, Clock3,
   type LucideIcon,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -52,6 +52,7 @@ export function Sidebar({ collapsed, enabledModules }: { collapsed: boolean; ena
         { href: '/jobs',      icon: Briefcase,  label: t('jobs'), module: 'jobs' },
         { href: '/clients',   icon: Users,      label: t('clients'), module: 'clients' },
         { href: '/freelance', icon: Wallet,     label: t('freelance'), module: 'freelance' },
+        { href: '/finance',   icon: Banknote,   label: t('finance'), module: 'finance' },
       ],
     },
     {

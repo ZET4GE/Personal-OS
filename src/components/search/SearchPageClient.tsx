@@ -17,6 +17,7 @@ const TYPE_LABELS: Record<GlobalSearchResultType, string> = {
   job: 'Empleo',
   client: 'Cliente',
   freelance: 'Freelance',
+  finance: 'Finanzas',
   tag: 'Tag',
 }
 
@@ -30,6 +31,7 @@ const TYPE_ORDER: GlobalSearchResultType[] = [
   'job',
   'client',
   'freelance',
+  'finance',
   'tag',
 ]
 
@@ -76,12 +78,17 @@ const STATUS_OPTIONS: Partial<Record<GlobalSearchResultType, { value: string; la
     { value: 'completed', label: 'Completado' },
     { value: 'cancelled', label: 'Cancelado' },
   ],
+  finance: [
+    { value: 'income', label: 'Ingresos' },
+    { value: 'expense', label: 'Gastos' },
+  ],
 }
 
 function getRouteByType(type: GlobalSearchResultType, id: string): string {
   if (type === 'goal') return `/goals/${id}`
   if (type === 'roadmap') return `/roadmaps/${id}`
   if (type === 'freelance') return `/freelance/${id}`
+  if (type === 'finance') return '/finance'
   if (type === 'client') return `/clients/${id}`
   if (type === 'job') return '/jobs'
   if (type === 'project') return '/projects'

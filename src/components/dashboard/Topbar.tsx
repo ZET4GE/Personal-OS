@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation'
 import {
   Menu, PanelLeft, LogOut,
   LayoutDashboard, Briefcase, FolderOpen, FileText,
-  BarChart3, Users, Wallet, Target, ListChecks, Settings, PenLine, Bell, StickyNote, Crosshair, Clock3,
+  BarChart3, Users, Wallet, Banknote, Target, ListChecks, Settings, PenLine, Bell, StickyNote, Crosshair, Clock3,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -22,6 +22,7 @@ const PAGE_ICONS: Record<string, LucideIcon> = {
   '/projects':      FolderOpen,
   '/clients':       Users,
   '/freelance':     Wallet,
+  '/finance':       Banknote,
   '/habits':        Target,
   '/routines':      ListChecks,
   '/time':          Clock3,
@@ -34,7 +35,7 @@ const PAGE_ICONS: Record<string, LucideIcon> = {
   '/settings':      Settings,
 }
 
-type NavKey = 'dashboard' | 'jobs' | 'projects' | 'clients' | 'freelance' | 'habits' | 'routines' | 'time' | 'goals' | 'cv' | 'blog' | 'analytics' | 'notifications' | 'notes' | 'settings'
+type NavKey = 'dashboard' | 'jobs' | 'projects' | 'clients' | 'freelance' | 'finance' | 'habits' | 'routines' | 'time' | 'goals' | 'cv' | 'blog' | 'analytics' | 'notifications' | 'notes' | 'settings'
 
 const PAGE_NAV_KEYS: Record<string, NavKey> = {
   '/dashboard':     'dashboard',
@@ -42,6 +43,7 @@ const PAGE_NAV_KEYS: Record<string, NavKey> = {
   '/projects':      'projects',
   '/clients':       'clients',
   '/freelance':     'freelance',
+  '/finance':       'finance',
   '/habits':        'habits',
   '/routines':      'routines',
   '/time':          'time',

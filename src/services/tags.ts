@@ -11,6 +11,7 @@ export type TagEntityType =
   | 'job'
   | 'client'
   | 'freelance'
+  | 'finance'
 
 export interface Tag {
   id: string

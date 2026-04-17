@@ -10,6 +10,7 @@ export const MODULE_OPTIONS: { id: EnabledModule; label: string; description: st
   { id: 'jobs', label: 'Empleos', description: 'Postulaciones, entrevistas y ofertas.' },
   { id: 'clients', label: 'Clientes', description: 'Contactos y empresas.' },
   { id: 'freelance', label: 'Freelance', description: 'Proyectos pagos, cobros y entregas.' },
+  { id: 'finance', label: 'Finanzas', description: 'Ingresos, gastos y balance personal.' },
   { id: 'notes', label: 'Notas', description: 'Ideas, apuntes y documentación.' },
   { id: 'cv', label: 'CV', description: 'Experiencia, educación, skills y PDF.' },
   { id: 'blog', label: 'Blog', description: 'Publicaciones públicas o privadas.' },
@@ -56,10 +57,10 @@ export const PERSONA_OPTIONS: {
 
 export const MODULES_BY_PERSONA: Record<UserPersona, EnabledModule[]> = {
   student: ['projects', 'habits', 'routines', 'time', 'notes', 'cv'],
-  freelancer: ['projects', 'habits', 'routines', 'time', 'clients', 'freelance', 'notes', 'cv', 'analytics'],
+  freelancer: ['projects', 'habits', 'routines', 'time', 'clients', 'freelance', 'finance', 'notes', 'cv', 'analytics'],
   employee: ['projects', 'habits', 'routines', 'time', 'jobs', 'notes', 'cv'],
   builder: ['projects', 'habits', 'routines', 'time', 'notes', 'blog', 'analytics'],
-  personal: ['habits', 'routines', 'time', 'notes'],
+  personal: ['habits', 'routines', 'time', 'finance', 'notes'],
 }
 
 export const ALL_MODULES = MODULE_OPTIONS.map((module) => module.id)

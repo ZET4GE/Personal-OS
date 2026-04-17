@@ -8,6 +8,7 @@ export type GlobalSearchResultType =
   | 'job'
   | 'client'
   | 'freelance'
+  | 'finance'
   | 'tag'
 
 export interface GlobalSearchResult {

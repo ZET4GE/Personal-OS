@@ -17,6 +17,7 @@ const TYPE_LABELS: Record<GlobalSearchResultType, string> = {
   job: 'Empleo',
   client: 'Cliente',
   freelance: 'Freelance',
+  finance: 'Finanzas',
   tag: 'Tag',
 }
 
@@ -30,6 +31,7 @@ const TYPE_ORDER: GlobalSearchResultType[] = [
   'job',
   'client',
   'freelance',
+  'finance',
   'tag',
 ]
 
@@ -47,6 +49,8 @@ function getRouteByType(type: GlobalSearchResultType, id: string): string {
       return `/clients/${id}`
     case 'freelance':
       return `/freelance/${id}`
+    case 'finance':
+      return '/finance'
     case 'note':
       return '/notes'
     case 'habit':

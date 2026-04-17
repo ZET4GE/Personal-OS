@@ -24,7 +24,7 @@ const optionalUrl = () =>
 
 const RESERVED_USERNAMES = new Set([
   'login', 'signup', 'dashboard', 'jobs', 'projects',
-  'settings', 'auth', 'api', 'public', 'admin',
+  'finance', 'settings', 'auth', 'api', 'public', 'admin',
 ])
 
 export const UpdateProfileSchema = z.object({
