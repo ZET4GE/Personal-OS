@@ -6,6 +6,7 @@ export const MODULE_OPTIONS: { id: EnabledModule; label: string; description: st
   { id: 'projects', label: 'Proyectos', description: 'Construir y seguir proyectos propios.' },
   { id: 'habits', label: 'Habitos', description: 'Seguimiento diario de actividades.' },
   { id: 'routines', label: 'Rutinas', description: 'Bloques repetibles de trabajo o vida.' },
+  { id: 'time', label: 'Tiempo', description: 'Timer, sesiones y productividad real.' },
   { id: 'jobs', label: 'Empleos', description: 'Postulaciones, entrevistas y ofertas.' },
   { id: 'clients', label: 'Clientes', description: 'Contactos y empresas.' },
   { id: 'freelance', label: 'Freelance', description: 'Proyectos pagos, cobros y entregas.' },
@@ -54,11 +55,11 @@ export const PERSONA_OPTIONS: {
 ]
 
 export const MODULES_BY_PERSONA: Record<UserPersona, EnabledModule[]> = {
-  student: ['projects', 'habits', 'routines', 'notes', 'cv'],
-  freelancer: ['projects', 'habits', 'routines', 'clients', 'freelance', 'notes', 'cv', 'analytics'],
-  employee: ['projects', 'habits', 'routines', 'jobs', 'notes', 'cv'],
-  builder: ['projects', 'habits', 'routines', 'notes', 'blog', 'analytics'],
-  personal: ['habits', 'routines', 'notes'],
+  student: ['projects', 'habits', 'routines', 'time', 'notes', 'cv'],
+  freelancer: ['projects', 'habits', 'routines', 'time', 'clients', 'freelance', 'notes', 'cv', 'analytics'],
+  employee: ['projects', 'habits', 'routines', 'time', 'jobs', 'notes', 'cv'],
+  builder: ['projects', 'habits', 'routines', 'time', 'notes', 'blog', 'analytics'],
+  personal: ['habits', 'routines', 'time', 'notes'],
 }
 
 export const ALL_MODULES = MODULE_OPTIONS.map((module) => module.id)
@@ -69,6 +70,6 @@ export function getPersonaDefaults(persona: UserPersona | null | undefined): Ena
 
 export function getEnabledModules(onboarding: UserOnboarding | null | undefined): EnabledModule[] {
   if (!onboarding) return ALL_MODULES
-  if (onboarding.enabled_modules?.length) return onboarding.enabled_modules
+  if (onboarding.enabled_modules?.length) return Array.from(new Set([...onboarding.enabled_modules, 'time' as const]))
   return getPersonaDefaults(onboarding.persona)
 }

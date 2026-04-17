@@ -2,7 +2,7 @@
 
 import {
   LayoutDashboard, Briefcase, FolderOpen, FileText,
-  Settings, X, BarChart3, Users, Wallet, Target, ListChecks, PenLine, StickyNote, Crosshair, GitBranch,
+  Settings, X, BarChart3, Users, Wallet, Target, ListChecks, PenLine, StickyNote, Crosshair, GitBranch, Clock3,
   type LucideIcon,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -43,6 +43,7 @@ export function Sidebar({ collapsed, enabledModules }: { collapsed: boolean; ena
         { href: '/projects',  icon: FolderOpen, label: t('projects'), module: 'projects' },
         { href: '/habits',   icon: Target,     label: t('habits'), module: 'habits' },
         { href: '/routines', icon: ListChecks, label: t('routines'), module: 'routines' },
+        { href: '/time',     icon: Clock3,     label: t('time'), module: 'time' },
       ],
     },
     {

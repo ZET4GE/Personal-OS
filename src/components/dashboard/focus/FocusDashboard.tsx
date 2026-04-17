@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowRight, Clock, Crosshair, GitBranch, ListChecks, NotebookText, Search, Target } from 'lucide-react'
+import { ArrowRight, Clock, Crosshair, GitBranch, NotebookText, Search, Target } from 'lucide-react'
 import type { DashboardData } from '@/types/dashboard'
 import type { Goal } from '@/types/goals'
 
@@ -152,9 +152,9 @@ export function FocusDashboard({ activeGoal, dashboardData }: FocusDashboardProp
               <NotebookText size={15} className="mb-2 text-amber-400" />
               Notas
             </Link>
-            <Link href="/habits" className="rounded-xl bg-surface-2 px-3 py-3 text-sm text-text transition-colors hover:bg-surface-hover">
-              <ListChecks size={15} className="mb-2 text-emerald-400" />
-              Habitos
+            <Link href="/time" className="rounded-xl bg-surface-2 px-3 py-3 text-sm text-text transition-colors hover:bg-surface-hover">
+              <Clock size={15} className="mb-2 text-emerald-400" />
+              Tiempo
             </Link>
             <Link href="/search" className="rounded-xl bg-surface-2 px-3 py-3 text-sm text-text transition-colors hover:bg-surface-hover">
               <Search size={15} className="mb-2 text-violet-400" />

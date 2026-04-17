@@ -21,12 +21,18 @@ export async function TimeInvestedWidget({ userId }: TimeInvestedWidgetProps) {
     todaySeconds: 0,
     weekSeconds: 0,
     totalSeconds: 0,
+    sessionCount: 0,
+    averageSessionSeconds: 0,
+    unassignedSeconds: 0,
+    daily: [],
     byProject: [],
     byGoal: [],
+    recentSessions: [],
   }
 
   const topProject = stats.byProject[0]
   const topGoal = stats.byGoal[0]
+  const maxDailySeconds = Math.max(...stats.daily.map((item) => item.totalSeconds), 1)
 
   return (
     <div className="flex flex-col gap-4 rounded-xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
@@ -38,10 +44,10 @@ export async function TimeInvestedWidget({ userId }: TimeInvestedWidgetProps) {
           <h2 className="text-sm font-semibold text-text">Tiempo invertido</h2>
         </div>
         <Link
-          href="/projects"
+          href="/time"
           className="flex items-center gap-1 text-xs text-muted transition-colors hover:text-foreground"
         >
-          Ver más
+          Ver mas
           <ChevronRight size={12} />
         </Link>
       </div>
@@ -60,6 +66,25 @@ export async function TimeInvestedWidget({ userId }: TimeInvestedWidgetProps) {
           <p className="mt-1 text-sm font-semibold text-text">{formatDuration(stats.totalSeconds)}</p>
         </div>
       </div>
+
+      {stats.totalSeconds > 0 ? (
+        <div className="rounded-xl bg-surface-2 px-3 py-3">
+          <div className="mb-2 flex items-center justify-between text-xs">
+            <span className="text-muted">{stats.sessionCount} sesiones</span>
+            <span className="font-medium text-text">Promedio {formatDuration(stats.averageSessionSeconds)}</span>
+          </div>
+          <div className="flex h-10 items-end gap-1">
+            {stats.daily.map((item) => (
+              <div key={item.date} className="flex flex-1 items-end rounded-full bg-surface-3">
+                <div
+                  className="w-full rounded-full bg-accent-600"
+                  style={{ height: `${Math.max(8, (item.totalSeconds / maxDailySeconds) * 100)}%` }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : null}
 
       {result.error ? (
         <p className="text-xs text-red-500">{result.error}</p>

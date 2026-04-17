@@ -3,6 +3,7 @@ export type EnabledModule =
   | 'projects'
   | 'habits'
   | 'routines'
+  | 'time'
   | 'jobs'
   | 'clients'
   | 'freelance'
