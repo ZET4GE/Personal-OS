@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect, useMemo, useState } from 'react'
-import { Loader2, Plus, Tags } from 'lucide-react'
+import { Loader2, Plus, Tags, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTags } from '@/hooks/useTags'
-import { getEntityTagIds, linkTagToEntity, type TagEntityType } from '@/services/tags'
+import { getEntityTagIds, linkTagToEntity, unlinkTagFromEntity, type TagEntityType } from '@/services/tags'
 
 interface TagSelectorProps {
   entityId: string
@@ -28,6 +28,7 @@ export function TagSelector({
   const [newTagName, setNewTagName] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoadingLinks, setIsLoadingLinks] = useState(true)
+  const [pendingTagId, setPendingTagId] = useState<string | null>(null)
 
   useEffect(() => {
     let active = true
@@ -58,6 +59,15 @@ export function TagSelector({
     () => selectedTagIds.filter((tagId) => !linkedTagIds.includes(tagId)),
     [linkedTagIds, selectedTagIds],
   )
+  const linkedTags = useMemo(
+    () => tags.filter((tag) => linkedTagIds.includes(tag.id)),
+    [linkedTagIds, tags],
+  )
+  const buttonLabel = linkedTags.length > 0
+    ? linkedTags.length === 1
+      ? linkedTags[0].name
+      : `${linkedTags[0].name} +${linkedTags.length - 1}`
+    : 'Tags'
 
   function toggleTag(tagId: string) {
     if (linkedTagIds.includes(tagId)) return
@@ -109,6 +119,21 @@ export function TagSelector({
     toast.success('Tags vinculados')
   }
 
+  async function handleUnlinkTag(tagId: string) {
+    setPendingTagId(tagId)
+    const result = await unlinkTagFromEntity(tagId, entityType, entityId)
+    setPendingTagId(null)
+
+    if (!result.ok) {
+      toast.error(result.error)
+      return
+    }
+
+    setLinkedTagIds((current) => current.filter((id) => id !== tagId))
+    setSelectedTagIds((current) => current.filter((id) => id !== tagId))
+    toast.success('Tag desvinculado')
+  }
+
   return (
     <div className={`relative ${className}`}>
       <button
@@ -122,7 +147,7 @@ export function TagSelector({
         ].join(' ')}
       >
         <Tags size={13} />
-        Tags
+        {buttonLabel}
       </button>
 
       {open && (
@@ -173,9 +198,10 @@ export function TagSelector({
                   <button
                     key={tag.id}
                     type="button"
-                    onClick={() => toggleTag(tag.id)}
+                    onClick={() => isLinked ? void handleUnlinkTag(tag.id) : toggleTag(tag.id)}
+                    disabled={pendingTagId === tag.id}
                     className={[
-                      'rounded-full border px-2.5 py-1 text-xs transition-colors',
+                      'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs transition-colors disabled:opacity-60',
                       isLinked
                         ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600'
                         : isSelected
@@ -183,7 +209,9 @@ export function TagSelector({
                         : 'border-border bg-surface-2 text-muted hover:border-border-bright hover:text-foreground',
                     ].join(' ')}
                   >
+                    {pendingTagId === tag.id && <Loader2 size={11} className="animate-spin" />}
                     {tag.name}
+                    {isLinked && pendingTagId !== tag.id && <X size={11} />}
                   </button>
                 )
               })}

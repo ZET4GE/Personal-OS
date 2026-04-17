@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation'
 import { BookOpen, BriefcaseBusiness, GitBranch, Pencil, Plus, Save, Sparkles, Target, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
+import { TagSelector } from '@/components/tags/TagSelector'
 import type { Goal } from '@/types/goals'
 import type { LearningNodeType, LearningRoadmap, LearningRoadmapTemplate, LearningRoadmapType } from '@/types/roadmaps'
 
@@ -489,7 +490,8 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
                         <p className="mt-1 truncate text-sm text-text">{primaryGoal?.title ?? 'Sin meta asignada'}</p>
                       </div>
                     </Link>
-                    <div className="mt-4 flex gap-2">
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <TagSelector entityId={roadmap.id} entityType="roadmap" compact align="left" />
                       <button
                         type="button"
                         onClick={() => startEdit(roadmap)}

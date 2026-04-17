@@ -6,6 +6,7 @@ import type { HabitWithLogs } from '@/types/habits'
 import { StreakBadge } from './StreakBadge'
 import { HabitMiniCalendar } from './HabitMiniCalendar'
 import { GoalSelector } from '@/components/goals/GoalSelector'
+import { TagSelector } from '@/components/tags/TagSelector'
 
 interface HabitCardProps {
   item:      HabitWithLogs
@@ -53,7 +54,10 @@ export function HabitCard({ item, onToggle, isLoading }: HabitCardProps) {
             </span>
             {streak > 0 && <StreakBadge streak={streak} size="sm" />}
           </div>
-          <GoalSelector entityId={habit.id} entityType="habit" />
+          <div className="flex shrink-0 items-center gap-1">
+            <TagSelector entityId={habit.id} entityType="habit" compact />
+            <GoalSelector entityId={habit.id} entityType="habit" />
+          </div>
         </div>
         <HabitMiniCalendar days={recentDays} color={habit.color} />
       </div>

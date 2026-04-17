@@ -1,4 +1,14 @@
-export type GlobalSearchResultType = 'goal' | 'project' | 'note' | 'habit' | 'routine' | 'tag'
+export type GlobalSearchResultType =
+  | 'goal'
+  | 'project'
+  | 'note'
+  | 'habit'
+  | 'routine'
+  | 'roadmap'
+  | 'job'
+  | 'client'
+  | 'freelance'
+  | 'tag'
 
 export interface GlobalSearchResult {
   type: GlobalSearchResultType

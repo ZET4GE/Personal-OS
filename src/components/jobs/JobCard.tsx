@@ -4,6 +4,7 @@ import { ExternalLink, Pencil, Trash2 } from 'lucide-react'
 import { JOB_STATUS_LABELS, JOB_STATUS_STYLES, JOB_STATUSES } from '@/types/jobs'
 import type { JobApplication } from '@/types/jobs'
 import { formatDate } from '@/lib/utils'
+import { TagSelector } from '@/components/tags/TagSelector'
 
 interface JobCardProps {
   job: JobApplication & { isOptimistic?: boolean }
@@ -49,6 +50,7 @@ export function JobCard({ job, onEdit, onDelete, onStatusChange }: JobCardProps)
 
         {/* Status + acciones */}
         <div className="flex shrink-0 items-center gap-2">
+          <TagSelector entityId={job.id} entityType="job" compact />
           {/* Status select — dispara optimistic update */}
           <form action={onStatusChange}>
             <input type="hidden" name="id" value={job.id} />

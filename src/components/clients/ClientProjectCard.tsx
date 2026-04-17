@@ -7,6 +7,7 @@ import { PRIORITY_STYLES, PRIORITY_LABELS, PROJECT_STATUSES_CLIENT, PROJECT_STAT
 import type { ClientProject } from '@/types/clients'
 import { ProjectStatusBadge } from './ProjectStatusBadge'
 import { PaymentProgress } from './PaymentProgress'
+import { TagSelector } from '@/components/tags/TagSelector'
 
 interface ClientProjectCardProps {
   project:          ClientProject & { isOptimistic?: boolean }
@@ -69,6 +70,7 @@ export function ClientProjectCard({ project, onEdit, onDelete, onStatusChange }:
 
         {/* Status + acciones */}
         <div className="flex shrink-0 flex-col items-end gap-2">
+          <TagSelector entityId={project.id} entityType="freelance" compact />
           {/* Status select */}
           <form action={onStatusChange}>
             <input type="hidden" name="id" value={project.id} />

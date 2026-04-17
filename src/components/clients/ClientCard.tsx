@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Pencil, Trash2, Mail, Phone, Building2 } from 'lucide-react'
 import type { Client } from '@/types/clients'
+import { TagSelector } from '@/components/tags/TagSelector'
 
 interface ClientCardProps {
   client:   Client & { isOptimistic?: boolean }
@@ -50,6 +51,7 @@ export function ClientCard({ client, onEdit, onDelete }: ClientCardProps) {
 
       {/* Acciones */}
       <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
+        <TagSelector entityId={client.id} entityType="client" compact />
         <button
           onClick={() => onEdit(client)}
           disabled={client.isOptimistic}

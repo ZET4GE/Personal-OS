@@ -1,9 +1,10 @@
 'use client'
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Filter, Loader2, Search } from 'lucide-react'
 import { useGlobalSearch } from '@/hooks/useGlobalSearch'
+import { getTaggedEntities } from '@/services/tags'
 import type { GlobalSearchResult, GlobalSearchResultType } from '@/types/search'
 
 const TYPE_LABELS: Record<GlobalSearchResultType, string> = {
@@ -12,13 +13,32 @@ const TYPE_LABELS: Record<GlobalSearchResultType, string> = {
   note: 'Nota',
   habit: 'Habito',
   routine: 'Rutina',
+  roadmap: 'Roadmap',
+  job: 'Empleo',
+  client: 'Cliente',
+  freelance: 'Freelance',
   tag: 'Tag',
 }
 
-const TYPE_ORDER: GlobalSearchResultType[] = ['goal', 'project', 'note', 'habit', 'routine', 'tag']
+const TYPE_ORDER: GlobalSearchResultType[] = [
+  'goal',
+  'project',
+  'roadmap',
+  'note',
+  'habit',
+  'routine',
+  'job',
+  'client',
+  'freelance',
+  'tag',
+]
 
 function getRouteByType(type: GlobalSearchResultType, id: string): string {
   if (type === 'goal') return `/goals/${id}`
+  if (type === 'roadmap') return `/roadmaps/${id}`
+  if (type === 'freelance') return `/freelance/${id}`
+  if (type === 'client') return `/clients/${id}`
+  if (type === 'job') return '/jobs'
   if (type === 'project') return '/projects'
   if (type === 'note') return '/notes'
   if (type === 'habit') return '/habits'
@@ -32,7 +52,40 @@ export function SearchPageClient() {
   const tagId = searchParams.get('tag')
   const [query, setQuery] = useState('')
   const [typeFilter, setTypeFilter] = useState<GlobalSearchResultType | 'all'>('all')
-  const { results, loading, error } = useGlobalSearch(query)
+  const globalSearch = useGlobalSearch(tagId ? '' : query)
+  const [tagResults, setTagResults] = useState<GlobalSearchResult[]>([])
+  const [tagLoading, setTagLoading] = useState(false)
+  const [tagError, setTagError] = useState<string | null>(null)
+  const results = tagId ? tagResults : globalSearch.results
+  const loading = tagId ? tagLoading : globalSearch.loading
+  const error = tagId ? tagError : globalSearch.error
+
+  useEffect(() => {
+    if (!tagId) return
+
+    let active = true
+    const timer = window.setTimeout(async () => {
+      setTagLoading(true)
+      setTagError(null)
+
+      const result = await getTaggedEntities(tagId, query)
+      if (!active) return
+
+      if (result.error) {
+        setTagResults([])
+        setTagError(result.error)
+      } else {
+        setTagResults(result.data ?? [])
+      }
+
+      setTagLoading(false)
+    }, 300)
+
+    return () => {
+      active = false
+      window.clearTimeout(timer)
+    }
+  }, [query, tagId])
 
   const filteredResults = useMemo(() => {
     if (typeFilter === 'all') return results
@@ -96,13 +149,13 @@ export function SearchPageClient() {
 
         {tagId ? (
           <p className="mt-3 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-3 py-2 text-xs text-cyan-200">
-            Filtro por tag detectado. Busca un termino para combinarlo con resultados globales.
+            Filtro por tag activo. Los resultados se limitan a elementos vinculados a esa etiqueta.
           </p>
         ) : null}
       </section>
 
       <section className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)]">
-        {!query.trim() ? (
+        {!query.trim() && !tagId ? (
           <div className="rounded-xl border border-dashed border-border py-14 text-center">
             <p className="text-sm font-medium text-text">Escribi para buscar</p>
             <p className="mt-1 text-sm text-muted">Los resultados aparecen agrupados por modulo.</p>
