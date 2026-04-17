@@ -2,7 +2,7 @@
 
 import { PDFDownloadLink } from '@react-pdf/renderer'
 import { Download } from 'lucide-react'
-import { CVDocument, type CVDocumentProps } from './CVDocument'
+import { CVDocument, type CVDocumentProps } from './CVDocumentPro'
 
 // ─────────────────────────────────────────────────────────────
 // Props

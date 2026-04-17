@@ -2,7 +2,7 @@ import { renderToBuffer } from '@react-pdf/renderer'
 import { createClient } from '@/lib/supabase/server'
 import { getProfileByUsername } from '@/services/profiles'
 import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects } from '@/services/cv'
-import { CVDocument } from '@/components/cv/pdf/CVDocument'
+import { CVDocument } from '@/components/cv/pdf/CVDocumentPro'
 
 // ─────────────────────────────────────────────────────────────
 // Route — GET /api/cv/:username/pdf

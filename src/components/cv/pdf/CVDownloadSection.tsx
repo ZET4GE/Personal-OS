@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic'
 import { Skeleton } from '@/components/ui/Skeleton'
-import type { CVDocumentProps } from './CVDocument'
+import type { CVDocumentProps } from './CVDocumentPro'
 
 // El dynamic con ssr: false debe vivir en un Client Component
 const DownloadCVButton = dynamic(
