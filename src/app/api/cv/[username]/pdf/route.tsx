@@ -1,7 +1,7 @@
 import { renderToBuffer } from '@react-pdf/renderer'
 import { createClient } from '@/lib/supabase/server'
 import { getProfileByUsername } from '@/services/profiles'
-import { getWorkExperience, getEducation, getSkills } from '@/services/cv'
+import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects } from '@/services/cv'
 import { CVDocument } from '@/components/cv/pdf/CVDocument'
 
 // ─────────────────────────────────────────────────────────────
@@ -23,15 +23,19 @@ export async function GET(
     return new Response('Perfil no encontrado', { status: 404 })
   }
 
-  const [expResult, eduResult, skillsResult] = await Promise.all([
+  const [expResult, eduResult, skillsResult, coursesResult, projectsResult] = await Promise.all([
     getWorkExperience(supabase, profile.id),
     getEducation(supabase, profile.id),
     getSkills(supabase, profile.id),
+    getCVCourses(supabase, profile.id),
+    getCVProjects(supabase, profile.id),
   ])
 
   const experience = expResult.data   ?? []
   const education  = eduResult.data   ?? []
   const skills     = skillsResult.data ?? []
+  const courses    = coursesResult.data ?? []
+  const projects   = projectsResult.data ?? []
 
   // ── Render to buffer ────────────────────────────────────────
   const buffer = await renderToBuffer(
@@ -40,6 +44,8 @@ export async function GET(
       experience={experience}
       education={education}
       skills={skills}
+      courses={courses}
+      projects={projects}
     />,
   )
 

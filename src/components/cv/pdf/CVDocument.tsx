@@ -1,7 +1,8 @@
 import { Document, Page, Text, View, Link } from '@react-pdf/renderer'
 import { styles } from './PDFStyles'
 import { SKILL_CATEGORIES, SKILL_CATEGORY_LABELS, SKILL_LEVEL_LABELS } from '@/types/cv'
-import type { WorkExperience, Education, Skill, SkillCategory } from '@/types/cv'
+import type { WorkExperience, Education, Skill, SkillCategory, CVCourse, CVProject } from '@/types/cv'
+import { CV_AVAILABILITY_LABELS } from '@/types/profile'
 import type { Profile } from '@/types/profile'
 
 // ─────────────────────────────────────────────────────────────
@@ -13,6 +14,8 @@ export interface CVDocumentProps {
   experience: WorkExperience[]
   education:  Education[]
   skills:     Skill[]
+  courses:    CVCourse[]
+  projects:   CVProject[]
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -38,6 +41,10 @@ function eduDateRange(edu: Education): string {
   if (start)          return start
   if (end)            return end
   return ''
+}
+
+function courseDate(course: CVCourse): string {
+  return course.completed_at ? fmt(course.completed_at) : ''
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -120,6 +127,50 @@ function EducationSection({ items }: { items: Education[] }) {
   )
 }
 
+function CoursesSection({ items }: { items: CVCourse[] }) {
+  if (items.length === 0) return null
+  return (
+    <View style={styles.section}>
+      <SectionTitle>Cursos y certificaciones</SectionTitle>
+      {items.map((course) => (
+        <View key={course.id} style={styles.simpleItem}>
+          <View style={styles.itemHeaderRow}>
+            <Text style={styles.itemTitle}>{course.title}</Text>
+            {courseDate(course) ? <Text style={styles.itemDate}>{courseDate(course)}</Text> : null}
+          </View>
+          {course.provider ? <Text style={styles.itemSubtitle}>{course.provider}</Text> : null}
+          {course.description ? <Text style={styles.itemDesc}>{course.description}</Text> : null}
+          {course.credential_url ? (
+            <Link src={course.credential_url} style={styles.itemLocation}>Credencial</Link>
+          ) : null}
+        </View>
+      ))}
+    </View>
+  )
+}
+
+function ProjectsSection({ items }: { items: CVProject[] }) {
+  if (items.length === 0) return null
+  return (
+    <View style={styles.section}>
+      <SectionTitle>Proyectos</SectionTitle>
+      {items.map((project) => (
+        <View key={project.id} style={styles.simpleItem}>
+          <Text style={styles.itemTitle}>{project.title}</Text>
+          {project.description ? <Text style={styles.itemDesc}>{project.description}</Text> : null}
+          {project.tech_stack.length > 0 ? (
+            <Text style={styles.itemLocation}>{project.tech_stack.join(' · ')}</Text>
+          ) : null}
+          <View style={styles.contactRow}>
+            {project.url ? <Link src={project.url} style={styles.contactItem}>Demo</Link> : null}
+            {project.repo_url ? <Link src={project.repo_url} style={styles.contactItem}>Repositorio</Link> : null}
+          </View>
+        </View>
+      ))}
+    </View>
+  )
+}
+
 function SkillsSection({ items }: { items: Skill[] }) {
   if (items.length === 0) return null
 
@@ -163,11 +214,11 @@ function SkillsSection({ items }: { items: Skill[] }) {
 // Document
 // ─────────────────────────────────────────────────────────────
 
-export function CVDocument({ profile, experience, education, skills }: CVDocumentProps) {
+export function CVDocument({ profile, experience, education, skills, courses, projects }: CVDocumentProps) {
   const displayName = profile.full_name ?? `@${profile.username}`
 
   const hasContent =
-    experience.length > 0 || education.length > 0 || skills.length > 0
+    experience.length > 0 || education.length > 0 || skills.length > 0 || courses.length > 0 || projects.length > 0
 
   return (
     <Document
@@ -182,6 +233,10 @@ export function CVDocument({ profile, experience, education, skills }: CVDocumen
         <View style={styles.header}>
           <Text style={styles.name}>{displayName}</Text>
 
+          {profile.headline ? (
+            <Text style={styles.headline}>{profile.headline}</Text>
+          ) : null}
+
           {profile.bio ? (
             <Text style={styles.bio}>{profile.bio}</Text>
           ) : null}
@@ -189,6 +244,15 @@ export function CVDocument({ profile, experience, education, skills }: CVDocumen
           <View style={styles.contactRow}>
             {profile.location ? (
               <Text style={styles.contactItem}>{profile.location}</Text>
+            ) : null}
+            {profile.phone ? (
+              <Text style={styles.contactItem}>{profile.phone}</Text>
+            ) : null}
+            {profile.availability ? (
+              <Text style={styles.contactItem}>{CV_AVAILABILITY_LABELS[profile.availability]}</Text>
+            ) : null}
+            {profile.birth_date ? (
+              <Text style={styles.contactItem}>Nac. {profile.birth_date}</Text>
             ) : null}
             {profile.website ? (
               <Link src={profile.website} style={styles.contactItem}>
@@ -219,11 +283,15 @@ export function CVDocument({ profile, experience, education, skills }: CVDocumen
         {hasContent ? (
           <>
             <ExperienceSection items={experience} />
-            {experience.length > 0 && (education.length > 0 || skills.length > 0) && (
+            {experience.length > 0 && (education.length > 0 || courses.length > 0 || projects.length > 0 || skills.length > 0) && (
               <Divider />
             )}
             <EducationSection items={education} />
-            {education.length > 0 && skills.length > 0 && <Divider />}
+            {(education.length > 0 && (courses.length > 0 || projects.length > 0 || skills.length > 0)) && <Divider />}
+            <CoursesSection items={courses} />
+            {(courses.length > 0 && (projects.length > 0 || skills.length > 0)) && <Divider />}
+            <ProjectsSection items={projects} />
+            {(projects.length > 0 && skills.length > 0) && <Divider />}
             <SkillsSection items={skills} />
           </>
         ) : (

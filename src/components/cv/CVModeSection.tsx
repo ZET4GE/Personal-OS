@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Briefcase, ChevronRight, GraduationCap, Sparkles, Zap } from 'lucide-react'
+import { BookOpen, Briefcase, ChevronRight, FolderGit2, GraduationCap, Sparkles, Zap } from 'lucide-react'
 import { useDynamicCV } from '@/hooks/useDynamicCV'
 import { Skeleton } from '@/components/ui/Skeleton'
 import type { DynamicCVExperience, DynamicCVProject, Skill } from '@/types/cv'
@@ -11,6 +11,8 @@ interface CVModeSectionProps {
   expCount: number
   eduCount: number
   skillsCount: number
+  coursesCount: number
+  projectsCount: number
 }
 
 function SectionCard({
@@ -134,7 +136,7 @@ function DynamicCVPreview() {
   )
 }
 
-export function CVModeSection({ expCount, eduCount, skillsCount }: CVModeSectionProps) {
+export function CVModeSection({ expCount, eduCount, skillsCount, coursesCount, projectsCount }: CVModeSectionProps) {
   const [mode, setMode] = useState<'manual' | 'automatic'>('manual')
 
   return (
@@ -153,6 +155,8 @@ export function CVModeSection({ expCount, eduCount, skillsCount }: CVModeSection
           <SectionCard href="/cv/experience" icon={Briefcase} label="Experiencia laboral" count={expCount} description={expCount === 0 ? 'Sin entradas todavia' : `${expCount} ${expCount === 1 ? 'entrada' : 'entradas'}`} />
           <SectionCard href="/cv/education" icon={GraduationCap} label="Educacion" count={eduCount} description={eduCount === 0 ? 'Sin entradas todavia' : `${eduCount} ${eduCount === 1 ? 'entrada' : 'entradas'}`} />
           <SectionCard href="/cv/skills" icon={Zap} label="Skills" count={skillsCount} description={skillsCount === 0 ? 'Sin skills todavia' : `${skillsCount} ${skillsCount === 1 ? 'skill' : 'skills'}`} />
+          <SectionCard href="/cv/courses" icon={BookOpen} label="Cursos" count={coursesCount} description={coursesCount === 0 ? 'Sin cursos todavia' : `${coursesCount} ${coursesCount === 1 ? 'curso' : 'cursos'}`} />
+          <SectionCard href="/cv/projects" icon={FolderGit2} label="Proyectos" count={projectsCount} description={projectsCount === 0 ? 'Sin proyectos todavia' : `${projectsCount} ${projectsCount === 1 ? 'proyecto' : 'proyectos'}`} />
         </div>
       ) : (
         <DynamicCVPreview />

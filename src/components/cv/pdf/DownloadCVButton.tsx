@@ -25,6 +25,8 @@ export function DownloadCVButton({
   experience,
   education,
   skills,
+  courses,
+  projects,
 }: DownloadCVButtonProps) {
   const filename = `${username}-cv.pdf`
 
@@ -44,6 +46,8 @@ export function DownloadCVButton({
           experience={experience}
           education={education}
           skills={skills}
+          courses={courses}
+          projects={projects}
         />
       }
       fileName={filename}

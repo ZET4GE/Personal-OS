@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Save, Eye, CheckCircle2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { updateProfileAction } from '@/app/(dashboard)/settings/actions'
+import { CV_AVAILABILITY_LABELS, CV_AVAILABILITY_OPTIONS } from '@/types/profile'
 import type { Profile } from '@/types/profile'
 
 // ─────────────────────────────────────────────────────────────
@@ -89,6 +90,13 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
             </Field>
           </div>
 
+          <Field label="Titulo profesional" htmlFor="headline">
+            <input id="headline" name="headline" type="text"
+              defaultValue={current?.headline ?? ''}
+              placeholder="Frontend developer, Sysadmin, Estudiante DevOps..."
+              className={inputCls} />
+          </Field>
+
           <Field label="Bio" htmlFor="bio" hint="Máximo 500 caracteres.">
             <textarea id="bio" name="bio" rows={3}
               defaultValue={current?.bio ?? ''}
@@ -105,6 +113,36 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
         </Section>
 
         {/* ─── Sección: Links ─────────────────────────── */}
+        <Section title="Datos para CV">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Field label="Telefono" htmlFor="phone">
+              <input id="phone" name="phone" type="tel"
+                defaultValue={current?.phone ?? ''}
+                placeholder="+54 9 ..."
+                className={inputCls} />
+            </Field>
+
+            <Field label="Fecha de nacimiento" htmlFor="birth_date">
+              <input id="birth_date" name="birth_date" type="date"
+                defaultValue={current?.birth_date?.slice(0, 10) ?? ''}
+                className={inputCls} />
+            </Field>
+
+            <Field label="Disponibilidad" htmlFor="availability">
+              <select id="availability" name="availability"
+                defaultValue={current?.availability ?? ''}
+                className={inputCls}>
+                <option value="">Sin especificar</option>
+                {CV_AVAILABILITY_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {CV_AVAILABILITY_LABELS[option]}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          </div>
+        </Section>
+
         <Section title="Links">
           <Field label="Sitio web" htmlFor="website">
             <input id="website" name="website" type="url"

@@ -23,6 +23,8 @@ export function CVDownloadSection({
   experience,
   education,
   skills,
+  courses,
+  projects,
 }: CVDownloadSectionProps) {
   return (
     <div className="flex items-center gap-2">
@@ -33,6 +35,8 @@ export function CVDownloadSection({
         experience={experience}
         education={education}
         skills={skills}
+        courses={courses}
+        projects={projects}
       />
       <a
         href={`/api/cv/${username}/pdf`}

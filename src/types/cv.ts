@@ -62,6 +62,31 @@ export interface Skill {
   order_index: number
 }
 
+export interface CVCourse {
+  id:             string
+  user_id:        string
+  title:          string
+  provider:       string | null
+  credential_url: string | null
+  completed_at:   string | null
+  description:    string | null
+  order_index:    number
+  created_at:     string
+}
+
+export interface CVProject {
+  id:          string
+  user_id:     string
+  title:       string
+  description: string | null
+  url:         string | null
+  repo_url:    string | null
+  tech_stack:  string[]
+  is_featured: boolean
+  order_index: number
+  created_at:  string
+}
+
 export interface DynamicCVExperience {
   id: string
   title: string
@@ -99,4 +124,14 @@ export type EducationActionResult =
 export type SkillActionResult =
   | { error: string; item?: never }
   | { item: Skill; error?: never }
+  | { ok: true; error?: never }
+
+export type CVCourseActionResult =
+  | { error: string; item?: never }
+  | { item: CVCourse; error?: never }
+  | { ok: true; error?: never }
+
+export type CVProjectActionResult =
+  | { error: string; item?: never }
+  | { item: CVProject; error?: never }
   | { ok: true; error?: never }

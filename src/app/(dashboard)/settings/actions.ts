@@ -28,6 +28,7 @@ export async function updateProfileAction(
   const profile = result.data!
   revalidatePath('/settings')
   revalidatePath(`/${profile.username}`)
+  revalidatePath(`/${profile.username}/cv`)
 
   return { ok: true, profile }
 }

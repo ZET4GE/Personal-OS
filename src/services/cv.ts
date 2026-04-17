@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { WorkExperience, Education, Skill } from '@/types/cv'
+import type { WorkExperience, Education, Skill, CVCourse, CVProject } from '@/types/cv'
 import type {
   CreateWorkExperienceData,
   UpdateWorkExperienceData,
@@ -7,6 +7,10 @@ import type {
   UpdateEducationData,
   CreateSkillData,
   UpdateSkillData,
+  CreateCVCourseData,
+  UpdateCVCourseData,
+  CreateCVProjectData,
+  UpdateCVProjectData,
 } from '@/lib/validations/cv'
 
 // ─────────────────────────────────────────────────────────────
@@ -200,6 +204,127 @@ export async function deleteSkill(
 ): Promise<{ error: string | null }> {
   const { error } = await supabase
     .from('skills')
+    .delete()
+    .eq('id', id)
+
+  return { error: error?.message ?? null }
+}
+
+// Courses
+
+export async function getCVCourses(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<Result<CVCourse[]>> {
+  const { data, error } = await supabase
+    .from('cv_courses')
+    .select('*')
+    .eq('user_id', userId)
+    .order('order_index', { ascending: true })
+    .order('completed_at', { ascending: false })
+
+  if (error) return err(error.message)
+  return ok(data as CVCourse[])
+}
+
+export async function createCVCourse(
+  supabase: SupabaseClient,
+  userId: string,
+  input: CreateCVCourseData,
+): Promise<Result<CVCourse>> {
+  const { data, error } = await supabase
+    .from('cv_courses')
+    .insert({ user_id: userId, ...input })
+    .select()
+    .single()
+
+  if (error) return err(error.message)
+  return ok(data as CVCourse)
+}
+
+export async function updateCVCourse(
+  supabase: SupabaseClient,
+  input: UpdateCVCourseData,
+): Promise<Result<CVCourse>> {
+  const { id, ...patch } = input
+  const { data, error } = await supabase
+    .from('cv_courses')
+    .update(patch)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) return err(error.message)
+  return ok(data as CVCourse)
+}
+
+export async function deleteCVCourse(
+  supabase: SupabaseClient,
+  id: string,
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('cv_courses')
+    .delete()
+    .eq('id', id)
+
+  return { error: error?.message ?? null }
+}
+
+// CV Projects
+
+export async function getCVProjects(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<Result<CVProject[]>> {
+  const { data, error } = await supabase
+    .from('cv_projects')
+    .select('*')
+    .eq('user_id', userId)
+    .order('is_featured', { ascending: false })
+    .order('order_index', { ascending: true })
+    .order('created_at', { ascending: false })
+
+  if (error) return err(error.message)
+  return ok(data as CVProject[])
+}
+
+export async function createCVProject(
+  supabase: SupabaseClient,
+  userId: string,
+  input: CreateCVProjectData,
+): Promise<Result<CVProject>> {
+  const { data, error } = await supabase
+    .from('cv_projects')
+    .insert({ user_id: userId, ...input })
+    .select()
+    .single()
+
+  if (error) return err(error.message)
+  return ok(data as CVProject)
+}
+
+export async function updateCVProject(
+  supabase: SupabaseClient,
+  input: UpdateCVProjectData,
+): Promise<Result<CVProject>> {
+  const { id, ...patch } = input
+  const { data, error } = await supabase
+    .from('cv_projects')
+    .update(patch)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) return err(error.message)
+  return ok(data as CVProject)
+}
+
+export async function deleteCVProject(
+  supabase: SupabaseClient,
+  id: string,
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('cv_projects')
     .delete()
     .eq('id', id)
 

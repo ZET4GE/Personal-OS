@@ -45,6 +45,12 @@ export const styles = StyleSheet.create({
     color:        COLOR.text,
     marginBottom: 4,
   },
+  headline: {
+    fontSize:     11,
+    fontWeight:   'bold',
+    color:        COLOR.subtle,
+    marginBottom: 5,
+  },
   bio: {
     fontSize:     10,
     color:        COLOR.muted,
@@ -146,6 +152,9 @@ export const styles = StyleSheet.create({
     color:      COLOR.muted,
     marginTop:  5,
     lineHeight: 1.6,
+  },
+  simpleItem: {
+    marginBottom: 12,
   },
 
   // ── Skills ──────────────────────────────────────────────────

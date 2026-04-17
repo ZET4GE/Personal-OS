@@ -17,6 +17,22 @@ const optionalDate = z
   .optional()
   .transform((v) => (v?.trim() ? v.trim() : null))
 
+const optionalUrl = z
+  .string()
+  .max(500)
+  .optional()
+  .transform((v) => (v?.trim() ? v.trim() : null))
+
+const techStackInput = z
+  .string()
+  .optional()
+  .transform((v) =>
+    (v ?? '')
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean),
+  )
+
 // ─────────────────────────────────────────────────────────────
 // Work Experience
 // ─────────────────────────────────────────────────────────────
@@ -92,3 +108,49 @@ export const UpdateSkillSchema = CreateSkillSchema.extend({
 
 export type CreateSkillData = z.output<typeof CreateSkillSchema>
 export type UpdateSkillData = z.output<typeof UpdateSkillSchema>
+
+// Courses
+
+export const CreateCVCourseSchema = z.object({
+  title:          z.string().min(1, { error: 'Curso requerido' }).max(255).trim(),
+  provider:       optionalText(255),
+  credential_url: optionalUrl,
+  completed_at:   optionalDate,
+  description:    optionalText(3000),
+  order_index: z
+    .string()
+    .optional()
+    .transform((v) => (v ? parseInt(v, 10) : 0)),
+})
+
+export const UpdateCVCourseSchema = CreateCVCourseSchema.extend({
+  id: z.string().uuid({ error: 'ID invalido' }),
+})
+
+export type CreateCVCourseData = z.output<typeof CreateCVCourseSchema>
+export type UpdateCVCourseData = z.output<typeof UpdateCVCourseSchema>
+
+// CV Projects
+
+export const CreateCVProjectSchema = z.object({
+  title:       z.string().min(1, { error: 'Proyecto requerido' }).max(255).trim(),
+  description: optionalText(3000),
+  url:         optionalUrl,
+  repo_url:    optionalUrl,
+  tech_stack:  techStackInput,
+  is_featured: z
+    .string()
+    .optional()
+    .transform((v) => v === 'true'),
+  order_index: z
+    .string()
+    .optional()
+    .transform((v) => (v ? parseInt(v, 10) : 0)),
+})
+
+export const UpdateCVProjectSchema = CreateCVProjectSchema.extend({
+  id: z.string().uuid({ error: 'ID invalido' }),
+})
+
+export type CreateCVProjectData = z.output<typeof CreateCVProjectSchema>
+export type UpdateCVProjectData = z.output<typeof UpdateCVProjectSchema>

@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Briefcase, GraduationCap, Zap, ChevronRight, ExternalLink, Download } from 'lucide-react'
+import { BookOpen, Briefcase, FolderGit2, GraduationCap, Zap, ChevronRight, ExternalLink, Download } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { getWorkExperience, getEducation, getSkills } from '@/services/cv'
+import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects } from '@/services/cv'
 import { getMyProfile } from '@/services/profiles'
 import { CVModeSection } from '@/components/cv/CVModeSection'
 
@@ -63,16 +63,20 @@ export default async function CVPage() {
   } = await supabase.auth.getUser()
 
   // Fetch everything in parallel
-  const [expResult, eduResult, skillsResult, profileResult] = await Promise.all([
+  const [expResult, eduResult, skillsResult, coursesResult, projectsResult, profileResult] = await Promise.all([
     getWorkExperience(supabase, user!.id),
     getEducation(supabase, user!.id),
     getSkills(supabase, user!.id),
+    getCVCourses(supabase, user!.id),
+    getCVProjects(supabase, user!.id),
     getMyProfile(supabase),
   ])
 
   const expCount    = expResult.data?.length    ?? 0
   const eduCount    = eduResult.data?.length    ?? 0
   const skillsCount = skillsResult.data?.length ?? 0
+  const coursesCount = coursesResult.data?.length ?? 0
+  const projectsCount = projectsResult.data?.length ?? 0
   const profile     = profileResult.data
 
   const publicCvUrl = profile?.username ? `/${profile.username}/cv` : null
@@ -136,10 +140,30 @@ export default async function CVPage() {
           count={skillsCount}
           description={skillsCount === 0 ? 'Sin skills todavía' : `${skillsCount} ${skillsCount === 1 ? 'skill' : 'skills'}`}
         />
+        <SectionCard
+          href="/cv/courses"
+          icon={BookOpen}
+          label="Cursos"
+          count={coursesCount}
+          description={coursesCount === 0 ? 'Sin cursos todavia' : `${coursesCount} ${coursesCount === 1 ? 'curso' : 'cursos'}`}
+        />
+        <SectionCard
+          href="/cv/projects"
+          icon={FolderGit2}
+          label="Proyectos"
+          count={projectsCount}
+          description={projectsCount === 0 ? 'Sin proyectos todavia' : `${projectsCount} ${projectsCount === 1 ? 'proyecto' : 'proyectos'}`}
+        />
       </div>
 
       {/* Hint si perfil no es público */}
-      <CVModeSection expCount={expCount} eduCount={eduCount} skillsCount={skillsCount} />
+      <CVModeSection
+        expCount={expCount}
+        eduCount={eduCount}
+        skillsCount={skillsCount}
+        coursesCount={coursesCount}
+        projectsCount={projectsCount}
+      />
 
       {profile && !profile.is_public && (
         <p className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">

@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { CV_AVAILABILITY_OPTIONS } from '@/types/profile'
 
 // ─────────────────────────────────────────────────────────────
 // Helpers
@@ -18,13 +19,18 @@ const optionalUrl = () =>
     .optional()
     .transform((v) => (v?.trim() || null))
 
+const optionalDate = z
+  .string()
+  .optional()
+  .transform((v) => (v?.trim() || null))
+
 // ─────────────────────────────────────────────────────────────
 // Username rules
 // ─────────────────────────────────────────────────────────────
 
 const RESERVED_USERNAMES = new Set([
   'login', 'signup', 'dashboard', 'jobs', 'projects',
-  'finance', 'settings', 'auth', 'api', 'public', 'admin',
+  'finance', 'cv', 'settings', 'auth', 'api', 'public', 'admin',
 ])
 
 export const UpdateProfileSchema = z.object({
@@ -40,7 +46,15 @@ export const UpdateProfileSchema = z.object({
     .refine((v) => !RESERVED_USERNAMES.has(v), { error: 'Ese username está reservado' }),
 
   full_name:    optionalText(255),
+  headline:     optionalText(120),
   bio:          optionalText(500),
+  phone:        optionalText(50),
+  birth_date:   optionalDate,
+  availability: z
+    .enum(CV_AVAILABILITY_OPTIONS)
+    .or(z.literal(''))
+    .optional()
+    .transform((v) => (v ? v : null)),
   location:     optionalText(100),
   website:      optionalUrl(),
   github_url:   optionalUrl(),
@@ -49,7 +63,7 @@ export const UpdateProfileSchema = z.object({
   is_public: z
     .string()
     .optional()
-    .transform((v) => v !== 'false'),   // todo excepto 'false' → true
+    .transform((v) => v === 'true'),
 })
 
 export type UpdateProfileData = z.output<typeof UpdateProfileSchema>

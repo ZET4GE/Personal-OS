@@ -1,12 +1,13 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { MapPin, GitBranch, ExternalLink, Briefcase, GraduationCap, Zap, ChevronRight } from 'lucide-react'
+import { BookOpen, Calendar, Clock, FolderGit2, MapPin, GitBranch, ExternalLink, Briefcase, GraduationCap, Phone, Zap, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getProfileByUsername } from '@/services/profiles'
-import { getWorkExperience, getEducation, getSkills } from '@/services/cv'
+import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects } from '@/services/cv'
 import { SKILL_CATEGORIES, SKILL_CATEGORY_LABELS, SKILL_LEVEL_LABELS } from '@/types/cv'
-import type { WorkExperience, Education, Skill, SkillCategory } from '@/types/cv'
+import type { WorkExperience, Education, Skill, SkillCategory, CVCourse, CVProject } from '@/types/cv'
+import { CV_AVAILABILITY_LABELS } from '@/types/profile'
 import { CVDownloadSection } from '@/components/cv/pdf/CVDownloadSection'
 import { TrackingPixel } from '@/components/analytics/TrackingPixel'
 
@@ -143,6 +144,79 @@ function EducationSection({ items }: { items: Education[] }) {
   )
 }
 
+function CoursesSection({ items }: { items: CVCourse[] }) {
+  if (items.length === 0) return null
+  return (
+    <section>
+      <SectionTitle icon={BookOpen} label="Cursos" />
+      <div className="space-y-5">
+        {items.map((course) => (
+          <div key={course.id} className="rounded-xl border border-border bg-surface p-4">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <p className="font-semibold">{course.title}</p>
+                {course.provider && <p className="text-sm text-muted">{course.provider}</p>}
+              </div>
+              {course.completed_at && <span className="text-xs text-muted">{formatMonthYear(course.completed_at)}</span>}
+            </div>
+            {course.description && <p className="mt-2 text-sm leading-relaxed text-muted">{course.description}</p>}
+            {course.credential_url && (
+              <a href={course.credential_url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-accent-600 hover:underline">
+                Ver credencial <ExternalLink size={12} />
+              </a>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function ProjectsSection({ items }: { items: CVProject[] }) {
+  if (items.length === 0) return null
+  return (
+    <section>
+      <SectionTitle icon={FolderGit2} label="Proyectos" />
+      <div className="space-y-5">
+        {items.map((project) => (
+          <div key={project.id} className="rounded-xl border border-border bg-surface p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <p className="font-semibold">{project.title}</p>
+              {project.is_featured && (
+                <span className="rounded-full bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-500">
+                  Destacado
+                </span>
+              )}
+            </div>
+            {project.description && <p className="mt-2 text-sm leading-relaxed text-muted">{project.description}</p>}
+            {project.tech_stack.length > 0 && (
+              <div className="mt-3 flex flex-wrap gap-1.5">
+                {project.tech_stack.map((tech) => (
+                  <span key={tech} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                    {tech}
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="mt-3 flex flex-wrap gap-3 text-xs font-medium">
+              {project.url && (
+                <a href={project.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-accent-600 hover:underline">
+                  Demo <ExternalLink size={12} />
+                </a>
+              )}
+              {project.repo_url && (
+                <a href={project.repo_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-accent-600 hover:underline">
+                  Repo <GitBranch size={12} />
+                </a>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 function SkillsSection({ items }: { items: Skill[] }) {
   if (items.length === 0) return null
 
@@ -202,15 +276,19 @@ export default async function PublicCVPage({ params }: PageProps) {
   const { data: { user } } = await supabase.auth.getUser()
 
   // Fetch CV data in parallel — RLS filters non-public automatically
-  const [expResult, eduResult, skillsResult] = await Promise.all([
+  const [expResult, eduResult, skillsResult, coursesResult, projectsResult] = await Promise.all([
     getWorkExperience(supabase, profile.id),
     getEducation(supabase, profile.id),
     getSkills(supabase, profile.id),
+    getCVCourses(supabase, profile.id),
+    getCVProjects(supabase, profile.id),
   ])
 
   const experience = expResult.data   ?? []
   const education  = eduResult.data   ?? []
   const skills     = skillsResult.data ?? []
+  const courses    = coursesResult.data ?? []
+  const projects   = projectsResult.data ?? []
   const displayName = profile.full_name ?? `@${username}`
 
   return (
@@ -233,12 +311,17 @@ export default async function PublicCVPage({ params }: PageProps) {
           experience={experience}
           education={education}
           skills={skills}
+          courses={courses}
+          projects={projects}
         />
       </div>
 
       {/* Header */}
       <header className="mb-10 space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">{displayName}</h1>
+        {profile.headline && (
+          <p className="text-base font-medium text-foreground/80">{profile.headline}</p>
+        )}
         {profile.bio && (
           <p className="max-w-xl text-muted leading-relaxed">{profile.bio}</p>
         )}
@@ -248,6 +331,21 @@ export default async function PublicCVPage({ params }: PageProps) {
           {profile.location && (
             <span className="flex items-center gap-1.5">
               <MapPin size={13} /> {profile.location}
+            </span>
+          )}
+          {profile.phone && (
+            <span className="flex items-center gap-1.5">
+              <Phone size={13} /> {profile.phone}
+            </span>
+          )}
+          {profile.availability && (
+            <span className="flex items-center gap-1.5">
+              <Clock size={13} /> {CV_AVAILABILITY_LABELS[profile.availability]}
+            </span>
+          )}
+          {profile.birth_date && (
+            <span className="flex items-center gap-1.5">
+              <Calendar size={13} /> {profile.birth_date}
             </span>
           )}
           {profile.website && (
@@ -275,12 +373,14 @@ export default async function PublicCVPage({ params }: PageProps) {
       <div className="mb-10 border-t" style={{ borderColor: 'var(--color-border)' }} />
 
       {/* Sections */}
-      {experience.length === 0 && education.length === 0 && skills.length === 0 ? (
+      {experience.length === 0 && education.length === 0 && skills.length === 0 && courses.length === 0 && projects.length === 0 ? (
         <p className="text-center text-muted">Este CV está vacío por el momento.</p>
       ) : (
         <div className="space-y-10">
           <ExperienceSection items={experience} />
           <EducationSection  items={education} />
+          <CoursesSection    items={courses} />
+          <ProjectsSection   items={projects} />
           <SkillsSection     items={skills} />
         </div>
       )}
