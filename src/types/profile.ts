@@ -51,6 +51,7 @@ export type UpdateProfileInput = {
   full_name?:   string | null
   headline?:    string | null
   bio?:         string | null
+  avatar_url?:  string | null
   phone?:       string | null
   birth_date?:  string | null
   availability?: CVAvailability | null

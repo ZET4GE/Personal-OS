@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { DashboardShell } from '@/components/dashboard/DashboardShell'
 import { getUserOnboarding } from '@/services/onboarding'
+import { getMyProfile } from '@/services/profiles'
 import { getEnabledModules } from '@/lib/navigation/modules'
 
 export default async function DashboardLayout({
@@ -18,11 +19,19 @@ export default async function DashboardLayout({
 
   const userEmail = user.email ?? ''
   const userName = user.user_metadata?.full_name as string | undefined
-  const onboarding = await getUserOnboarding(supabase, user.id)
+  const [onboarding, profile] = await Promise.all([
+    getUserOnboarding(supabase, user.id),
+    getMyProfile(supabase),
+  ])
   const enabledModules = getEnabledModules(onboarding.data)
 
   return (
-    <DashboardShell userEmail={userEmail} userName={userName} enabledModules={enabledModules}>
+    <DashboardShell
+      userEmail={userEmail}
+      userName={profile.data?.full_name ?? userName}
+      userAvatarUrl={profile.data?.avatar_url ?? null}
+      enabledModules={enabledModules}
+    >
       {children}
     </DashboardShell>
   )

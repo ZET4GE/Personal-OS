@@ -68,10 +68,22 @@ function getPageInfo(pathname: string): { icon: LucideIcon; key: NavKey } {
     : { icon: LayoutDashboard, key: 'dashboard' }
 }
 
-function UserAvatar({ name, email }: { name?: string; email: string }) {
+function UserAvatar({ name, email, avatarUrl }: { name?: string; email: string; avatarUrl?: string | null }) {
   const initials = name
     ? name.split(' ').map((w) => w[0]).slice(0, 2).join('').toUpperCase()
     : email[0].toUpperCase()
+
+  if (avatarUrl) {
+    return (
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={avatarUrl}
+        alt={name ?? email}
+        className="h-7 w-7 shrink-0 rounded-full object-cover shadow-sm ring-2 ring-border"
+        title={name ?? email}
+      />
+    )
+  }
 
   return (
     <div
@@ -86,11 +98,12 @@ function UserAvatar({ name, email }: { name?: string; email: string }) {
 interface TopbarProps {
   userEmail:        string
   userName?:        string
+  userAvatarUrl?:   string | null
   collapsed:        boolean
   onToggleCollapse: () => void
 }
 
-export function Topbar({ userEmail, userName, collapsed, onToggleCollapse }: TopbarProps) {
+export function Topbar({ userEmail, userName, userAvatarUrl, collapsed, onToggleCollapse }: TopbarProps) {
   const pathname           = usePathname()
   const { setSidebarOpen } = useUIStore()
   const tNav               = useTranslations('nav')
@@ -140,7 +153,7 @@ export function Topbar({ userEmail, userName, collapsed, onToggleCollapse }: Top
 
         {/* User */}
         <div className="flex items-center gap-2">
-          <UserAvatar name={userName} email={userEmail} />
+          <UserAvatar name={userName} email={userEmail} avatarUrl={userAvatarUrl} />
           <span className="hidden max-w-[120px] truncate text-xs font-medium text-text sm:block">
             {userName?.split(' ')[0] ?? userEmail.split('@')[0]}
           </span>

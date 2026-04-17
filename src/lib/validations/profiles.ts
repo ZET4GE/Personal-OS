@@ -48,6 +48,7 @@ export const UpdateProfileSchema = z.object({
   full_name:    optionalText(255),
   headline:     optionalText(120),
   bio:          optionalText(500),
+  avatar_url:   optionalUrl(),
   phone:        optionalText(50),
   birth_date:   optionalDate,
   availability: z

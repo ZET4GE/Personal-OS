@@ -317,17 +317,27 @@ export default async function PublicCVPage({ params }: PageProps) {
       </div>
 
       {/* Header */}
-      <header className="mb-10 space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">{displayName}</h1>
-        {profile.headline && (
-          <p className="text-base font-medium text-foreground/80">{profile.headline}</p>
-        )}
-        {profile.bio && (
-          <p className="max-w-xl text-muted leading-relaxed">{profile.bio}</p>
+      <header className="mb-10 flex flex-col gap-5 sm:flex-row sm:items-start">
+        {profile.avatar_url && (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={profile.avatar_url}
+            alt={displayName}
+            className="h-24 w-24 shrink-0 rounded-2xl object-cover ring-1 ring-border"
+          />
         )}
 
-        {/* Contact info */}
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-sm text-muted">
+        <div className="min-w-0 flex-1 space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight">{displayName}</h1>
+          {profile.headline && (
+            <p className="text-base font-medium text-foreground/80">{profile.headline}</p>
+          )}
+          {profile.bio && (
+            <p className="max-w-xl text-muted leading-relaxed">{profile.bio}</p>
+          )}
+
+          {/* Contact info */}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-sm text-muted">
           {profile.location && (
             <span className="flex items-center gap-1.5">
               <MapPin size={13} /> {profile.location}
@@ -366,6 +376,7 @@ export default async function PublicCVPage({ params }: PageProps) {
               <ExternalLink size={13} /> LinkedIn
             </a>
           )}
+          </div>
         </div>
       </header>
 

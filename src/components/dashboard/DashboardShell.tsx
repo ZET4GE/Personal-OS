@@ -9,11 +9,12 @@ import type { EnabledModule } from '@/types/onboarding'
 interface DashboardShellProps {
   userEmail: string
   userName?: string
+  userAvatarUrl?: string | null
   enabledModules: EnabledModule[]
   children: React.ReactNode
 }
 
-export function DashboardShell({ userEmail, userName, enabledModules, children }: DashboardShellProps) {
+export function DashboardShell({ userEmail, userName, userAvatarUrl, enabledModules, children }: DashboardShellProps) {
   const [collapsed, setCollapsed] = useState(false)
 
   return (
@@ -35,6 +36,7 @@ export function DashboardShell({ userEmail, userName, enabledModules, children }
         <Topbar
           userEmail={userEmail}
           userName={userName}
+          userAvatarUrl={userAvatarUrl}
           collapsed={collapsed}
           onToggleCollapse={() => setCollapsed((c) => !c)}
         />

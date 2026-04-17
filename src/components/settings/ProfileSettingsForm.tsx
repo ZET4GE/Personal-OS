@@ -1,10 +1,11 @@
 'use client'
 
-import { useActionState, useEffect } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Save, Eye, CheckCircle2 } from 'lucide-react'
+import { Camera, CheckCircle2, Eye, Loader2, Save, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { updateProfileAction } from '@/app/(dashboard)/settings/actions'
+import { createClient } from '@/lib/supabase/client'
 import { CV_AVAILABILITY_LABELS, CV_AVAILABILITY_OPTIONS } from '@/types/profile'
 import type { Profile } from '@/types/profile'
 
@@ -18,6 +19,8 @@ interface ProfileSettingsFormProps {
 
 export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
   const [state, formAction, isPending] = useActionState(updateProfileAction, null)
+  const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url ?? '')
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
 
   // Toasts — disparan cuando el estado cambia tras un submit
   useEffect(() => {
@@ -27,6 +30,58 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
 
   // Si el save fue exitoso, usar el perfil actualizado como fuente de verdad
   const current = state?.ok ? state.profile : profile
+
+  useEffect(() => {
+    setAvatarUrl(current?.avatar_url ?? '')
+  }, [current?.avatar_url])
+
+  async function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      toast.error('Subi una imagen valida')
+      return
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error('La imagen no puede superar 2 MB')
+      return
+    }
+
+    setIsUploadingAvatar(true)
+
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        toast.error('No autenticado')
+        return
+      }
+
+      const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg'
+      const path = `${user.id}/avatar-${Date.now()}.${extension}`
+      const { error } = await supabase.storage
+        .from('avatars')
+        .upload(path, file, {
+          cacheControl: '3600',
+          contentType: file.type,
+          upsert: false,
+        })
+
+      if (error) {
+        toast.error(error.message)
+        return
+      }
+
+      const { data } = supabase.storage.from('avatars').getPublicUrl(path)
+      setAvatarUrl(data.publicUrl)
+      toast.success('Foto subida. Guarda los cambios para aplicarla.')
+    } finally {
+      setIsUploadingAvatar(false)
+    }
+  }
 
   return (
     <div className="space-y-8">
@@ -51,6 +106,8 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
 
       {/* Form */}
       <form action={formAction} className="space-y-5">
+        <input type="hidden" name="avatar_url" value={avatarUrl} />
+
         {/* Success message */}
         {state?.ok && (
           <div className="flex items-center gap-2 rounded-lg bg-green-50 px-4 py-3 text-sm text-green-700 dark:bg-green-900/20 dark:text-green-400">
@@ -67,6 +124,57 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
         )}
 
         {/* ─── Sección: Identidad ─────────────────────── */}
+        <Section title="Foto de perfil">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+            <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl border border-border bg-surface-hover">
+              {avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  src={avatarUrl}
+                  alt={current?.full_name ?? current?.username ?? 'Avatar'}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-accent-500 to-violet-600 text-2xl font-bold text-white">
+                  {getInitials(current)}
+                </div>
+              )}
+              {isUploadingAvatar && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/45 text-white">
+                  <Loader2 size={22} className="animate-spin" />
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1 space-y-2">
+              <p className="text-sm font-medium">Imagen para perfil, CV online y PDF</p>
+              <p className="text-xs text-muted">Formato JPG, PNG, WebP o GIF. Maximo 2 MB.</p>
+              <div className="flex flex-wrap gap-2">
+                <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90">
+                  <Camera size={15} />
+                  {isUploadingAvatar ? 'Subiendo...' : 'Subir foto'}
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    className="sr-only"
+                    disabled={isUploadingAvatar}
+                    onChange={handleAvatarChange}
+                  />
+                </label>
+                {avatarUrl && (
+                  <button
+                    type="button"
+                    onClick={() => setAvatarUrl('')}
+                    className="inline-flex items-center gap-2 rounded-lg border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-surface-hover"
+                  >
+                    <X size={15} /> Quitar
+                  </button>
+                )}
+              </div>
+            </div>
+          </div>
+        </Section>
+
         <Section title="Identidad">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Username *" htmlFor="username"
@@ -244,6 +352,19 @@ function Field({
       {hint && <p className="text-xs text-muted">{hint}</p>}
     </div>
   )
+}
+
+function getInitials(profile: Profile | null): string {
+  if (profile?.full_name) {
+    return profile.full_name
+      .split(' ')
+      .map((word) => word[0])
+      .slice(0, 2)
+      .join('')
+      .toUpperCase()
+  }
+
+  return profile?.username?.[0]?.toUpperCase() ?? 'W'
 }
 
 const inputCls =

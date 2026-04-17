@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, Link } from '@react-pdf/renderer'
+import { Document, Page, Text, View, Link, Image } from '@react-pdf/renderer'
 import type { ReactNode } from 'react'
 import { styles } from './PDFStylesPro'
 import { SKILL_CATEGORIES, SKILL_CATEGORY_LABELS, SKILL_LEVEL_LABELS } from '@/types/cv'
@@ -231,9 +231,14 @@ export function CVDocument({ profile, experience, education, skills, courses, pr
     >
       <Page size="A4" style={styles.page}>
         <View style={styles.hero}>
-          <Text style={styles.name}>{displayName}</Text>
-          {profile.headline ? <Text style={styles.headline}>{profile.headline}</Text> : null}
-          {profile.bio ? <Text style={styles.bio}>{profile.bio}</Text> : null}
+          <View style={styles.heroContent}>
+            <View style={styles.heroText}>
+              <Text style={styles.name}>{displayName}</Text>
+              {profile.headline ? <Text style={styles.headline}>{profile.headline}</Text> : null}
+              {profile.bio ? <Text style={styles.bio}>{profile.bio}</Text> : null}
+            </View>
+            {profile.avatar_url ? <Image src={profile.avatar_url} style={styles.avatar} /> : null}
+          </View>
         </View>
 
         <View style={styles.body}>

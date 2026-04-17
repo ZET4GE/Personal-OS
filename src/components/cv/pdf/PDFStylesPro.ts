@@ -35,6 +35,20 @@ export const styles = StyleSheet.create({
     paddingBottom: 22,
     paddingHorizontal: 22,
   },
+  heroContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  heroText: {
+    flex: 1,
+  },
+  avatar: {
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    objectFit: 'cover',
+  },
   name: {
     fontSize: 24,
     fontWeight: 'bold',
