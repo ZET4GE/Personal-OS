@@ -8,6 +8,7 @@ const TABS = [
   { href: '/settings',             key: 'profile'      },
   { href: '/settings/preferences', key: 'preferences'  },
   { href: '/settings/integrations',key: 'integrations' },
+  { href: '/settings/billing',     key: 'billing'      },
 ] as const
 
 export function SettingsNav() {
