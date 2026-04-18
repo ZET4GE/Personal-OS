@@ -20,6 +20,7 @@ import { GoalsWidget } from '@/components/dashboard/widgets/GoalsWidget'
 import { DashboardGoalsPanel } from '@/components/dashboard/widgets/DashboardGoalsPanel'
 import { DashboardCustomizer } from '@/components/dashboard/DashboardCustomizer'
 import { FocusDashboard } from '@/components/dashboard/focus/FocusDashboard'
+import { GettingStartedGuide } from '@/components/dashboard/focus/GettingStartedGuide'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 
@@ -52,6 +53,16 @@ export default async function DashboardPage() {
   }
 
   const data = await getDashboardData(supabase, user.id)
+  const [roadmapsCountResult, timeEntriesCountResult] = await Promise.all([
+    supabase
+      .from('learning_roadmaps')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id),
+    supabase
+      .from('time_entries')
+      .select('id', { count: 'exact', head: true })
+      .eq('user_id', user.id),
+  ])
   const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario'
   const { google: hasGoogle, github: hasGitHub } = data.integrations
   const goals = goalsResult.data ?? []
@@ -60,6 +71,10 @@ export default async function DashboardPage() {
     ?? goals.find((goal) => goal.status === 'active')
     ?? goals[0]
     ?? null
+  const hasActionSystem =
+    data.todayHabits.dueToday > 0
+    || data.stats.activeProjects > 0
+    || data.deadlines.length > 0
   const widgets = [
     {
       id: 'dashboard-goals',
@@ -191,6 +206,14 @@ export default async function DashboardPage() {
         <p className="text-sm text-muted">Hola, {userName}</p>
         <h1 className="text-2xl font-semibold tracking-tight text-text">Tu foco de hoy</h1>
       </div>
+
+      <GettingStartedGuide
+        hasActiveGoal={Boolean(activeGoal)}
+        hasRoadmap={(roadmapsCountResult.count ?? 0) > 0}
+        hasActionSystem={hasActionSystem}
+        hasTimeEntry={(timeEntriesCountResult.count ?? 0) > 0}
+        hasConfiguredModules={Boolean(onboardingResult.data?.enabled_modules?.length)}
+      />
 
       <FocusDashboard
         activeGoal={activeGoal}
