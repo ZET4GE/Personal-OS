@@ -15,15 +15,26 @@ function formatDuration(totalSeconds: number) {
   return `${hours}h ${minutes}m`
 }
 
+function formatPercent(value: number) {
+  return `${Math.round(value * 100)}%`
+}
+
 export async function TimeInvestedWidget({ userId }: TimeInvestedWidgetProps) {
   const result = await getTimeStats(userId)
   const stats = result.data ?? {
     todaySeconds: 0,
     weekSeconds: 0,
+    monthSeconds: 0,
+    last7DaysSeconds: 0,
     totalSeconds: 0,
     sessionCount: 0,
     averageSessionSeconds: 0,
+    assignedSeconds: 0,
     unassignedSeconds: 0,
+    assignmentRate: 0,
+    consistencyDays: 0,
+    focusScore: 0,
+    bestDay: null,
     daily: [],
     byProject: [],
     byGoal: [],
@@ -71,8 +82,11 @@ export async function TimeInvestedWidget({ userId }: TimeInvestedWidgetProps) {
         <div className="rounded-xl bg-surface-2 px-3 py-3">
           <div className="mb-2 flex items-center justify-between text-xs">
             <span className="text-muted">{stats.sessionCount} sesiones</span>
-            <span className="font-medium text-text">Promedio {formatDuration(stats.averageSessionSeconds)}</span>
+            <span className="font-medium text-text">{formatPercent(stats.assignmentRate)} clasificado</span>
           </div>
+          <p className="mb-2 text-[11px] text-muted">
+            Promedio {formatDuration(stats.averageSessionSeconds)} - foco {stats.focusScore}/100
+          </p>
           <div className="flex h-10 items-end gap-1">
             {stats.daily.map((item) => (
               <div key={item.date} className="flex flex-1 items-end rounded-full bg-surface-3">

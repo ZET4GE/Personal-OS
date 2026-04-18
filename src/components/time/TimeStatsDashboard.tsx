@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
-import { ArrowRight, Clock3, Crosshair, FolderOpen, TimerReset } from 'lucide-react'
+import { ArrowRight, BarChart3, CheckCircle2, Clock3, Crosshair, FolderOpen, Gauge, TimerReset } from 'lucide-react'
 import { getTimeStats, type TimeStatsBreakdownItem, type TimeStatsDailyItem } from '@/services/time-stats'
 
 interface TimeStatsDashboardProps {
@@ -25,6 +25,10 @@ function formatSessionDate(value: string) {
   }).format(new Date(value))
 }
 
+function formatPercent(value: number) {
+  return `${Math.round(value * 100)}%`
+}
+
 function MetricCard({
   label,
   value,
@@ -39,6 +43,33 @@ function MetricCard({
       <p className="text-xs uppercase tracking-[0.16em] text-muted">{label}</p>
       <p className="mt-2 text-2xl font-semibold tracking-tight text-text">{value}</p>
       {helper ? <p className="mt-1 text-xs text-muted">{helper}</p> : null}
+    </div>
+  )
+}
+
+function InsightCard({
+  icon,
+  label,
+  value,
+  helper,
+}: {
+  icon: ReactNode
+  label: string
+  value: string
+  helper: string
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)]">
+      <div className="flex items-start gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-600/10 text-accent-500">
+          {icon}
+        </span>
+        <div className="min-w-0">
+          <p className="text-xs uppercase tracking-[0.16em] text-muted">{label}</p>
+          <p className="mt-1 text-xl font-semibold tracking-tight text-text">{value}</p>
+          <p className="mt-1 text-xs leading-5 text-muted">{helper}</p>
+        </div>
+      </div>
     </div>
   )
 }
@@ -118,7 +149,7 @@ function BreakdownList({
                 />
               </div>
               <p className="mt-1 text-[11px] text-muted">
-                {item.sessions} {item.sessions === 1 ? 'sesion' : 'sesiones'}
+                {item.sessions} {item.sessions === 1 ? 'sesion' : 'sesiones'} - {Math.round(item.share * 100)}% del total
               </p>
             </div>
           ))}
@@ -162,13 +193,38 @@ export async function TimeStatsDashboard({ userId }: TimeStatsDashboardProps) {
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
         <MetricCard label="Hoy" value={formatDuration(stats.todaySeconds)} />
         <MetricCard label="Semana" value={formatDuration(stats.weekSeconds)} />
+        <MetricCard label="Mes" value={formatDuration(stats.monthSeconds)} />
         <MetricCard label="Total" value={formatDuration(stats.totalSeconds)} />
         <MetricCard label="Sesiones" value={String(stats.sessionCount)} />
         <MetricCard label="Promedio" value={formatDuration(stats.averageSessionSeconds)} />
-        <MetricCard
-          label="Sin asignar"
-          value={formatDuration(stats.unassignedSeconds)}
-          helper={stats.unassignedSeconds > 0 ? 'Conviene clasificarlo.' : 'Todo clasificado.'}
+      </div>
+
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <InsightCard
+          icon={<Gauge size={17} />}
+          label="Score de foco"
+          value={`${stats.focusScore}/100`}
+          helper="Combina consistencia semanal y tiempo clasificado."
+        />
+        <InsightCard
+          icon={<CheckCircle2 size={17} />}
+          label="Clasificacion"
+          value={formatPercent(stats.assignmentRate)}
+          helper={stats.unassignedSeconds > 0
+            ? `${formatDuration(stats.unassignedSeconds)} sin proyecto/meta.`
+            : 'Todo el tiempo tiene destino.'}
+        />
+        <InsightCard
+          icon={<BarChart3 size={17} />}
+          label="Consistencia"
+          value={`${stats.consistencyDays}/7 dias`}
+          helper={`Ultimos 7 dias: ${formatDuration(stats.last7DaysSeconds)} registrados.`}
+        />
+        <InsightCard
+          icon={<Clock3 size={17} />}
+          label="Mejor dia"
+          value={stats.bestDay ? `${stats.bestDay.label} - ${formatDuration(stats.bestDay.totalSeconds)}` : 'Sin datos'}
+          helper={stats.bestDay ? `${stats.bestDay.sessions} sesiones registradas.` : 'Registra sesiones para ver patrones.'}
         />
       </div>
 
@@ -214,9 +270,22 @@ export async function TimeStatsDashboard({ userId }: TimeStatsDashboardProps) {
                   <p className="truncate text-sm font-medium text-text">
                     {session.description || session.projectTitle || session.goalTitle || 'Sesion sin descripcion'}
                   </p>
-                  <p className="mt-1 text-xs text-muted">
-                    {[session.projectTitle, session.goalTitle].filter(Boolean).join(' / ') || 'Sin asignacion'} - {formatSessionDate(session.startedAt)}
-                  </p>
+                  <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted">
+                    {session.projectId && session.projectTitle ? (
+                      <Link href={`/projects/${session.projectId}`} className="hover:text-foreground">
+                        {session.projectTitle}
+                      </Link>
+                    ) : null}
+                    {session.projectId && session.goalId ? <span>/</span> : null}
+                    {session.goalId && session.goalTitle ? (
+                      <Link href={`/goals/${session.goalId}`} className="hover:text-foreground">
+                        {session.goalTitle}
+                      </Link>
+                    ) : null}
+                    {!session.projectId && !session.goalId ? <span>Sin asignacion</span> : null}
+                    <span>-</span>
+                    <span>{formatSessionDate(session.startedAt)}</span>
+                  </div>
                 </div>
                 <span className="shrink-0 text-sm font-semibold text-text">
                   {formatDuration(session.durationSeconds)}
