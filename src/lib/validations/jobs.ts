@@ -58,6 +58,12 @@ export const CreateJobInterviewSchema = z.object({
   feedback:     optionalText(1000),
 })
 
+export const UpdateJobInterviewOutcomeSchema = z.object({
+  id:      z.string().uuid({ error: 'ID invÃ¡lido' }),
+  outcome: z.enum(JOB_INTERVIEW_OUTCOMES, { error: 'Resultado invÃ¡lido' }),
+})
+
 export type CreateJobData = z.output<typeof CreateJobSchema>
 export type UpdateJobData = z.output<typeof UpdateJobSchema>
 export type CreateJobInterviewData = z.output<typeof CreateJobInterviewSchema>
+export type UpdateJobInterviewOutcomeData = z.output<typeof UpdateJobInterviewOutcomeSchema>

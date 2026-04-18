@@ -1,6 +1,6 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { JobApplication, JobInterview, JobStatus, JobTrackerStats } from '@/types/jobs'
-import type { CreateJobData, CreateJobInterviewData, UpdateJobData } from '@/lib/validations/jobs'
+import type { CreateJobData, CreateJobInterviewData, UpdateJobData, UpdateJobInterviewOutcomeData } from '@/lib/validations/jobs'
 
 // ─────────────────────────────────────────────────────────────
 // Result type
@@ -128,6 +128,21 @@ export async function deleteJobInterview(
 
   if (error) return err(error.message)
   return ok(true as const)
+}
+
+export async function updateJobInterviewOutcome(
+  supabase: SupabaseClient,
+  input: UpdateJobInterviewOutcomeData,
+): Promise<Result<JobInterview>> {
+  const { data, error } = await supabase
+    .from('job_interviews')
+    .update({ outcome: input.outcome })
+    .eq('id', input.id)
+    .select()
+    .single()
+
+  if (error) return err(error.message)
+  return ok(data as JobInterview)
 }
 
 export async function getJobTrackerStats(

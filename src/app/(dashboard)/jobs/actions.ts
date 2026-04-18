@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import {
   CreateJobInterviewSchema,
   CreateJobSchema,
+  UpdateJobInterviewOutcomeSchema,
   UpdateJobSchema,
   UpdateStatusSchema,
 } from '@/lib/validations/jobs'
@@ -14,6 +15,7 @@ import {
   deleteJob,
   deleteJobInterview,
   updateJob,
+  updateJobInterviewOutcome,
   updateJobStatus,
 } from '@/services/jobs'
 import type { JobActionResult } from '@/types/jobs'
@@ -133,4 +135,19 @@ export async function deleteJobInterviewAction(formData: FormData): Promise<JobA
 
   revalidatePath('/jobs')
   return { ok: true }
+}
+
+export async function updateJobInterviewOutcomeAction(formData: FormData): Promise<JobActionResult> {
+  const { supabase } = await getAuthedClient()
+
+  const parsed = UpdateJobInterviewOutcomeSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Resultado invalido' }
+  }
+
+  const result = await updateJobInterviewOutcome(supabase, parsed.data)
+  if (result.error) return { error: result.error }
+
+  revalidatePath('/jobs')
+  return { interview: result.data! }
 }

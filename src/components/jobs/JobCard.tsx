@@ -4,6 +4,9 @@ import { ExternalLink, Pencil, Trash2 } from 'lucide-react'
 import {
   JOB_INTERVIEW_STAGE_LABELS,
   JOB_INTERVIEW_STAGES,
+  JOB_INTERVIEW_OUTCOME_LABELS,
+  JOB_INTERVIEW_OUTCOME_STYLES,
+  JOB_INTERVIEW_OUTCOMES,
   JOB_PRIORITY_LABELS,
   JOB_PRIORITY_STYLES,
   JOB_STATUS_LABELS,
@@ -21,6 +24,7 @@ interface JobCardProps {
   onStatusChange: (formData: FormData) => void
   onCreateInterview: (formData: FormData) => void
   onDeleteInterview: (formData: FormData) => void
+  onUpdateInterviewOutcome: (formData: FormData) => void
 }
 
 export function JobCard({
@@ -30,6 +34,7 @@ export function JobCard({
   onStatusChange,
   onCreateInterview,
   onDeleteInterview,
+  onUpdateInterviewOutcome,
 }: JobCardProps) {
   const interviews = job.interviews ?? []
   const nextInterview = interviews.find((interview) => {
@@ -217,21 +222,43 @@ export function JobCard({
                     {JOB_INTERVIEW_STAGE_LABELS[interview.stage]} - {formatDate(interview.scheduled_at)}
                   </p>
                 </div>
-                <form
-                  action={onDeleteInterview}
-                  onSubmit={(e) => {
-                    if (!confirm('Eliminar esta entrevista?')) e.preventDefault()
-                  }}
-                >
-                  <input type="hidden" name="id" value={interview.id} />
-                  <button
-                    type="submit"
-                    className="rounded p-1.5 text-slate-400 hover:bg-red-900/20 hover:text-red-400"
-                    aria-label="Eliminar entrevista"
+                <div className="flex shrink-0 items-center gap-2">
+                  <select
+                    defaultValue={interview.outcome ?? 'pending'}
+                    onChange={(event) => {
+                      const fd = new FormData()
+                      fd.set('id', interview.id)
+                      fd.set('outcome', event.target.value)
+                      onUpdateInterviewOutcome(fd)
+                    }}
+                    className={[
+                      'rounded-full border-0 px-2 py-1 text-[11px] font-medium outline-none',
+                      JOB_INTERVIEW_OUTCOME_STYLES[interview.outcome ?? 'pending'],
+                    ].join(' ')}
+                    aria-label="Resultado de entrevista"
                   >
-                    <Trash2 size={13} />
-                  </button>
-                </form>
+                    {JOB_INTERVIEW_OUTCOMES.map((outcome) => (
+                      <option key={outcome} value={outcome}>
+                        {JOB_INTERVIEW_OUTCOME_LABELS[outcome]}
+                      </option>
+                    ))}
+                  </select>
+                  <form
+                    action={onDeleteInterview}
+                    onSubmit={(e) => {
+                      if (!confirm('Eliminar esta entrevista?')) e.preventDefault()
+                    }}
+                  >
+                    <input type="hidden" name="id" value={interview.id} />
+                    <button
+                      type="submit"
+                      className="rounded p-1.5 text-slate-400 hover:bg-red-900/20 hover:text-red-400"
+                      aria-label="Eliminar entrevista"
+                    >
+                      <Trash2 size={13} />
+                    </button>
+                  </form>
+                </div>
               </div>
             ))}
           </div>

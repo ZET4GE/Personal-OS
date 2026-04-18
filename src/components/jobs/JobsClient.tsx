@@ -3,7 +3,7 @@
 import { useOptimistic, useTransition, useRef } from 'react'
 import type { ComponentType } from 'react'
 import { useRouter } from 'next/navigation'
-import { AlertTriangle, Briefcase, CalendarClock, Plus, Target, TrendingUp } from 'lucide-react'
+import { AlertTriangle, Briefcase, CalendarClock, CheckCircle2, Plus, Target, TrendingUp, XCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   createJobInterviewAction,
@@ -11,11 +11,13 @@ import {
   deleteJobInterviewAction,
   deleteJobAction,
   updateJobAction,
+  updateJobInterviewOutcomeAction,
   updateStatusAction,
 } from '@/app/(dashboard)/jobs/actions'
 import { JobCard } from './JobCard'
 import { JobForm, type JobFormHandle } from './JobForm'
 import type { JobApplication, JobTrackerStats } from '@/types/jobs'
+import { formatDate } from '@/lib/utils'
 
 // ─────────────────────────────────────────────────────────────
 // Optimistic state
@@ -173,6 +175,35 @@ export function JobsClient({ jobs, stats }: JobsClientProps) {
     })
   }
 
+  function handleUpdateInterviewOutcome(formData: FormData) {
+    startTransition(async () => {
+      const result = await updateJobInterviewOutcomeAction(formData)
+      if (result.error) toast.error(result.error)
+      else {
+        toast.success('Resultado actualizado')
+        router.refresh()
+      }
+    })
+  }
+
+  const now = Date.now()
+  const overdueFollowups = optimisticJobs
+    .filter((job) => (
+      !!job.next_follow_up_at
+      && new Date(job.next_follow_up_at).getTime() < now
+      && ['applied', 'interview'].includes(job.status)
+    ))
+    .slice(0, 3)
+
+  const upcomingInterviews = optimisticJobs
+    .flatMap((job) => (job.interviews ?? []).map((interview) => ({ job, interview })))
+    .filter(({ interview }) => (
+      new Date(interview.scheduled_at).getTime() >= now
+      && (interview.outcome ?? 'pending') === 'pending'
+    ))
+    .sort((a, b) => new Date(a.interview.scheduled_at).getTime() - new Date(b.interview.scheduled_at).getTime())
+    .slice(0, 3)
+
   // ── Render ──────────────────────────────────────────────────
 
   return (
@@ -193,7 +224,7 @@ export function JobsClient({ jobs, stats }: JobsClientProps) {
         </button>
       </div>
 
-      <div className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mb-6 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
         <StatCard icon={Briefcase} label="Activas" value={stats.active_applications} />
         <StatCard icon={CalendarClock} label="Entrevistas proximas" value={stats.upcoming_interviews} />
         <StatCard icon={TrendingUp} label="Respuesta" value={`${stats.response_rate}%`} />
@@ -203,7 +234,62 @@ export function JobsClient({ jobs, stats }: JobsClientProps) {
           value={stats.overdue_followups}
           tone={stats.overdue_followups > 0 ? 'danger' : 'neutral'}
         />
+        <StatCard icon={CheckCircle2} label="Ofertas" value={stats.offers} />
+        <StatCard icon={XCircle} label="Rechazos" value={stats.rejected} />
       </div>
+
+      {(overdueFollowups.length > 0 || upcomingInterviews.length > 0) && (
+        <section className="mb-6 rounded-xl border border-border bg-surface p-4">
+          <div className="mb-3 flex items-center gap-2">
+            <Target size={15} className="text-accent-500" />
+            <h2 className="text-sm font-semibold text-text">Acciones prioritarias</h2>
+          </div>
+
+          <div className="grid gap-3 lg:grid-cols-2">
+            <div className="rounded-xl bg-surface-2 p-3">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">Seguimientos</p>
+              {overdueFollowups.length === 0 ? (
+                <p className="text-sm text-muted">No hay seguimientos vencidos.</p>
+              ) : (
+                <div className="space-y-2">
+                  {overdueFollowups.map((job) => (
+                    <button
+                      key={job.id}
+                      type="button"
+                      onClick={() => openEdit(job)}
+                      className="block w-full rounded-lg px-3 py-2 text-left transition-colors hover:bg-surface-hover"
+                    >
+                      <p className="text-sm font-medium text-text">{job.company} - {job.role}</p>
+                      <p className="text-xs text-red-300">Vencio: {formatDate(job.next_follow_up_at ?? '')}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-xl bg-surface-2 p-3">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">Entrevistas</p>
+              {upcomingInterviews.length === 0 ? (
+                <p className="text-sm text-muted">No hay entrevistas pendientes.</p>
+              ) : (
+                <div className="space-y-2">
+                  {upcomingInterviews.map(({ job, interview }) => (
+                    <button
+                      key={interview.id}
+                      type="button"
+                      onClick={() => openEdit(job)}
+                      className="block w-full rounded-lg px-3 py-2 text-left transition-colors hover:bg-surface-hover"
+                    >
+                      <p className="text-sm font-medium text-text">{interview.title} - {job.company}</p>
+                      <p className="text-xs text-blue-300">{formatDate(interview.scheduled_at)}</p>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* Lista o empty state */}
       {optimisticJobs.length === 0 ? (
@@ -227,6 +313,7 @@ export function JobsClient({ jobs, stats }: JobsClientProps) {
               onStatusChange={handleStatusChange}
               onCreateInterview={handleCreateInterview}
               onDeleteInterview={handleDeleteInterview}
+              onUpdateInterviewOutcome={handleUpdateInterviewOutcome}
             />
           ))}
         </div>

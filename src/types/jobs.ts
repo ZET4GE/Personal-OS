@@ -48,6 +48,20 @@ export const JOB_INTERVIEW_STAGE_LABELS: Record<JobInterviewStage, string> = {
 export const JOB_INTERVIEW_OUTCOMES = ['pending', 'passed', 'failed', 'cancelled'] as const
 export type JobInterviewOutcome = (typeof JOB_INTERVIEW_OUTCOMES)[number]
 
+export const JOB_INTERVIEW_OUTCOME_LABELS: Record<JobInterviewOutcome, string> = {
+  pending:   'Pendiente',
+  passed:    'Avanza',
+  failed:    'No avanza',
+  cancelled: 'Cancelada',
+}
+
+export const JOB_INTERVIEW_OUTCOME_STYLES: Record<JobInterviewOutcome, string> = {
+  pending:   'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300',
+  passed:    'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300',
+  failed:    'bg-red-100 text-red-600 dark:bg-red-900/40 dark:text-red-300',
+  cancelled: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
+}
+
 // ─────────────────────────────────────────────────────────────
 // Core entity (espejo de la tabla SQL)
 // ─────────────────────────────────────────────────────────────
