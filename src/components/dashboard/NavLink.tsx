@@ -14,10 +14,12 @@ interface NavLinkProps {
 export function NavLink({ href, icon: Icon, label, collapsed }: NavLinkProps) {
   const pathname = usePathname()
   const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
+  const tourKey = href === '/dashboard' ? 'dashboard' : href.split('/').filter(Boolean)[0]
 
   return (
     <Link
       href={href}
+      data-tour={`nav-${tourKey}`}
       title={collapsed ? label : undefined}
       className={[
         'group relative flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm transition-all duration-200 select-none',

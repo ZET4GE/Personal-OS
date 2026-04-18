@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { QuickCapture } from '@/components/notes/QuickCapture'
-import { ProductTour } from '@/components/onboarding/ProductTour'
+import { GuidedProductTour } from '@/components/onboarding/GuidedProductTour'
 import type { EnabledModule } from '@/types/onboarding'
 
 interface DashboardShellProps {
@@ -53,7 +53,7 @@ export function DashboardShell({
       </div>
 
       <QuickCapture />
-      <ProductTour defaultOpen={showProductTour} />
+      <GuidedProductTour defaultOpen={showProductTour} />
     </div>
   )
 }

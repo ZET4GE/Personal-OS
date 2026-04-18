@@ -140,13 +140,15 @@ export function Topbar({ userEmail, userName, userAvatarUrl, collapsed, onToggle
         <h1 className="text-sm font-semibold text-text">{title}</h1>
       </div>
 
-      <div className="hidden lg:block">
+      <div className="hidden lg:block" data-tour="global-search">
         <GlobalSearch />
       </div>
 
       {/* Right-side actions */}
       <div className="flex items-center gap-0.5">
-        <FloatingTimer />
+        <div data-tour="timer">
+          <FloatingTimer />
+        </div>
         <NotificationBell />
         <LanguageSwitcher />
         <ThemeToggle />
