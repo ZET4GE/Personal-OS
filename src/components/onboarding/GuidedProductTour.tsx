@@ -18,6 +18,7 @@ type Rect = {
 }
 
 const CARD_WIDTH = 340
+const CARD_HEIGHT = 300
 const GAP = 14
 
 const STEPS = [
@@ -106,6 +107,7 @@ function getCardStyle(rect: Rect | null): CSSProperties {
       left: '50%',
       transform: 'translate(-50%, -50%)',
       width: CARD_WIDTH,
+      maxHeight: CARD_HEIGHT,
     }
   }
 
@@ -113,20 +115,21 @@ function getCardStyle(rect: Rect | null): CSSProperties {
   const viewportHeight = window.innerHeight
   const canUseRight = rect.left + rect.width + CARD_WIDTH + GAP < viewportWidth
   const canUseLeft = rect.left - CARD_WIDTH - GAP > 12
-  const top = Math.min(Math.max(12, rect.top), viewportHeight - 260)
+  const top = Math.min(Math.max(12, rect.top), viewportHeight - CARD_HEIGHT - 12)
 
   if (canUseRight) {
-    return { top, left: rect.left + rect.width + GAP, width: CARD_WIDTH }
+    return { top, left: rect.left + rect.width + GAP, width: CARD_WIDTH, maxHeight: CARD_HEIGHT }
   }
 
   if (canUseLeft) {
-    return { top, left: rect.left - CARD_WIDTH - GAP, width: CARD_WIDTH }
+    return { top, left: rect.left - CARD_WIDTH - GAP, width: CARD_WIDTH, maxHeight: CARD_HEIGHT }
   }
 
   return {
-    top: Math.min(rect.top + rect.height + GAP, viewportHeight - 260),
+    top: Math.min(Math.max(12, rect.top + rect.height + GAP), viewportHeight - CARD_HEIGHT - 12),
     left: Math.min(Math.max(12, rect.left), viewportWidth - CARD_WIDTH - 12),
     width: CARD_WIDTH,
+    maxHeight: CARD_HEIGHT,
   }
 }
 
@@ -201,7 +204,7 @@ export function GuidedProductTour({ defaultOpen }: GuidedProductTourProps) {
 
       <section
         style={cardStyle}
-        className="pointer-events-auto fixed overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl"
+        className="pointer-events-auto fixed flex flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl"
       >
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <div className="flex items-center gap-2">
@@ -229,7 +232,7 @@ export function GuidedProductTour({ defaultOpen }: GuidedProductTourProps) {
           </button>
         </div>
 
-        <div className="space-y-4 p-4">
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
           <div className="h-1 overflow-hidden rounded-full bg-surface-2">
             <div
               className="h-full rounded-full bg-accent-500 transition-all"
