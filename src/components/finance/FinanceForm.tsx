@@ -9,7 +9,7 @@ import {
   FINANCE_TYPE_LABELS,
   FINANCE_TRANSACTION_TYPES,
 } from '@/types/finance'
-import type { FinanceTransaction } from '@/types/finance'
+import type { FinanceCategory, FinanceTransaction } from '@/types/finance'
 
 export interface FinanceFormHandle {
   open(initialData?: FinanceTransaction | null): void
@@ -19,10 +19,11 @@ export interface FinanceFormHandle {
 interface FinanceFormProps {
   onSubmitCreate: (formData: FormData) => void
   onSubmitUpdate: (formData: FormData) => void
+  categories: FinanceCategory[]
 }
 
 export const FinanceForm = forwardRef<FinanceFormHandle, FinanceFormProps>(
-  ({ onSubmitCreate, onSubmitUpdate }, ref) => {
+  ({ onSubmitCreate, onSubmitUpdate, categories }, ref) => {
     const dialogRef = useRef<HTMLDialogElement>(null)
     const [editData, setEditData] = useState<FinanceTransaction | null>(null)
 
@@ -127,10 +128,16 @@ export const FinanceForm = forwardRef<FinanceFormHandle, FinanceFormProps>(
                 id="category"
                 name="category"
                 type="text"
+                list="finance-categories"
                 defaultValue={editData?.category ?? ''}
                 placeholder="Comida, sueldo..."
                 className={inputCls}
               />
+              <datalist id="finance-categories">
+                {categories.map((category) => (
+                  <option key={category.id} value={category.name} />
+                ))}
+              </datalist>
             </Field>
 
             <Field label="Metodo" htmlFor="payment_method">

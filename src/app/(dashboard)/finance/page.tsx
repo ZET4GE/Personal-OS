@@ -3,20 +3,35 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { FinanceClient } from '@/components/finance/FinanceClient'
-import { getFinanceSummary, getFinanceTransactions } from '@/services/finance'
-import { FINANCE_TRANSACTION_TYPES, FINANCE_TYPE_LABELS } from '@/types/finance'
-import type { FinanceTransactionType } from '@/types/finance'
+import {
+  getFinanceBudgetStatus,
+  getFinanceCategories,
+  getFinanceCategorySummary,
+  getFinanceSummary,
+  getFinanceTransactions,
+} from '@/services/finance'
+import { FINANCE_CURRENCIES, FINANCE_TRANSACTION_TYPES, FINANCE_TYPE_LABELS } from '@/types/finance'
+import type { FinanceCurrency, FinanceTransactionType } from '@/types/finance'
 
 export const metadata: Metadata = { title: 'Finanzas' }
 
 interface PageProps {
-  searchParams: Promise<{ type?: string }>
+  searchParams: Promise<{
+    type?: string
+    from?: string
+    to?: string
+    category?: string
+    currency?: string
+  }>
 }
 
 export default async function FinancePage({ searchParams }: PageProps) {
-  const { type } = await searchParams
+  const { type, from, to, category, currency } = await searchParams
   const typeFilter = FINANCE_TRANSACTION_TYPES.includes(type as FinanceTransactionType)
     ? (type as FinanceTransactionType)
+    : undefined
+  const currencyFilter = FINANCE_CURRENCIES.includes(currency as FinanceCurrency)
+    ? (currency as FinanceCurrency)
     : undefined
 
   const supabase = await createClient()
@@ -30,10 +45,29 @@ export default async function FinancePage({ searchParams }: PageProps) {
   const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10)
   const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10)
 
-  const [transactionsResult, monthSummaryResult, totalSummaryResult] = await Promise.all([
-    getFinanceTransactions(supabase, typeFilter),
+  const periodMonth = monthStart.slice(0, 7)
+  const filters = {
+    type: typeFilter,
+    from: from || undefined,
+    to: to || undefined,
+    category: category || undefined,
+    currency: currencyFilter,
+  }
+
+  const [
+    transactionsResult,
+    monthSummaryResult,
+    totalSummaryResult,
+    categorySummaryResult,
+    categoriesResult,
+    budgetStatusResult,
+  ] = await Promise.all([
+    getFinanceTransactions(supabase, filters),
     getFinanceSummary(supabase, user.id, monthStart, monthEnd),
     getFinanceSummary(supabase, user.id),
+    getFinanceCategorySummary(supabase, user.id, from || monthStart, to || monthEnd),
+    getFinanceCategories(supabase, user.id),
+    getFinanceBudgetStatus(supabase, user.id, periodMonth),
   ])
 
   return (
@@ -61,6 +95,17 @@ export default async function FinancePage({ searchParams }: PageProps) {
         transactions={transactionsResult.data ?? []}
         monthSummary={monthSummaryResult.data ?? []}
         totalSummary={totalSummaryResult.data ?? []}
+        categorySummary={categorySummaryResult.data ?? []}
+        categories={categoriesResult.data ?? []}
+        budgets={budgetStatusResult.data ?? []}
+        filters={{
+          type: typeFilter ?? '',
+          from: from ?? '',
+          to: to ?? '',
+          category: category ?? '',
+          currency: currencyFilter ?? '',
+          periodMonth,
+        }}
       />
     </div>
   )

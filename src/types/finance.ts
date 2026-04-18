@@ -38,6 +38,23 @@ export interface FinanceTransaction {
   updated_at: string
 }
 
+export interface FinanceCategory {
+  id: string
+  user_id: string
+  name: string
+  type: FinanceTransactionType | null
+  color: string | null
+  created_at: string
+}
+
+export interface FinanceCategorySummary {
+  type: FinanceTransactionType
+  category: string
+  currency: FinanceCurrency
+  total: number
+  transaction_count: number
+}
+
 export interface FinanceSummary {
   currency: FinanceCurrency
   total_income: number
@@ -46,7 +63,30 @@ export interface FinanceSummary {
   transaction_count: number
 }
 
+export interface FinanceBudget {
+  id: string
+  user_id: string
+  category: string
+  currency: FinanceCurrency
+  amount: number
+  period_month: string
+  created_at: string
+  updated_at: string
+}
+
+export interface FinanceBudgetStatus {
+  id: string
+  category: string
+  currency: FinanceCurrency
+  budget_amount: number
+  spent_amount: number
+  remaining_amount: number
+  usage_rate: number
+}
+
 export type FinanceActionResult =
   | { error: string; transaction?: never }
   | { transaction: FinanceTransaction; error?: never }
+  | { category: FinanceCategory; error?: never }
+  | { budget: FinanceBudget; error?: never }
   | { ok: true; error?: never }

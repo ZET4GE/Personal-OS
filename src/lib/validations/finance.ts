@@ -35,5 +35,28 @@ export const UpdateFinanceTransactionSchema = CreateFinanceTransactionSchema.ext
   id: z.string().uuid({ error: 'ID invalido' }),
 })
 
+export const CreateFinanceCategorySchema = z.object({
+  name: z.string().min(1, { error: 'Categoria requerida' }).max(120).transform((v) => v.trim()),
+  type: z
+    .union([z.enum(FINANCE_TRANSACTION_TYPES), z.literal('')])
+    .optional()
+    .transform((v) => v || null),
+  color: optText(30),
+})
+
+export const UpsertFinanceBudgetSchema = z.object({
+  id: z.string().uuid().optional().nullable(),
+  category: z.string().min(1, { error: 'Categoria requerida' }).max(120).transform((v) => v.trim()),
+  currency: z.enum(FINANCE_CURRENCIES).default('ARS'),
+  amount: z
+    .string()
+    .min(1, { error: 'Monto requerido' })
+    .transform((v) => Number(v))
+    .pipe(z.number().positive({ error: 'El presupuesto debe ser positivo' })),
+  period_month: z.string().min(1).default(() => new Date().toISOString().slice(0, 7)),
+})
+
 export type CreateFinanceTransactionData = z.output<typeof CreateFinanceTransactionSchema>
 export type UpdateFinanceTransactionData = z.output<typeof UpdateFinanceTransactionSchema>
+export type CreateFinanceCategoryData = z.output<typeof CreateFinanceCategorySchema>
+export type UpsertFinanceBudgetData = z.output<typeof UpsertFinanceBudgetSchema>

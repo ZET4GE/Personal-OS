@@ -3,13 +3,18 @@
 import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import {
+  CreateFinanceCategorySchema,
   CreateFinanceTransactionSchema,
   UpdateFinanceTransactionSchema,
+  UpsertFinanceBudgetSchema,
 } from '@/lib/validations/finance'
 import {
+  createFinanceCategory,
   createFinanceTransaction,
+  deleteFinanceBudget,
   deleteFinanceTransaction,
   updateFinanceTransaction,
+  upsertFinanceBudget,
 } from '@/services/finance'
 import type { FinanceActionResult } from '@/types/finance'
 
@@ -60,6 +65,49 @@ export async function deleteFinanceTransactionAction(formData: FormData): Promis
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
   const result = await deleteFinanceTransaction(supabase, id)
+  if (result.error) return { error: result.error }
+
+  revalidatePath('/finance')
+  return { ok: true }
+}
+
+export async function createFinanceCategoryAction(formData: FormData): Promise<FinanceActionResult> {
+  const { supabase, user } = await getAuthedClient()
+
+  const parsed = CreateFinanceCategorySchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Datos invalidos' }
+  }
+
+  const result = await createFinanceCategory(supabase, user.id, parsed.data)
+  if (result.error) return { error: result.error }
+
+  revalidatePath('/finance')
+  return { category: result.data! }
+}
+
+export async function upsertFinanceBudgetAction(formData: FormData): Promise<FinanceActionResult> {
+  const { supabase, user } = await getAuthedClient()
+
+  const parsed = UpsertFinanceBudgetSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Datos invalidos' }
+  }
+
+  const result = await upsertFinanceBudget(supabase, user.id, parsed.data)
+  if (result.error) return { error: result.error }
+
+  revalidatePath('/finance')
+  return { budget: result.data! }
+}
+
+export async function deleteFinanceBudgetAction(formData: FormData): Promise<FinanceActionResult> {
+  const { supabase } = await getAuthedClient()
+
+  const id = formData.get('id')
+  if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
+
+  const result = await deleteFinanceBudget(supabase, id)
   if (result.error) return { error: result.error }
 
   revalidatePath('/finance')

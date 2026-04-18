@@ -3,17 +3,29 @@
 import { useOptimistic, useRef, useTransition } from 'react'
 import type { ComponentType } from 'react'
 import { useRouter } from 'next/navigation'
-import { Plus, ReceiptText, TrendingDown, TrendingUp, WalletCards } from 'lucide-react'
+import { BarChart3, PiggyBank, Plus, ReceiptText, SlidersHorizontal, Target, Trash2, TrendingDown, TrendingUp, WalletCards } from 'lucide-react'
 import { toast } from 'sonner'
 import {
+  createFinanceCategoryAction,
   createFinanceTransactionAction,
+  deleteFinanceBudgetAction,
   deleteFinanceTransactionAction,
   updateFinanceTransactionAction,
+  upsertFinanceBudgetAction,
 } from '@/app/(dashboard)/finance/actions'
 import { FinanceForm, type FinanceFormHandle } from './FinanceForm'
 import { FinanceTransactionCard } from './FinanceTransactionCard'
 import { formatCurrency } from '@/lib/utils'
-import type { FinanceSummary, FinanceTransaction } from '@/types/finance'
+import { FINANCE_CURRENCIES, FINANCE_TRANSACTION_TYPES, FINANCE_TYPE_LABELS } from '@/types/finance'
+import type {
+  FinanceBudgetStatus,
+  FinanceCategory,
+  FinanceCategorySummary,
+  FinanceCurrency,
+  FinanceSummary,
+  FinanceTransaction,
+  FinanceTransactionType,
+} from '@/types/finance'
 
 type OptimisticTransaction = FinanceTransaction & { isOptimistic?: boolean }
 
@@ -44,12 +56,27 @@ interface FinanceClientProps {
   transactions: FinanceTransaction[]
   monthSummary: FinanceSummary[]
   totalSummary: FinanceSummary[]
+  categorySummary: FinanceCategorySummary[]
+  categories: FinanceCategory[]
+  budgets: FinanceBudgetStatus[]
+  filters: {
+    type: FinanceTransactionType | ''
+    from: string
+    to: string
+    category: string
+    currency: FinanceCurrency | ''
+    periodMonth: string
+  }
 }
 
 export function FinanceClient({
   transactions,
   monthSummary,
   totalSummary,
+  categorySummary,
+  categories,
+  budgets,
+  filters,
 }: FinanceClientProps) {
   const [optimisticTransactions, dispatch] = useOptimistic(transactions, reducer)
   const [, startTransition] = useTransition()
@@ -133,8 +160,66 @@ export function FinanceClient({
     })
   }
 
+  function handleCreateCategory(formData: FormData) {
+    startTransition(async () => {
+      const result = await createFinanceCategoryAction(formData)
+      if (result.error) toast.error(result.error)
+      else {
+        toast.success('Categoria creada')
+        router.refresh()
+      }
+    })
+  }
+
+  function handleUpsertBudget(formData: FormData) {
+    startTransition(async () => {
+      const result = await upsertFinanceBudgetAction(formData)
+      if (result.error) toast.error(result.error)
+      else {
+        toast.success('Presupuesto guardado')
+        router.refresh()
+      }
+    })
+  }
+
+  function handleDeleteBudget(formData: FormData) {
+    startTransition(async () => {
+      const result = await deleteFinanceBudgetAction(formData)
+      if (result.error) toast.error(result.error)
+      else {
+        toast.success('Presupuesto eliminado')
+        router.refresh()
+      }
+    })
+  }
+
+  const categoryOptions = Array.from(new Set([
+    ...categories.map((category) => category.name),
+    ...optimisticTransactions
+      .map((transaction) => transaction.category)
+      .filter((category): category is string => Boolean(category)),
+  ])).sort((a, b) => a.localeCompare(b))
+
   return (
     <>
+      <section className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-400">Finance Pro</p>
+          <h2 className="mt-1 text-xl font-semibold text-text">Control de dinero personal</h2>
+          <p className="mt-1 text-sm text-muted">
+            Registra movimientos, controla categorias y revisa presupuestos del mes.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={openCreate}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-accent-600/20 transition-all hover:scale-[1.01] hover:opacity-95"
+        >
+          <Plus size={17} />
+          Agregar movimiento
+        </button>
+      </section>
+
       <section className="grid gap-3 lg:grid-cols-3">
         <SummaryCard
           icon={TrendingUp}
@@ -157,6 +242,42 @@ export function FinanceClient({
           field="balance"
           tone="balance"
         />
+      </section>
+
+      <section className="grid gap-3 lg:grid-cols-4">
+        <SavingsCard summary={monthSummary} />
+        <FinanceFilters filters={filters} categoryOptions={categoryOptions} />
+      </section>
+
+      <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
+        <CategoryBreakdown items={categorySummary} />
+        <BudgetPanel
+          budgets={budgets}
+          categories={categoryOptions}
+          periodMonth={filters.periodMonth}
+          onUpsert={handleUpsertBudget}
+          onDelete={handleDeleteBudget}
+        />
+      </section>
+
+      <section className="rounded-2xl border border-border bg-surface p-4">
+        <div className="mb-3 flex items-center gap-2">
+          <Target size={15} className="text-accent-500" />
+          <h3 className="text-sm font-semibold text-text">Categorias reutilizables</h3>
+        </div>
+        <form action={handleCreateCategory} className="grid gap-2 md:grid-cols-[1fr_160px_120px_auto]">
+          <input name="name" type="text" placeholder="Ej: Alquiler, comida, sueldo" className={inputCls} />
+          <select name="type" defaultValue="" className={inputCls}>
+            <option value="">Ambas</option>
+            {FINANCE_TRANSACTION_TYPES.map((type) => (
+              <option key={type} value={type}>{FINANCE_TYPE_LABELS[type]}</option>
+            ))}
+          </select>
+          <input name="color" type="text" placeholder="#2563eb" className={inputCls} />
+          <button type="submit" className="rounded-lg bg-surface-2 px-4 py-2 text-sm font-medium text-text hover:bg-surface-hover">
+            Crear
+          </button>
+        </form>
       </section>
 
       <div className="flex items-center justify-between">
@@ -198,10 +319,201 @@ export function FinanceClient({
 
       <FinanceForm
         ref={formRef}
+        categories={categories}
         onSubmitCreate={handleCreate}
         onSubmitUpdate={handleUpdate}
       />
     </>
+  )
+}
+
+function SavingsCard({ summary }: { summary: FinanceSummary[] }) {
+  const primary = summary[0]
+  const income = Number(primary?.total_income ?? 0)
+  const expense = Number(primary?.total_expense ?? 0)
+  const balance = income - expense
+  const rate = income > 0 ? Math.round((balance / income) * 100) : 0
+  const currency = primary?.currency ?? 'ARS'
+
+  return (
+    <article className="rounded-xl border border-border bg-surface p-4">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted">Ahorro del mes</p>
+        <PiggyBank size={16} className={rate >= 0 ? 'text-emerald-400' : 'text-red-400'} />
+      </div>
+      <p className={['mt-3 text-2xl font-semibold', rate >= 0 ? 'text-emerald-400' : 'text-red-400'].join(' ')}>
+        {rate}%
+      </p>
+      <p className="mt-1 text-xs text-muted">
+        Balance mensual: {formatCurrency(balance, currency)}
+      </p>
+    </article>
+  )
+}
+
+function FinanceFilters({
+  filters,
+  categoryOptions,
+}: {
+  filters: FinanceClientProps['filters']
+  categoryOptions: string[]
+}) {
+  return (
+    <form action="/finance" method="get" className="rounded-xl border border-border bg-surface p-4 lg:col-span-3">
+      <div className="mb-3 flex items-center gap-2">
+        <SlidersHorizontal size={15} className="text-accent-500" />
+        <h3 className="text-sm font-semibold text-text">Filtros</h3>
+      </div>
+      <div className="grid gap-2 md:grid-cols-5">
+        <select name="type" defaultValue={filters.type} className={inputCls}>
+          <option value="">Todos</option>
+          {FINANCE_TRANSACTION_TYPES.map((type) => (
+            <option key={type} value={type}>{FINANCE_TYPE_LABELS[type]}</option>
+          ))}
+        </select>
+        <input name="from" type="date" defaultValue={filters.from} className={inputCls} />
+        <input name="to" type="date" defaultValue={filters.to} className={inputCls} />
+        <select name="category" defaultValue={filters.category} className={inputCls}>
+          <option value="">Todas las categorias</option>
+          {categoryOptions.map((category) => (
+            <option key={category} value={category}>{category}</option>
+          ))}
+        </select>
+        <select name="currency" defaultValue={filters.currency} className={inputCls}>
+          <option value="">Todas las monedas</option>
+          {FINANCE_CURRENCIES.map((currency) => (
+            <option key={currency} value={currency}>{currency}</option>
+          ))}
+        </select>
+      </div>
+      <div className="mt-3 flex justify-end gap-2">
+        <a href="/finance" className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted hover:text-text">
+          Limpiar
+        </a>
+        <button type="submit" className="rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white">
+          Aplicar
+        </button>
+      </div>
+    </form>
+  )
+}
+
+function CategoryBreakdown({ items }: { items: FinanceCategorySummary[] }) {
+  const expenses = items.filter((item) => item.type === 'expense')
+  const max = Math.max(...expenses.map((item) => item.total), 1)
+
+  return (
+    <article className="rounded-2xl border border-border bg-surface p-4">
+      <div className="mb-4 flex items-center gap-2">
+        <BarChart3 size={15} className="text-accent-500" />
+        <h3 className="text-sm font-semibold text-text">Gastos por categoria</h3>
+      </div>
+      {expenses.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border py-10 text-center">
+          <p className="text-sm text-muted">Sin gastos para graficar.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {expenses.slice(0, 8).map((item) => (
+            <div key={`${item.category}-${item.currency}`}>
+              <div className="mb-1 flex items-center justify-between gap-3">
+                <p className="truncate text-sm font-medium text-text">{item.category}</p>
+                <span className="text-xs font-semibold text-text">{formatCurrency(item.total, item.currency)}</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-surface-3">
+                <div className="h-full rounded-full bg-red-400" style={{ width: `${Math.max(4, (item.total / max) * 100)}%` }} />
+              </div>
+              <p className="mt-1 text-[11px] text-muted">{item.transaction_count} movimientos</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </article>
+  )
+}
+
+function BudgetPanel({
+  budgets,
+  categories,
+  periodMonth,
+  onUpsert,
+  onDelete,
+}: {
+  budgets: FinanceBudgetStatus[]
+  categories: string[]
+  periodMonth: string
+  onUpsert: (formData: FormData) => void
+  onDelete: (formData: FormData) => void
+}) {
+  return (
+    <article className="rounded-2xl border border-border bg-surface p-4">
+      <div className="mb-4 flex items-center gap-2">
+        <PiggyBank size={15} className="text-accent-500" />
+        <h3 className="text-sm font-semibold text-text">Presupuestos del mes</h3>
+      </div>
+
+      <form action={onUpsert} className="mb-4 grid gap-2 md:grid-cols-[1fr_90px_120px_auto]">
+        <input type="hidden" name="period_month" value={periodMonth} />
+        <input name="category" list="budget-categories" placeholder="Categoria" className={inputCls} />
+        <datalist id="budget-categories">
+          {categories.map((category) => (
+            <option key={category} value={category} />
+          ))}
+        </datalist>
+        <select name="currency" defaultValue="ARS" className={inputCls}>
+          {FINANCE_CURRENCIES.map((currency) => (
+            <option key={currency} value={currency}>{currency}</option>
+          ))}
+        </select>
+        <input name="amount" type="number" min="1" step="0.01" placeholder="Monto" className={inputCls} />
+        <button type="submit" className="rounded-lg bg-surface-2 px-3 py-2 text-sm font-medium text-text hover:bg-surface-hover">
+          Guardar
+        </button>
+      </form>
+
+      {budgets.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border py-10 text-center">
+          <p className="text-sm text-muted">Sin presupuestos definidos.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {budgets.map((budget) => {
+            const usage = Math.min(100, Math.round(budget.usage_rate * 100))
+            const isOver = budget.remaining_amount < 0
+
+            return (
+              <div key={budget.id} className="rounded-xl bg-surface-2 p-3">
+                <div className="mb-2 flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-text">{budget.category}</p>
+                    <p className="text-xs text-muted">
+                      {formatCurrency(budget.spent_amount, budget.currency)} / {formatCurrency(budget.budget_amount, budget.currency)}
+                    </p>
+                  </div>
+                  <form action={onDelete}>
+                    <input type="hidden" name="id" value={budget.id} />
+                    <button type="submit" className="rounded p-1.5 text-muted hover:bg-red-500/10 hover:text-red-400">
+                      <Trash2 size={13} />
+                    </button>
+                  </form>
+                </div>
+                <div className="h-2 overflow-hidden rounded-full bg-surface-3">
+                  <div
+                    className={['h-full rounded-full', isOver ? 'bg-red-400' : 'bg-accent-500'].join(' ')}
+                    style={{ width: `${usage}%` }}
+                  />
+                </div>
+                <p className={['mt-1 text-[11px]', isOver ? 'text-red-300' : 'text-muted'].join(' ')}>
+                  {isOver
+                    ? `Excedido por ${formatCurrency(Math.abs(budget.remaining_amount), budget.currency)}`
+                    : `Disponible ${formatCurrency(budget.remaining_amount, budget.currency)}`}
+                </p>
+              </div>
+            )
+          })}
+        </div>
+      )}
+    </article>
   )
 }
 
@@ -245,3 +557,7 @@ function SummaryCard({
     </article>
   )
 }
+
+const inputCls =
+  'w-full rounded-lg border border-border bg-surface px-3 py-2 text-sm outline-none transition-colors ' +
+  'focus:border-accent-500 focus:ring-2 focus:ring-accent-500/20 placeholder:text-muted'
