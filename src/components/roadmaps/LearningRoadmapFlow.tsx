@@ -325,6 +325,7 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
           onNodeClick={(_, node) => setSelectedNode(node.data.node)}
           onNodeDragStop={handleNodeDragStop}
           onConnect={handleConnect}
+          nodesDraggable={roadmapType === 'free'}
         >
           <Background color="#334155" gap={20} />
           <Controls className="!border-border !bg-surface !text-text" />
@@ -357,6 +358,12 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
           </div>
         </div>
       ) : null}
+
+      <div className="border-t border-border bg-surface px-5 py-3 text-xs leading-5 text-muted">
+        {roadmapType === 'free'
+          ? 'Tip: arrastra nodos para ordenar el canvas. Para conectar, arrastra desde el punto cyan derecho hacia otro nodo.'
+          : 'Tip: este modo se autoordena para mantener un camino claro. Para conectar, arrastra desde el punto cyan inferior hacia otro nodo.'}
+      </div>
     </section>
   )
 }

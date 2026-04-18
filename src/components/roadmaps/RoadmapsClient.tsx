@@ -26,21 +26,21 @@ interface TemplateNode {
 const ROADMAP_TYPES: { value: LearningRoadmapType; label: string; desc: string; example: string }[] = [
   {
     value: 'goal_based',
-    label: 'Basado en meta',
-    desc: 'El camino nace de una meta concreta y mide avance con metas conectadas.',
-    example: 'Ej: conseguir clientes, terminar AWS, crear un SaaS.',
+    label: 'Basado en metas',
+    desc: 'Para cumplir una meta concreta. Conecta nodos con metas y mide progreso real.',
+    example: 'Usalo para: conseguir clientes, terminar AWS, lanzar un SaaS.',
   },
   {
     value: 'structured',
-    label: 'Plan guiado',
-    desc: 'Camino por etapas ordenadas. Ideal para cursos, carreras o aprendizaje.',
-    example: 'Ej: fundamentos -> practica -> proyecto -> evaluacion.',
+    label: 'Plan de estudio',
+    desc: 'Para aprender en orden. Los niveles organizan el camino y las conexiones son prerequisitos.',
+    example: 'Usalo para: curso, carrera, certificacion, skill tecnica.',
   },
   {
     value: 'free',
     label: 'Libre',
-    desc: 'Mapa flexible para ideas. Podes conectar nodos sin orden obligatorio.',
-    example: 'Ej: brainstorming, research, mapa mental.',
+    desc: 'Para explorar ideas. Podes mover y conectar nodos sin estructura obligatoria.',
+    example: 'Usalo para: brainstorming, research, mapa mental.',
   },
 ]
 
@@ -116,6 +116,27 @@ function getRoadmapTemplateLabel(template: LearningRoadmapTemplate | null | unde
   return ROADMAP_TEMPLATES.find((item) => item.value === template)?.label ?? 'En blanco'
 }
 
+function getRoadmapTypeHelp(type: LearningRoadmapType) {
+  if (type === 'goal_based') {
+    return {
+      title: 'Modo recomendado para WINF',
+      body: 'Requiere una meta principal. Cada nodo puede crear sub-metas, habitos, rutinas o proyectos para alimentar progreso.',
+    }
+  }
+
+  if (type === 'structured') {
+    return {
+      title: 'Modo para aprendizaje guiado',
+      body: 'Ordena nodos por niveles. Las conexiones indican que un paso depende de otro, pero no exige una meta principal.',
+    }
+  }
+
+  return {
+    title: 'Modo flexible',
+    body: 'No impone orden. Ideal para pensar, mover nodos libremente y conectar ideas manualmente en el canvas.',
+  }
+}
+
 export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: RoadmapsClientProps) {
   const [roadmaps, setRoadmaps] = useState(initialRoadmaps)
   const [title, setTitle] = useState('')
@@ -131,6 +152,7 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
   const [isSaving, setIsSaving] = useState(false)
   const router = useRouter()
   const supabase = createClient()
+  const selectedTypeHelp = getRoadmapTypeHelp(type)
 
   async function createTemplateNodes(roadmapId: string, goalId: string | null) {
     const selectedTemplate = ROADMAP_TEMPLATES.find((item) => item.value === template)
@@ -180,6 +202,11 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
 
   async function handleCreateRoadmap() {
     if (!title.trim() || isSaving) return
+    if (type === 'goal_based' && !primaryGoalId) {
+      toast.error('Elegi una meta principal para un roadmap basado en metas')
+      return
+    }
+
     setIsSaving(true)
 
     const {
@@ -327,6 +354,17 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
           </p>
         </div>
 
+        <div className="mb-5 grid gap-3 lg:grid-cols-5">
+          {['Meta', 'Roadmap', 'Sub-metas', 'Habitos', 'Rutina'].map((item, index) => (
+            <div key={item} className="rounded-xl border border-border bg-surface-2 px-3 py-3">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
+                Paso {index + 1}
+              </p>
+              <p className="mt-1 text-sm font-semibold text-text">{item}</p>
+            </div>
+          ))}
+        </div>
+
         <div className="grid gap-3 lg:grid-cols-[1fr_1fr_auto]">
           <input
             value={title}
@@ -357,7 +395,10 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
             <select
               value={primaryGoalId}
               onChange={(event) => setPrimaryGoalId(event.target.value)}
-              className="w-full rounded-xl border border-border bg-zinc-950 px-3 py-2.5 text-sm text-text outline-none focus:border-accent-500 [&>option]:bg-zinc-950"
+              className={[
+                'w-full rounded-xl border bg-zinc-950 px-3 py-2.5 text-sm text-text outline-none focus:border-accent-500 [&>option]:bg-zinc-950',
+                type === 'goal_based' && !primaryGoalId ? 'border-amber-500/60' : 'border-border',
+              ].join(' ')}
             >
               <option value="">Sin meta principal</option>
               {availableGoals.map((goal) => (
@@ -365,7 +406,9 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
               ))}
             </select>
             <p className="mt-2 text-xs leading-5 text-muted">
-              Recomendado: elegi una meta para que el roadmap tenga direccion y progreso real.
+              {type === 'goal_based'
+                ? 'Obligatorio: este modo necesita una meta para tener direccion y progreso real.'
+                : 'Opcional: elegi una meta si queres conectar este camino con un objetivo.'}
             </p>
           </div>
 
@@ -392,6 +435,11 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
               )
             })}
           </div>
+        </div>
+
+        <div className="mt-3 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-4 py-3">
+          <p className="text-sm font-semibold text-cyan-100">{selectedTypeHelp.title}</p>
+          <p className="mt-1 text-sm leading-6 text-cyan-100/70">{selectedTypeHelp.body}</p>
         </div>
 
         <div className="mt-4">

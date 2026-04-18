@@ -595,7 +595,7 @@ export function LearningRoadmapBoard({
               : 'text-muted hover:bg-surface-hover hover:text-text',
           ].join(' ')}
         >
-          Ejecutar
+          Ejecutar: siguiente paso
         </button>
         <button
           type="button"
@@ -607,7 +607,7 @@ export function LearningRoadmapBoard({
               : 'text-muted hover:bg-surface-hover hover:text-text',
           ].join(' ')}
         >
-          Editar roadmap
+          Editar: nodos y conexiones
         </button>
       </div>
 
@@ -688,6 +688,27 @@ export function LearningRoadmapBoard({
         </>
       ) : (
         <>
+
+      <section className="grid gap-3 lg:grid-cols-3">
+        <div className="rounded-2xl border border-border bg-surface p-4">
+          <p className="text-sm font-semibold text-text">Crear nodos</p>
+          <p className="mt-1 text-sm leading-6 text-muted">
+            Cada nodo es un paso del camino. Puede convertirse despues en sub-meta, habito, rutina o proyecto.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-border bg-surface p-4">
+          <p className="text-sm font-semibold text-text">Conectar libremente</p>
+          <p className="mt-1 text-sm leading-6 text-muted">
+            Arrastra el punto cyan de salida de un nodo hacia otro nodo. Tambien podes elegir conexion previa al crear.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-border bg-surface p-4">
+          <p className="text-sm font-semibold text-text">Mover nodos</p>
+          <p className="mt-1 text-sm leading-6 text-muted">
+            En modo Libre la posicion se guarda. En Plan de estudio y Basado en metas el orden se acomoda automaticamente.
+          </p>
+        </div>
+      </section>
 
       <section className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
         <div className="mb-4 flex items-center gap-2">
