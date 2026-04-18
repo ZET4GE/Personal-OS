@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Sidebar } from './Sidebar'
 import { Topbar } from './Topbar'
 import { QuickCapture } from '@/components/notes/QuickCapture'
+import { ProductTour } from '@/components/onboarding/ProductTour'
 import type { EnabledModule } from '@/types/onboarding'
 
 interface DashboardShellProps {
@@ -11,10 +12,18 @@ interface DashboardShellProps {
   userName?: string
   userAvatarUrl?: string | null
   enabledModules: EnabledModule[]
+  showProductTour: boolean
   children: React.ReactNode
 }
 
-export function DashboardShell({ userEmail, userName, userAvatarUrl, enabledModules, children }: DashboardShellProps) {
+export function DashboardShell({
+  userEmail,
+  userName,
+  userAvatarUrl,
+  enabledModules,
+  showProductTour,
+  children,
+}: DashboardShellProps) {
   const [collapsed, setCollapsed] = useState(false)
 
   return (
@@ -44,6 +53,7 @@ export function DashboardShell({ userEmail, userName, userAvatarUrl, enabledModu
       </div>
 
       <QuickCapture />
+      <ProductTour defaultOpen={showProductTour} />
     </div>
   )
 }

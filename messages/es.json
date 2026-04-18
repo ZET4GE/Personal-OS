@@ -44,7 +44,8 @@
     "notes": "Notas",
     "roadmaps": "Roadmaps",
     "goals": "Metas",
-    "settings": "Configuración"
+    "settings": "Configuración",
+    "help": "Ayuda"
   },
   "dashboard": {
     "greeting": {

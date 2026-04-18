@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation'
 import {
   Menu, PanelLeft, LogOut,
   LayoutDashboard, Briefcase, FolderOpen, FileText,
-  BarChart3, Users, Wallet, Banknote, Target, ListChecks, Settings, PenLine, Bell, StickyNote, Crosshair, Clock3,
+  BarChart3, Users, Wallet, Banknote, Target, ListChecks, Settings, PenLine, Bell, StickyNote, Crosshair, Clock3, HelpCircle,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -33,9 +33,10 @@ const PAGE_ICONS: Record<string, LucideIcon> = {
   '/notifications': Bell,
   '/notes':         StickyNote,
   '/settings':      Settings,
+  '/help':          HelpCircle,
 }
 
-type NavKey = 'dashboard' | 'jobs' | 'projects' | 'clients' | 'freelance' | 'finance' | 'habits' | 'routines' | 'time' | 'goals' | 'cv' | 'blog' | 'analytics' | 'notifications' | 'notes' | 'settings'
+type NavKey = 'dashboard' | 'jobs' | 'projects' | 'clients' | 'freelance' | 'finance' | 'habits' | 'routines' | 'time' | 'goals' | 'cv' | 'blog' | 'analytics' | 'notifications' | 'notes' | 'settings' | 'help'
 
 const PAGE_NAV_KEYS: Record<string, NavKey> = {
   '/dashboard':     'dashboard',
@@ -54,6 +55,7 @@ const PAGE_NAV_KEYS: Record<string, NavKey> = {
   '/notifications': 'notifications',
   '/notes':         'notes',
   '/settings':      'settings',
+  '/help':          'help',
 }
 
 function getPageInfo(pathname: string): { icon: LucideIcon; key: NavKey } {

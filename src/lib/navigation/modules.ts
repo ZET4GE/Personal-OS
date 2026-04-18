@@ -1,6 +1,6 @@
 import type { EnabledModule, UserOnboarding, UserPersona } from '@/types/onboarding'
 
-export const ALWAYS_ENABLED_ROUTES = new Set(['/dashboard', '/goals', '/roadmaps', '/settings'])
+export const ALWAYS_ENABLED_ROUTES = new Set(['/dashboard', '/goals', '/roadmaps', '/settings', '/help'])
 
 export const MODULE_OPTIONS: { id: EnabledModule; label: string; description: string }[] = [
   { id: 'projects', label: 'Proyectos', description: 'Construir y seguir proyectos propios.' },

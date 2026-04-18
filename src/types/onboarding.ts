@@ -22,6 +22,8 @@ export interface UserOnboarding {
   enabled_modules: EnabledModule[]
   completed: boolean
   completed_at: string | null
+  tour_completed: boolean
+  tour_completed_at: string | null
   created_at: string
   updated_at: string
 }

@@ -24,6 +24,7 @@ export default async function DashboardLayout({
     getMyProfile(supabase),
   ])
   const enabledModules = getEnabledModules(onboarding.data)
+  const showProductTour = Boolean(onboarding.data?.completed && !onboarding.data?.tour_completed)
 
   return (
     <DashboardShell
@@ -31,6 +32,7 @@ export default async function DashboardLayout({
       userName={profile.data?.full_name ?? userName}
       userAvatarUrl={profile.data?.avatar_url ?? null}
       enabledModules={enabledModules}
+      showProductTour={showProductTour}
     >
       {children}
     </DashboardShell>

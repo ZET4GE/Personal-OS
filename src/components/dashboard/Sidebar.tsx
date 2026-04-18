@@ -3,6 +3,7 @@
 import {
   LayoutDashboard, Briefcase, FolderOpen, FileText,
   Settings, X, BarChart3, Users, Wallet, Banknote, Target, ListChecks, PenLine, StickyNote, Crosshair, GitBranch, Clock3,
+  HelpCircle,
   type LucideIcon,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -72,6 +73,7 @@ export function Sidebar({ collapsed, enabledModules }: { collapsed: boolean; ena
   ]
 
   const BOTTOM_ITEMS = [
+    { href: '/help', icon: HelpCircle, label: t('help') },
     { href: '/settings', icon: Settings, label: t('settings') },
   ] as const
 
