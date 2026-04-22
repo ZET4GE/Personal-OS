@@ -224,6 +224,8 @@ export default async function DashboardPage() {
     },
   ]
   const visibleWidgets = widgets.filter((widget) => !widget.module || enabled.has(widget.module))
+  const hasActiveGoal = Boolean(activeGoal)
+  const hasRoadmap = (roadmapsCountResult.count ?? 0) > 0
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in pb-8">
@@ -232,19 +234,36 @@ export default async function DashboardPage() {
         <h1 className="text-2xl font-semibold tracking-tight text-text">Tu foco de hoy</h1>
       </div>
 
-      <GettingStartedGuide
-        hasActiveGoal={Boolean(activeGoal)}
-        hasRoadmap={(roadmapsCountResult.count ?? 0) > 0}
-        hasActionSystem={hasActionSystem}
-        hasTimeEntry={(timeEntriesCountResult.count ?? 0) > 0}
-        hasConfiguredModules={Boolean(onboardingResult.data?.enabled_modules?.length)}
-      />
-
       <FocusDashboard
         activeGoal={activeGoal}
         dashboardData={data}
         enabledModules={enabledModules}
       />
+
+      <details
+        open={!hasActiveGoal}
+        className="group rounded-2xl border border-border bg-surface/60 p-4 shadow-[var(--shadow-card)]"
+      >
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-4">
+          <div>
+            <h2 className="text-sm font-semibold text-text">Guia rapida</h2>
+            <p className="text-xs text-muted">Usala solo si necesitas ordenar el sistema inicial.</p>
+          </div>
+          <span className="rounded-full border border-border px-3 py-1 text-xs text-muted transition-colors group-open:bg-surface-2">
+            <span className="group-open:hidden">Mostrar</span>
+            <span className="hidden group-open:inline">Ocultar</span>
+          </span>
+        </summary>
+        <div className="mt-5">
+          <GettingStartedGuide
+            hasActiveGoal={hasActiveGoal}
+            hasRoadmap={hasRoadmap}
+            hasActionSystem={hasActionSystem}
+            hasTimeEntry={(timeEntriesCountResult.count ?? 0) > 0}
+            hasConfiguredModules={Boolean(onboardingResult.data?.enabled_modules?.length)}
+          />
+        </div>
+      </details>
 
       <details className="group rounded-2xl border border-border bg-surface/60 p-4 shadow-[var(--shadow-card)]">
         <summary className="flex cursor-pointer list-none items-center justify-between gap-4">

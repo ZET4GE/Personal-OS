@@ -18,8 +18,8 @@ export default async function EditGoalPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const result = await getGoal(supabase, id)
-  if (!result.data || result.data.user_id !== user.id) notFound()
+  const result = await getGoal(supabase, user.id, id)
+  if (!result.data) notFound()
 
   const goal = result.data
 

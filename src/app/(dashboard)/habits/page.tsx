@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { Settings2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getHabitsWithLogs } from '@/services/habits'
@@ -19,7 +20,7 @@ export default async function HabitsPage({ searchParams }: PageProps) {
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+  if (!user) redirect('/login')
 
   const { data: items } = await getHabitsWithLogs(supabase, user.id, date)
 

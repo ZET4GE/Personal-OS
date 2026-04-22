@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { Plus, PenLine } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getPosts } from '@/services/posts'
@@ -23,7 +24,7 @@ export default async function BlogPage({ searchParams }: PageProps) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (!user) return null
+  if (!user) redirect('/login')
 
   const statusFilter = POST_STATUSES.includes(status as PostStatus)
     ? (status as PostStatus)

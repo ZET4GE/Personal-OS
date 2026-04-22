@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getRoutinesWithStatus } from '@/services/routines'
 import { RoutinesClient } from '@/components/routines/RoutinesClient'
@@ -9,7 +10,7 @@ export default async function RoutinesPage() {
   const today    = new Date().toISOString().slice(0, 10)
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+  if (!user) redirect('/login')
 
   const { data: routines } = await getRoutinesWithStatus(supabase, user.id, today)
 

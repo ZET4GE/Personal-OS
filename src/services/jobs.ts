@@ -40,11 +40,13 @@ function normalizeJob(row: JobApplicationRow): JobApplication {
 
 export async function getJobs(
   supabase: SupabaseClient,
+  userId: string,
   statusFilter?: JobStatus,
 ): Promise<Result<JobApplication[]>> {
   let query = supabase
     .from('job_applications')
     .select('*, job_interviews(*)')
+    .eq('user_id', userId)
     .order('applied_at', { ascending: false })
 
   if (statusFilter) {

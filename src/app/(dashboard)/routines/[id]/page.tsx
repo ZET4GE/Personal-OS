@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { getRoutineWithLog } from '@/services/routines'
@@ -13,7 +13,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { id }   = await params
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return {}
+  if (!user) return { title: 'Rutina' }
   const today = new Date().toISOString().slice(0, 10)
   const { data } = await getRoutineWithLog(supabase, id, user.id, today)
   return { title: data ? `${data.routine.name} · Rutinas` : 'Rutina no encontrada' }
@@ -27,7 +27,7 @@ export default async function RoutineDetailPage({ params, searchParams }: PagePr
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  if (!user) return null
+  if (!user) redirect('/login')
 
   const result = await getRoutineWithLog(supabase, id, user.id, date)
   if (result.error || !result.data) notFound()

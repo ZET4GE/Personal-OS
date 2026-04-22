@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { BookOpen, Briefcase, FolderGit2, GraduationCap, Zap, ChevronRight, ExternalLink, Download } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects } from '@/services/cv'
@@ -61,14 +62,15 @@ export default async function CVPage() {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
   // Fetch everything in parallel
   const [expResult, eduResult, skillsResult, coursesResult, projectsResult, profileResult] = await Promise.all([
-    getWorkExperience(supabase, user!.id),
-    getEducation(supabase, user!.id),
-    getSkills(supabase, user!.id),
-    getCVCourses(supabase, user!.id),
-    getCVProjects(supabase, user!.id),
+    getWorkExperience(supabase, user.id),
+    getEducation(supabase, user.id),
+    getSkills(supabase, user.id),
+    getCVCourses(supabase, user.id),
+    getCVProjects(supabase, user.id),
     getMyProfile(supabase),
   ])
 

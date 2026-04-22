@@ -6,7 +6,7 @@ import type { Habit, Routine } from '@/types/habits'
 import { getGoal } from '@/services/goals'
 
 type GoalLinkRow = {
-  entity_type: 'project' | 'habit' | 'routine' | 'note' | 'task' | 'skill'
+  entity_type: 'project' | 'habit' | 'routine' | 'note' | 'skill'
   entity_id: string
 }
 
@@ -42,9 +42,10 @@ const err = (message: string): Err => ({ data: null, error: message })
 
 export async function getGoalDetail(
   supabase: SupabaseClient,
+  userId: string,
   goalId: string,
 ): Promise<Result<GoalDetailData>> {
-  const goalResult = await getGoal(supabase, goalId)
+  const goalResult = await getGoal(supabase, userId, goalId)
   if (goalResult.error || !goalResult.data) {
     return err(goalResult.error ?? 'Meta no encontrada')
   }
@@ -55,6 +56,7 @@ export async function getGoalDetail(
     .from('goal_links')
     .select('entity_type, entity_id')
     .eq('goal_id', goalId)
+    .eq('user_id', userId)
 
   if (linksError) return err(linksError.message)
 

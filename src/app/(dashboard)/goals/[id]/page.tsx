@@ -24,7 +24,10 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { id } = await params
   const supabase = await createClient()
-  const result = await getGoal(supabase, id)
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { title: 'Meta' }
+
+  const result = await getGoal(supabase, user.id, id)
   return { title: result.data?.title ?? 'Meta' }
 }
 
@@ -38,11 +41,11 @@ export default async function GoalDetailPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/login')
 
-  const result = await getGoal(supabase, id)
-  if (!result.data || result.data.user_id !== user.id) notFound()
+  const result = await getGoal(supabase, user.id, id)
+  if (!result.data) notFound()
 
   const [detailResult, progressResult] = await Promise.all([
-    getGoalDetail(supabase, id),
+    getGoalDetail(supabase, user.id, id),
     getGoalDetailProgress(supabase, id),
   ])
 

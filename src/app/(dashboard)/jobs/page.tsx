@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getJobTrackerStats, getJobs } from '@/services/jobs'
 import { JobsClient } from '@/components/jobs/JobsClient'
@@ -32,10 +33,11 @@ export default async function JobsPage({ searchParams }: PageProps) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
+  if (!user) redirect('/login')
 
   const [jobsResult, statsResult] = await Promise.all([
-    getJobs(supabase, statusFilter),
-    user ? getJobTrackerStats(supabase, user.id) : Promise.resolve({ data: null, error: null }),
+    getJobs(supabase, user.id, statusFilter),
+    getJobTrackerStats(supabase, user.id),
   ])
 
   const stats: JobTrackerStats =

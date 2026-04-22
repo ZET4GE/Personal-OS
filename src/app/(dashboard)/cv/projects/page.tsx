@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
 import { ArrowLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getCVProjects } from '@/services/cv'
@@ -10,7 +11,8 @@ export const metadata: Metadata = { title: 'Proyectos de CV' }
 export default async function CVProjectsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
-  const { data: items } = await getCVProjects(supabase, user!.id)
+  if (!user) redirect('/login')
+  const { data: items } = await getCVProjects(supabase, user.id)
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">

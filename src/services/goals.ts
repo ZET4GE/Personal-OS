@@ -42,6 +42,7 @@ export async function getGoals(
 
 export async function getGoal(
   supabase: SupabaseClient,
+  userId:   string,
   id:       string,
 ): Promise<Result<GoalWithMilestones>> {
   const { data, error: e } = await supabase
@@ -52,6 +53,7 @@ export async function getGoal(
       goal_updates(* )
     `)
     .eq('id', id)
+    .eq('user_id', userId)
     .order('order_index', { referencedTable: 'milestones', ascending: true })
     .order('created_at',  { referencedTable: 'goal_updates', ascending: false })
     .single()
