@@ -26,11 +26,11 @@ export async function createClientAction(formData: FormData): Promise<ClientActi
 }
 
 export async function updateClientAction(formData: FormData): Promise<ClientActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
   const parsed = UpdateClientSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' }
 
-  const result = await updateClient(supabase, parsed.data)
+  const result = await updateClient(supabase, user.id, parsed.data)
   if (result.error) return { error: result.error }
 
   revalidatePath('/clients')
@@ -39,11 +39,11 @@ export async function updateClientAction(formData: FormData): Promise<ClientActi
 }
 
 export async function deleteClientAction(formData: FormData): Promise<ClientActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
   const id = formData.get('id')
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
-  const { error } = await deleteClient(supabase, id)
+  const { error } = await deleteClient(supabase, user.id, id)
   if (error) return { error }
 
   revalidatePath('/clients')

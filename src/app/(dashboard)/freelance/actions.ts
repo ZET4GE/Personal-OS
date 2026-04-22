@@ -40,11 +40,11 @@ export async function createProjectAction(formData: FormData): Promise<ClientPro
 }
 
 export async function updateProjectAction(formData: FormData): Promise<ClientProjectActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
   const parsed = UpdateClientProjectSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' }
 
-  const result = await updateClientProject(supabase, parsed.data)
+  const result = await updateClientProject(supabase, user.id, parsed.data)
   if (result.error) return { error: result.error }
 
   revalidatePath('/freelance')
@@ -53,11 +53,11 @@ export async function updateProjectAction(formData: FormData): Promise<ClientPro
 }
 
 export async function updateProjectStatusAction(formData: FormData): Promise<ClientProjectActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
   const parsed = UpdateProjectStatusSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Estado inválido' }
 
-  const { error } = await updateClientProjectStatus(supabase, parsed.data.id, parsed.data.status)
+  const { error } = await updateClientProjectStatus(supabase, user.id, parsed.data.id, parsed.data.status)
   if (error) return { error }
 
   revalidatePath('/freelance')
@@ -66,11 +66,11 @@ export async function updateProjectStatusAction(formData: FormData): Promise<Cli
 }
 
 export async function deleteProjectAction(formData: FormData): Promise<ClientProjectActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
   const id = formData.get('id')
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
-  const { error } = await deleteClientProject(supabase, id)
+  const { error } = await deleteClientProject(supabase, user.id, id)
   if (error) return { error }
 
   revalidatePath('/freelance')
@@ -93,14 +93,14 @@ export async function createPaymentAction(formData: FormData): Promise<PaymentAc
 }
 
 export async function deletePaymentAction(formData: FormData): Promise<PaymentActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
   const id = formData.get('id')
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
   // Obtener project_id antes de borrar para revalidar
   const projectId = formData.get('project_id') as string
 
-  const { error } = await deletePayment(supabase, id)
+  const { error } = await deletePayment(supabase, user.id, id)
   if (error) return { error }
 
   if (projectId) {

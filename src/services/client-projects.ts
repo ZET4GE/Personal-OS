@@ -66,6 +66,17 @@ export async function createClientProject(
   userId: string,
   input: CreateClientProjectData,
 ): Promise<Result<ClientProject>> {
+  if (input.client_id) {
+    const { data: client } = await supabase
+      .from('clients')
+      .select('id')
+      .eq('id', input.client_id)
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (!client) return err('Cliente no encontrado')
+  }
+
   const { data, error } = await supabase
     .from('client_projects')
     .insert({ ...input, user_id: userId })
@@ -78,13 +89,27 @@ export async function createClientProject(
 
 export async function updateClientProject(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdateClientProjectData,
 ): Promise<Result<ClientProject>> {
   const { id, ...patch } = input
+
+  if (patch.client_id) {
+    const { data: client } = await supabase
+      .from('clients')
+      .select('id')
+      .eq('id', patch.client_id)
+      .eq('user_id', userId)
+      .maybeSingle()
+
+    if (!client) return err('Cliente no encontrado')
+  }
+
   const { data, error } = await supabase
     .from('client_projects')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
     .select(SELECT_WITH_CLIENT)
     .single()
 
@@ -94,6 +119,7 @@ export async function updateClientProject(
 
 export async function updateClientProjectStatus(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
   status: ProjectStatusClient,
 ): Promise<Result<true>> {
@@ -104,6 +130,7 @@ export async function updateClientProjectStatus(
     .from('client_projects')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
 
   if (error) return err(error.message)
   return ok(true as const)
@@ -111,9 +138,10 @@ export async function updateClientProjectStatus(
 
 export async function deleteClientProject(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<Result<true>> {
-  const { error } = await supabase.from('client_projects').delete().eq('id', id)
+  const { error } = await supabase.from('client_projects').delete().eq('id', id).eq('user_id', userId)
   if (error) return err(error.message)
   return ok(true as const)
 }

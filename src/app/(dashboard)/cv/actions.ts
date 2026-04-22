@@ -74,11 +74,11 @@ export async function createWorkExperienceAction(
 export async function updateWorkExperienceAction(
   formData: FormData,
 ): Promise<WorkExperienceActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
   const parsed = UpdateWorkExperienceSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' }
 
-  const result = await updateWorkExperience(supabase, parsed.data)
+  const result = await updateWorkExperience(supabase, user.id, parsed.data)
   if (result.error) return { error: result.error }
 
   revalidatePath('/cv')
@@ -89,11 +89,11 @@ export async function updateWorkExperienceAction(
 export async function deleteWorkExperienceAction(
   formData: FormData,
 ): Promise<WorkExperienceActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
   const id = formData.get('id')
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
-  const { error } = await deleteWorkExperience(supabase, id)
+  const { error } = await deleteWorkExperience(supabase, user.id, id)
   if (error) return { error }
 
   revalidatePath('/cv')
@@ -123,11 +123,11 @@ export async function createEducationAction(
 export async function updateEducationAction(
   formData: FormData,
 ): Promise<EducationActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
   const parsed = UpdateEducationSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' }
 
-  const result = await updateEducation(supabase, parsed.data)
+  const result = await updateEducation(supabase, user.id, parsed.data)
   if (result.error) return { error: result.error }
 
   revalidatePath('/cv')
@@ -138,11 +138,11 @@ export async function updateEducationAction(
 export async function deleteEducationAction(
   formData: FormData,
 ): Promise<EducationActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
   const id = formData.get('id')
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
-  const { error } = await deleteEducation(supabase, id)
+  const { error } = await deleteEducation(supabase, user.id, id)
   if (error) return { error }
 
   revalidatePath('/cv')
@@ -172,11 +172,11 @@ export async function createSkillAction(
 export async function updateSkillAction(
   formData: FormData,
 ): Promise<SkillActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
   const parsed = UpdateSkillSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' }
 
-  const result = await updateSkill(supabase, parsed.data)
+  const result = await updateSkill(supabase, user.id, parsed.data)
   if (result.error) return { error: result.error }
 
   revalidatePath('/cv')
@@ -187,11 +187,11 @@ export async function updateSkillAction(
 export async function deleteSkillAction(
   formData: FormData,
 ): Promise<SkillActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
   const id = formData.get('id')
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
-  const { error } = await deleteSkill(supabase, id)
+  const { error } = await deleteSkill(supabase, user.id, id)
   if (error) return { error }
 
   revalidatePath('/cv')
@@ -219,11 +219,11 @@ export async function createCVCourseAction(
 export async function updateCVCourseAction(
   formData: FormData,
 ): Promise<CVCourseActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
   const parsed = UpdateCVCourseSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos invalidos' }
 
-  const result = await updateCVCourse(supabase, parsed.data)
+  const result = await updateCVCourse(supabase, user.id, parsed.data)
   if (result.error) return { error: result.error }
 
   revalidatePath('/cv')
@@ -234,11 +234,11 @@ export async function updateCVCourseAction(
 export async function deleteCVCourseAction(
   formData: FormData,
 ): Promise<CVCourseActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
   const id = formData.get('id')
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
-  const { error } = await deleteCVCourse(supabase, id)
+  const { error } = await deleteCVCourse(supabase, user.id, id)
   if (error) return { error }
 
   revalidatePath('/cv')
@@ -266,11 +266,11 @@ export async function createCVProjectAction(
 export async function updateCVProjectAction(
   formData: FormData,
 ): Promise<CVProjectActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
   const parsed = UpdateCVProjectSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos invalidos' }
 
-  const result = await updateCVProject(supabase, parsed.data)
+  const result = await updateCVProject(supabase, user.id, parsed.data)
   if (result.error) return { error: result.error }
 
   revalidatePath('/cv')
@@ -281,11 +281,11 @@ export async function updateCVProjectAction(
 export async function deleteCVProjectAction(
   formData: FormData,
 ): Promise<CVProjectActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
   const id = formData.get('id')
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
-  const { error } = await deleteCVProject(supabase, id)
+  const { error } = await deleteCVProject(supabase, user.id, id)
   if (error) return { error }
 
   revalidatePath('/cv')

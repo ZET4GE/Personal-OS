@@ -69,6 +69,7 @@ export async function createFinanceTransaction(
 
 export async function updateFinanceTransaction(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdateFinanceTransactionData,
 ): Promise<Result<FinanceTransaction>> {
   const { id, ...patch } = input
@@ -76,6 +77,7 @@ export async function updateFinanceTransaction(
     .from('finance_transactions')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -85,12 +87,14 @@ export async function updateFinanceTransaction(
 
 export async function deleteFinanceTransaction(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<Result<true>> {
   const { error } = await supabase
     .from('finance_transactions')
     .delete()
     .eq('id', id)
+    .eq('user_id', userId)
 
   if (error) return err(error.message)
   return ok(true)
@@ -202,7 +206,7 @@ export async function upsertFinanceBudget(
   }
 
   const query = input.id
-    ? supabase.from('finance_budgets').update(payload).eq('id', input.id).select().single()
+    ? supabase.from('finance_budgets').update(payload).eq('id', input.id).eq('user_id', userId).select().single()
     : supabase.from('finance_budgets').upsert(payload, {
         onConflict: 'user_id,category,currency,period_month',
       }).select().single()
@@ -214,12 +218,14 @@ export async function upsertFinanceBudget(
 
 export async function deleteFinanceBudget(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<Result<true>> {
   const { error } = await supabase
     .from('finance_budgets')
     .delete()
     .eq('id', id)
+    .eq('user_id', userId)
 
   if (error) return err(error.message)
   return ok(true)

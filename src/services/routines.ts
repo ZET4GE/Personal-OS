@@ -45,6 +45,7 @@ export async function createRoutine(
 
 export async function updateRoutine(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdateRoutineData,
 ): Promise<Result<Routine>> {
   const { id, ...patch } = input
@@ -52,6 +53,7 @@ export async function updateRoutine(
     .from('routines')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -61,9 +63,10 @@ export async function updateRoutine(
 
 export async function deleteRoutine(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<Result<true>> {
-  const { error } = await supabase.from('routines').delete().eq('id', id)
+  const { error } = await supabase.from('routines').delete().eq('id', id).eq('user_id', userId)
   if (error) return err(error.message)
   return ok(true as const)
 }
@@ -91,11 +94,21 @@ export async function createRoutineItem(
   userId: string,
   input: CreateRoutineItemData,
 ): Promise<Result<RoutineItem>> {
+  const { data: routine } = await supabase
+    .from('routines')
+    .select('id')
+    .eq('id', input.routine_id)
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (!routine) return err('Rutina no encontrada')
+
   // Calculate next order_index
   const { count } = await supabase
     .from('routine_items')
     .select('*', { count: 'exact', head: true })
     .eq('routine_id', input.routine_id)
+    .eq('user_id', userId)
 
   const { data, error } = await supabase
     .from('routine_items')
@@ -109,6 +122,7 @@ export async function createRoutineItem(
 
 export async function updateRoutineItem(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdateRoutineItemData,
 ): Promise<Result<RoutineItem>> {
   const { id } = input
@@ -120,6 +134,7 @@ export async function updateRoutineItem(
     .from('routine_items')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -129,9 +144,10 @@ export async function updateRoutineItem(
 
 export async function deleteRoutineItem(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<Result<true>> {
-  const { error } = await supabase.from('routine_items').delete().eq('id', id)
+  const { error } = await supabase.from('routine_items').delete().eq('id', id).eq('user_id', userId)
   if (error) return err(error.message)
   return ok(true as const)
 }
@@ -151,11 +167,22 @@ export async function toggleRoutineItem(
   itemId: string,
   date: string,   // 'YYYY-MM-DD'
 ): Promise<Result<RoutineLog>> {
+  const { data: item } = await supabase
+    .from('routine_items')
+    .select('id')
+    .eq('id', itemId)
+    .eq('routine_id', routineId)
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (!item) return err('Item no encontrado')
+
   // Get or create log for today
   const { data: existing } = await supabase
     .from('routine_logs')
     .select('*')
     .eq('routine_id', routineId)
+    .eq('user_id', userId)
     .eq('completed_at', date)
     .maybeSingle()
 
@@ -197,6 +224,28 @@ export async function completeRoutine(
   date: string,
   completedItems: string[],
 ): Promise<Result<RoutineLog>> {
+  const { data: routine } = await supabase
+    .from('routines')
+    .select('id')
+    .eq('id', routineId)
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (!routine) return err('Rutina no encontrada')
+
+  if (completedItems.length > 0) {
+    const { data: ownedItems } = await supabase
+      .from('routine_items')
+      .select('id')
+      .eq('routine_id', routineId)
+      .eq('user_id', userId)
+      .in('id', completedItems)
+
+    if ((ownedItems ?? []).length !== completedItems.length) {
+      return err('Items invalidos')
+    }
+  }
+
   const { data, error } = await supabase
     .from('routine_logs')
     .upsert(
@@ -284,7 +333,7 @@ export async function getRoutineWithLog(
   date: string,
 ): Promise<Result<{ routine: Routine; items: RoutineItem[]; log: RoutineLog | null }>> {
   const [routineRes, itemsRes, logRes] = await Promise.all([
-    supabase.from('routines').select('*').eq('id', routineId).single(),
+    supabase.from('routines').select('*').eq('id', routineId).eq('user_id', userId).single(),
     supabase
       .from('routine_items')
       .select('*')

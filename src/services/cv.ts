@@ -60,6 +60,7 @@ export async function createWorkExperience(
 
 export async function updateWorkExperience(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdateWorkExperienceData,
 ): Promise<Result<WorkExperience>> {
   const { id, ...patch } = input
@@ -67,6 +68,7 @@ export async function updateWorkExperience(
     .from('work_experience')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -76,12 +78,14 @@ export async function updateWorkExperience(
 
 export async function deleteWorkExperience(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<{ error: string | null }> {
   const { error } = await supabase
     .from('work_experience')
     .delete()
     .eq('id', id)
+    .eq('user_id', userId)
 
   return { error: error?.message ?? null }
 }
@@ -122,6 +126,7 @@ export async function createEducation(
 
 export async function updateEducation(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdateEducationData,
 ): Promise<Result<Education>> {
   const { id, ...patch } = input
@@ -129,6 +134,7 @@ export async function updateEducation(
     .from('education')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -138,12 +144,14 @@ export async function updateEducation(
 
 export async function deleteEducation(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<{ error: string | null }> {
   const { error } = await supabase
     .from('education')
     .delete()
     .eq('id', id)
+    .eq('user_id', userId)
 
   return { error: error?.message ?? null }
 }
@@ -184,6 +192,7 @@ export async function createSkill(
 
 export async function updateSkill(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdateSkillData,
 ): Promise<Result<Skill>> {
   const { id, ...patch } = input
@@ -191,6 +200,7 @@ export async function updateSkill(
     .from('skills')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -200,12 +210,14 @@ export async function updateSkill(
 
 export async function deleteSkill(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<{ error: string | null }> {
   const { error } = await supabase
     .from('skills')
     .delete()
     .eq('id', id)
+    .eq('user_id', userId)
 
   return { error: error?.message ?? null }
 }
@@ -244,6 +256,7 @@ export async function createCVCourse(
 
 export async function updateCVCourse(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdateCVCourseData,
 ): Promise<Result<CVCourse>> {
   const { id, ...patch } = input
@@ -251,6 +264,7 @@ export async function updateCVCourse(
     .from('cv_courses')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -260,12 +274,14 @@ export async function updateCVCourse(
 
 export async function deleteCVCourse(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<{ error: string | null }> {
   const { error } = await supabase
     .from('cv_courses')
     .delete()
     .eq('id', id)
+    .eq('user_id', userId)
 
   return { error: error?.message ?? null }
 }
@@ -305,6 +321,7 @@ export async function createCVProject(
 
 export async function updateCVProject(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdateCVProjectData,
 ): Promise<Result<CVProject>> {
   const { id, ...patch } = input
@@ -312,6 +329,7 @@ export async function updateCVProject(
     .from('cv_projects')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -321,12 +339,14 @@ export async function updateCVProject(
 
 export async function deleteCVProject(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<{ error: string | null }> {
   const { error } = await supabase
     .from('cv_projects')
     .delete()
     .eq('id', id)
+    .eq('user_id', userId)
 
   return { error: error?.message ?? null }
 }

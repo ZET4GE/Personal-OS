@@ -44,11 +44,11 @@ export async function createRoutineAction(formData: FormData): Promise<RoutineAc
 }
 
 export async function updateRoutineAction(formData: FormData): Promise<RoutineActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
   const parsed = UpdateRoutineSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' }
 
-  const result = await updateRoutine(supabase, parsed.data)
+  const result = await updateRoutine(supabase, user.id, parsed.data)
   if (result.error) return { error: result.error }
 
   revalidatePath('/routines')
@@ -57,11 +57,11 @@ export async function updateRoutineAction(formData: FormData): Promise<RoutineAc
 }
 
 export async function deleteRoutineAction(formData: FormData): Promise<RoutineActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
   const id = formData.get('id')
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
-  const { error } = await deleteRoutine(supabase, id)
+  const { error } = await deleteRoutine(supabase, user.id, id)
   if (error) return { error }
 
   revalidatePath('/routines')
@@ -86,11 +86,11 @@ export async function createRoutineItemAction(formData: FormData): Promise<Routi
 }
 
 export async function updateRoutineItemAction(formData: FormData): Promise<RoutineActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
   const parsed = UpdateRoutineItemSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' }
 
-  const result = await updateRoutineItem(supabase, parsed.data)
+  const result = await updateRoutineItem(supabase, user.id, parsed.data)
   if (result.error) return { error: result.error }
 
   const routineId = formData.get('routine_id')
@@ -100,13 +100,13 @@ export async function updateRoutineItemAction(formData: FormData): Promise<Routi
 }
 
 export async function deleteRoutineItemAction(formData: FormData): Promise<RoutineActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
   const id        = formData.get('id')
   const routineId = formData.get('routine_id')
 
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
-  const { error } = await deleteRoutineItem(supabase, id)
+  const { error } = await deleteRoutineItem(supabase, user.id, id)
   if (error) return { error }
 
   revalidatePath('/routines')

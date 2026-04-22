@@ -41,11 +41,11 @@ export async function createHabitAction(formData: FormData): Promise<HabitAction
 }
 
 export async function updateHabitAction(formData: FormData): Promise<HabitActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
   const parsed = UpdateHabitSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' }
 
-  const result = await updateHabit(supabase, parsed.data)
+  const result = await updateHabit(supabase, user.id, parsed.data)
   if (result.error) return { error: result.error }
 
   revalidatePath('/habits')
@@ -54,11 +54,11 @@ export async function updateHabitAction(formData: FormData): Promise<HabitAction
 }
 
 export async function setHabitActiveAction(formData: FormData): Promise<HabitActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
   const parsed = UpdateHabitActiveSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: 'Datos inválidos' }
 
-  const { error } = await setHabitActive(supabase, parsed.data.id, parsed.data.is_active)
+  const { error } = await setHabitActive(supabase, user.id, parsed.data.id, parsed.data.is_active)
   if (error) return { error }
 
   revalidatePath('/habits')
@@ -67,11 +67,11 @@ export async function setHabitActiveAction(formData: FormData): Promise<HabitAct
 }
 
 export async function deleteHabitAction(formData: FormData): Promise<HabitActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
   const id = formData.get('id')
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
-  const { error } = await deleteHabit(supabase, id)
+  const { error } = await deleteHabit(supabase, user.id, id)
   if (error) return { error }
 
   revalidatePath('/habits')

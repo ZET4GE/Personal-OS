@@ -73,6 +73,7 @@ export async function createJob(
 
 export async function updateJob(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdateJobData,
 ): Promise<Result<JobApplication>> {
   const { id, ...patch } = input
@@ -81,6 +82,7 @@ export async function updateJob(
     .from('job_applications')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
     .select('*, job_interviews(*)')
     .single()
 
@@ -90,6 +92,7 @@ export async function updateJob(
 
 export async function updateJobStatus(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
   status: JobStatus,
 ): Promise<Result<true>> {
@@ -97,6 +100,7 @@ export async function updateJobStatus(
     .from('job_applications')
     .update({ status })
     .eq('id', id)
+    .eq('user_id', userId)
 
   if (error) return err(error.message)
   return ok(true as const)
@@ -107,6 +111,15 @@ export async function createJobInterview(
   userId: string,
   input: CreateJobInterviewData,
 ): Promise<Result<JobInterview>> {
+  const { data: job } = await supabase
+    .from('job_applications')
+    .select('id')
+    .eq('id', input.job_id)
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (!job) return err('Empleo no encontrado')
+
   const { data, error } = await supabase
     .from('job_interviews')
     .insert({ ...input, user_id: userId })
@@ -119,12 +132,14 @@ export async function createJobInterview(
 
 export async function deleteJobInterview(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<Result<true>> {
   const { error } = await supabase
     .from('job_interviews')
     .delete()
     .eq('id', id)
+    .eq('user_id', userId)
 
   if (error) return err(error.message)
   return ok(true as const)
@@ -132,12 +147,14 @@ export async function deleteJobInterview(
 
 export async function updateJobInterviewOutcome(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdateJobInterviewOutcomeData,
 ): Promise<Result<JobInterview>> {
   const { data, error } = await supabase
     .from('job_interviews')
     .update({ outcome: input.outcome })
     .eq('id', input.id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -170,12 +187,14 @@ export async function getJobTrackerStats(
 
 export async function deleteJob(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<Result<true>> {
   const { error } = await supabase
     .from('job_applications')
     .delete()
     .eq('id', id)
+    .eq('user_id', userId)
 
   if (error) return err(error.message)
   return ok(true as const)

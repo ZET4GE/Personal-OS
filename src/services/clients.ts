@@ -49,6 +49,7 @@ export async function createClient_(
 
 export async function updateClient(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdateClientData,
 ): Promise<Result<Client>> {
   const { id, ...patch } = input
@@ -56,6 +57,7 @@ export async function updateClient(
     .from('clients')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -65,9 +67,10 @@ export async function updateClient(
 
 export async function deleteClient(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<Result<true>> {
-  const { error } = await supabase.from('clients').delete().eq('id', id)
+  const { error } = await supabase.from('clients').delete().eq('id', id).eq('user_id', userId)
   if (error) return err(error.message)
   return ok(true as const)
 }

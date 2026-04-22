@@ -92,6 +92,7 @@ export async function createHabit(
 
 export async function updateHabit(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdateHabitData,
 ): Promise<Result<Habit>> {
   const { id, ...patch } = input
@@ -99,6 +100,7 @@ export async function updateHabit(
     .from('habits')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -108,19 +110,21 @@ export async function updateHabit(
 
 export async function setHabitActive(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
   is_active: boolean,
 ): Promise<Result<true>> {
-  const { error } = await supabase.from('habits').update({ is_active }).eq('id', id)
+  const { error } = await supabase.from('habits').update({ is_active }).eq('id', id).eq('user_id', userId)
   if (error) return err(error.message)
   return ok(true as const)
 }
 
 export async function deleteHabit(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<Result<true>> {
-  const { error } = await supabase.from('habits').delete().eq('id', id)
+  const { error } = await supabase.from('habits').delete().eq('id', id).eq('user_id', userId)
   if (error) return err(error.message)
   return ok(true as const)
 }
@@ -140,17 +144,27 @@ export async function toggleHabitLog(
   habitId: string,
   date: string,   // 'YYYY-MM-DD'
 ): Promise<Result<{ completed: boolean; logId: string | null }>> {
+  const { data: habit } = await supabase
+    .from('habits')
+    .select('id')
+    .eq('id', habitId)
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (!habit) return err('Habito no encontrado')
+
   // Check if log exists
   const { data: existing } = await supabase
     .from('habit_logs')
     .select('id')
     .eq('habit_id', habitId)
+    .eq('user_id', userId)
     .eq('completed_at', date)
     .maybeSingle()
 
   if (existing) {
     // Delete
-    const { error } = await supabase.from('habit_logs').delete().eq('id', existing.id)
+    const { error } = await supabase.from('habit_logs').delete().eq('id', existing.id).eq('user_id', userId)
     if (error) return err(error.message)
     return ok({ completed: false, logId: null })
   }

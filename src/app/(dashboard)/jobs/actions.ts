@@ -59,14 +59,14 @@ export async function createJobAction(formData: FormData): Promise<JobActionResu
 // ─────────────────────────────────────────────────────────────
 
 export async function updateJobAction(formData: FormData): Promise<JobActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
 
   const parsed = UpdateJobSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' }
   }
 
-  const result = await updateJob(supabase, parsed.data)
+  const result = await updateJob(supabase, user.id, parsed.data)
   if (result.error) return { error: result.error }
 
   revalidatePath('/jobs')
@@ -78,14 +78,14 @@ export async function updateJobAction(formData: FormData): Promise<JobActionResu
 // ─────────────────────────────────────────────────────────────
 
 export async function updateStatusAction(formData: FormData): Promise<JobActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
 
   const parsed = UpdateStatusSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? 'Estado inválido' }
   }
 
-  const { error } = await updateJobStatus(supabase, parsed.data.id, parsed.data.status)
+  const { error } = await updateJobStatus(supabase, user.id, parsed.data.id, parsed.data.status)
   if (error) return { error }
 
   revalidatePath('/jobs')
@@ -97,12 +97,12 @@ export async function updateStatusAction(formData: FormData): Promise<JobActionR
 // ─────────────────────────────────────────────────────────────
 
 export async function deleteJobAction(formData: FormData): Promise<JobActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
 
   const id = formData.get('id')
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
-  const { error } = await deleteJob(supabase, id)
+  const { error } = await deleteJob(supabase, user.id, id)
   if (error) return { error }
 
   revalidatePath('/jobs')
@@ -125,12 +125,12 @@ export async function createJobInterviewAction(formData: FormData): Promise<JobA
 }
 
 export async function deleteJobInterviewAction(formData: FormData): Promise<JobActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
 
   const id = formData.get('id')
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
-  const { error } = await deleteJobInterview(supabase, id)
+  const { error } = await deleteJobInterview(supabase, user.id, id)
   if (error) return { error }
 
   revalidatePath('/jobs')
@@ -138,14 +138,14 @@ export async function deleteJobInterviewAction(formData: FormData): Promise<JobA
 }
 
 export async function updateJobInterviewOutcomeAction(formData: FormData): Promise<JobActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
 
   const parsed = UpdateJobInterviewOutcomeSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? 'Resultado invalido' }
   }
 
-  const result = await updateJobInterviewOutcome(supabase, parsed.data)
+  const result = await updateJobInterviewOutcome(supabase, user.id, parsed.data)
   if (result.error) return { error: result.error }
 
   revalidatePath('/jobs')

@@ -27,6 +27,15 @@ export async function createPayment(
   userId: string,
   input: CreatePaymentData,
 ): Promise<Result<ProjectPayment>> {
+  const { data: project } = await supabase
+    .from('client_projects')
+    .select('id')
+    .eq('id', input.project_id)
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (!project) return err('Proyecto no encontrado')
+
   const { data, error } = await supabase
     .from('project_payments')
     .insert({ ...input, user_id: userId })
@@ -39,9 +48,10 @@ export async function createPayment(
 
 export async function deletePayment(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<Result<true>> {
-  const { error } = await supabase.from('project_payments').delete().eq('id', id)
+  const { error } = await supabase.from('project_payments').delete().eq('id', id).eq('user_id', userId)
   if (error) return err(error.message)
   return ok(true as const)
 }
