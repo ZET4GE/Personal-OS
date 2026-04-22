@@ -68,6 +68,7 @@ export async function createProject(
 
 export async function updateProject(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdateProjectData,
 ): Promise<Result<Project>> {
   const { id, ...patch } = input
@@ -76,6 +77,7 @@ export async function updateProject(
     .from('projects')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -85,6 +87,7 @@ export async function updateProject(
 
 export async function togglePublic(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
   isPublic: boolean,
 ): Promise<Result<true>> {
@@ -92,6 +95,7 @@ export async function togglePublic(
     .from('projects')
     .update({ is_public: isPublic })
     .eq('id', id)
+    .eq('user_id', userId)
 
   if (error) return err(error.message)
   return ok(true as const)
@@ -99,12 +103,14 @@ export async function togglePublic(
 
 export async function deleteProject(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<Result<true>> {
   const { error } = await supabase
     .from('projects')
     .delete()
     .eq('id', id)
+    .eq('user_id', userId)
 
   if (error) return err(error.message)
   return ok(true as const)

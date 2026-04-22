@@ -104,8 +104,8 @@ export function NotificationDropdown({
                         className={[
                           'flex items-start gap-2 rounded-lg px-2.5 py-2 text-xs transition-colors',
                           isWarning
-                            ? 'bg-red-500/10 text-red-100 hover:bg-red-500/15'
-                            : 'bg-amber-500/10 text-amber-100 hover:bg-amber-500/15',
+                            ? 'bg-red-500/10 text-red-700 hover:bg-red-500/15 dark:text-red-100'
+                            : 'bg-amber-500/10 text-amber-700 hover:bg-amber-500/15 dark:text-amber-100',
                         ].join(' ')}
                       >
                         <Icon size={14} className={isWarning ? 'mt-0.5 text-red-400' : 'mt-0.5 text-amber-400'} />

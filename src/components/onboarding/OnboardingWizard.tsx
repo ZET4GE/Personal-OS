@@ -142,7 +142,7 @@ export function OnboardingWizard() {
         {step === 1 && (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-text">Como vas a usar WINF?</h2>
-            <div className="grid gap-3 md:grid-cols-5">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
               {PERSONA_OPTIONS.map((option) => (
                 <button
                   key={option.id}

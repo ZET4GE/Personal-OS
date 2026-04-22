@@ -56,14 +56,14 @@ export async function createProjectAction(
 export async function updateProjectAction(
   formData: FormData,
 ): Promise<ProjectActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
 
   const parsed = UpdateProjectSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' }
   }
 
-  const result = await updateProject(supabase, parsed.data)
+  const result = await updateProject(supabase, user.id, parsed.data)
   if (result.error) return { error: result.error }
 
   revalidatePath('/projects')
@@ -77,7 +77,7 @@ export async function updateProjectAction(
 export async function togglePublicAction(
   formData: FormData,
 ): Promise<ProjectActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
 
   const parsed = TogglePublicSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) {
@@ -85,7 +85,7 @@ export async function togglePublicAction(
   }
 
   const { id, is_public } = parsed.data
-  const result = await togglePublic(supabase, id, is_public)
+  const result = await togglePublic(supabase, user.id, id, is_public)
   if (result.error) return { error: result.error }
 
   revalidatePath('/projects')
@@ -99,12 +99,12 @@ export async function togglePublicAction(
 export async function deleteProjectAction(
   formData: FormData,
 ): Promise<ProjectActionResult> {
-  const { supabase } = await getAuthedClient()
+  const { supabase, user } = await getAuthedClient()
 
   const id = formData.get('id')
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
-  const result = await deleteProject(supabase, id)
+  const result = await deleteProject(supabase, user.id, id)
   if (result.error) return { error: result.error }
 
   revalidatePath('/projects')

@@ -25,7 +25,7 @@ export async function PendingPayments({ payments }: { payments: PendingPaymentIt
             return (
               <Link
                 key={item.id}
-                href="/projects/client"
+                href={`/freelance/${item.id}`}
                 className="group flex flex-col gap-2 rounded-lg border border-border bg-surface-elevated p-3 transition-colors hover:border-border-bright"
               >
                 <div className="flex items-center justify-between">

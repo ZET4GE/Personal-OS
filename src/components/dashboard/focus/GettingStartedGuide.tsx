@@ -64,7 +64,29 @@ export function GettingStartedGuide({
   const completed = ITEMS.filter((item) => doneByKey[item.key]).length
   const nextItem = ITEMS.find((item) => !doneByKey[item.key])
 
-  if (!nextItem) return null
+  if (!nextItem) {
+    return (
+      <section className="rounded-3xl border border-emerald-500/20 bg-emerald-500/10 p-4 shadow-[var(--shadow-card)]">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-400">
+              Sistema inicial listo
+            </p>
+            <p className="mt-1 text-sm text-text">
+              Ya tenes meta, camino, acciones, tiempo y modulos configurados.
+            </p>
+          </div>
+          <Link
+            href="/settings/preferences"
+            className="inline-flex items-center gap-1 text-sm font-medium text-emerald-300 transition-colors hover:text-emerald-200"
+          >
+            Ajustar modulos
+            <ArrowRight size={13} />
+          </Link>
+        </div>
+      </section>
+    )
+  }
 
   const NextIcon = nextItem.icon
 

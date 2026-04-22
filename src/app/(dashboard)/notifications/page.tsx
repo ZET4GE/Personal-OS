@@ -112,8 +112,8 @@ export default async function NotificationsPage() {
                       className={[
                         'flex items-center gap-3 rounded-lg px-3 py-3 text-sm transition-colors',
                         isWarning
-                          ? 'bg-red-500/10 text-red-100 hover:bg-red-500/15'
-                          : 'bg-amber-500/10 text-amber-100 hover:bg-amber-500/15',
+                          ? 'bg-red-500/10 text-red-700 hover:bg-red-500/15 dark:text-red-100'
+                          : 'bg-amber-500/10 text-amber-700 hover:bg-amber-500/15 dark:text-amber-100',
                       ].join(' ')}
                     >
                       <Icon size={16} className={isWarning ? 'text-red-400' : 'text-amber-400'} />

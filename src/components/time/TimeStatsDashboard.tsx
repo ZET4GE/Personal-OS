@@ -272,7 +272,7 @@ export async function TimeStatsDashboard({ userId }: TimeStatsDashboardProps) {
                   </p>
                   <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-muted">
                     {session.projectId && session.projectTitle ? (
-                      <Link href={`/projects/${session.projectId}`} className="hover:text-foreground">
+                      <Link href="/projects" className="hover:text-foreground">
                         {session.projectTitle}
                       </Link>
                     ) : null}

@@ -25,6 +25,11 @@ export interface Integration {
   updated_at:       string
 }
 
+export type IntegrationPublic = Pick<
+  Integration,
+  'id' | 'user_id' | 'provider' | 'provider_email' | 'metadata' | 'is_active' | 'connected_at' | 'updated_at'
+>
+
 // ─────────────────────────────────────────────────────────────
 // Google Calendar
 // ─────────────────────────────────────────────────────────────

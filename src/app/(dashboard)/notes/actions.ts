@@ -59,12 +59,12 @@ export async function createNoteAction(formData: FormData): Promise<NoteActionRe
 }
 
 export async function updateNoteAction(formData: FormData): Promise<NoteActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
 
   const parsed = UpdateNoteSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' }
 
-  const result = await updateNote(supabase, parsed.data)
+  const result = await updateNote(supabase, user.id, parsed.data)
   if (result.error) return { error: result.error }
 
   // Sync wiki-links if content was updated
@@ -75,12 +75,13 @@ export async function updateNoteAction(formData: FormData): Promise<NoteActionRe
       const { data: linked } = await supabase
         .from('notes')
         .select('id')
+        .eq('user_id', user.id)
         .in('title', titles)
 
       const ids = (linked ?? []).map((n: { id: string }) => n.id)
-      await syncNoteLinks(supabase, parsed.data.id, ids)
+      await syncNoteLinks(supabase, user.id, parsed.data.id, ids)
     } else {
-      await syncNoteLinks(supabase, parsed.data.id, [])
+      await syncNoteLinks(supabase, user.id, parsed.data.id, [])
     }
   }
 
@@ -89,12 +90,12 @@ export async function updateNoteAction(formData: FormData): Promise<NoteActionRe
 }
 
 export async function deleteNoteAction(formData: FormData): Promise<{ ok?: true; error?: string }> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
 
   const parsed = DeleteNoteSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: 'ID inválido' }
 
-  const result = await deleteNote(supabase, parsed.data.id)
+  const result = await deleteNote(supabase, user.id, parsed.data.id)
   if (result.error) return { error: result.error }
 
   revalidateNotes()
@@ -102,13 +103,13 @@ export async function deleteNoteAction(formData: FormData): Promise<{ ok?: true;
 }
 
 export async function togglePinAction(formData: FormData): Promise<NoteActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
 
   const parsed = ToggleNoteSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: 'ID inválido' }
 
   const pinned = formData.get('value') === 'true'
-  const result = await togglePin(supabase, parsed.data.id, pinned)
+  const result = await togglePin(supabase, user.id, parsed.data.id, pinned)
   if (result.error) return { error: result.error }
 
   revalidateNotes(parsed.data.id)
@@ -116,13 +117,13 @@ export async function togglePinAction(formData: FormData): Promise<NoteActionRes
 }
 
 export async function toggleArchiveAction(formData: FormData): Promise<NoteActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
 
   const parsed = ToggleNoteSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: 'ID inválido' }
 
   const archived = formData.get('value') === 'true'
-  const result = await toggleArchive(supabase, parsed.data.id, archived)
+  const result = await toggleArchive(supabase, user.id, parsed.data.id, archived)
   if (result.error) return { error: result.error }
 
   revalidateNotes(parsed.data.id)
@@ -130,13 +131,13 @@ export async function toggleArchiveAction(formData: FormData): Promise<NoteActio
 }
 
 export async function togglePublicAction(formData: FormData): Promise<NoteActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
 
   const parsed = ToggleNoteSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: 'ID inválido' }
 
   const isPublic = formData.get('value') === 'true'
-  const result = await togglePublic(supabase, parsed.data.id, isPublic)
+  const result = await togglePublic(supabase, user.id, parsed.data.id, isPublic)
   if (result.error) return { error: result.error }
 
   revalidateNotes(parsed.data.id)
@@ -195,12 +196,13 @@ export async function autoSaveNoteAction(
   title: string,
   content: string,
 ): Promise<{ ok?: true; error?: string }> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
 
   const { error } = await supabase
     .from('notes')
     .update({ title, content })
     .eq('id', id)
+    .eq('user_id', user.id)
 
   if (error) return { error: error.message }
 
@@ -210,12 +212,13 @@ export async function autoSaveNoteAction(
     const { data: linked } = await supabase
       .from('notes')
       .select('id')
+      .eq('user_id', user.id)
       .in('title', titles)
 
     const ids = (linked ?? []).map((n: { id: string }) => n.id)
-    await syncNoteLinks(supabase, id, ids)
+    await syncNoteLinks(supabase, user.id, id, ids)
   } else {
-    await syncNoteLinks(supabase, id, [])
+    await syncNoteLinks(supabase, user.id, id, [])
   }
 
   revalidatePath('/notes')

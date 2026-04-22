@@ -38,11 +38,13 @@ export async function getPosts(
 export async function getPostById(
   supabase: SupabaseClient,
   id: string,
+  userId: string,
 ): Promise<Result<Post>> {
   const { data, error } = await supabase
     .from('posts')
     .select('*')
     .eq('id', id)
+    .eq('user_id', userId)
     .single()
 
   if (error || !data) return err('Post no encontrado')
@@ -188,6 +190,7 @@ export async function createPost(
 
 export async function updatePost(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdatePostData,
 ): Promise<Result<Post>> {
   const { id, ...patch } = input
@@ -195,6 +198,7 @@ export async function updatePost(
     .from('posts')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -204,12 +208,14 @@ export async function updatePost(
 
 export async function publishPost(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<Result<Post>> {
   const { data, error } = await supabase
     .from('posts')
     .update({ status: 'published' })
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -219,12 +225,14 @@ export async function publishPost(
 
 export async function unpublishPost(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<Result<Post>> {
   const { data, error } = await supabase
     .from('posts')
     .update({ status: 'draft' })
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -234,9 +242,10 @@ export async function unpublishPost(
 
 export async function deletePost(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<Result<true>> {
-  const { error } = await supabase.from('posts').delete().eq('id', id)
+  const { error } = await supabase.from('posts').delete().eq('id', id).eq('user_id', userId)
   if (error) return err(error.message)
   return ok(true as const)
 }

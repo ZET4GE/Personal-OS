@@ -324,21 +324,32 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
         </div>
       </div>
 
-      <div className="h-[620px] bg-[radial-gradient(circle_at_top,#0b1220_0%,#050507_55%)]">
-        <ReactFlow
-          nodes={flowNodes}
-          edges={flowEdges}
-          nodeTypes={nodeTypes}
-          fitView
-          fitViewOptions={{ padding: 0.2 }}
-          onNodeClick={(_, node) => setSelectedNode(node.data.node)}
-          onNodeDragStop={handleNodeDragStop}
-          onConnect={handleConnect}
-          nodesDraggable={roadmapType === 'free'}
-        >
-          <Background color="#334155" gap={20} />
-          <Controls className="!border-border !bg-surface !text-text" />
-        </ReactFlow>
+      <div className="relative h-[min(560px,70vh)] min-h-[360px] bg-[radial-gradient(circle_at_top,#0b1220_0%,#050507_55%)]">
+        {nodes.length === 0 ? (
+          <div className="flex h-full items-center justify-center px-6 text-center">
+            <div className="max-w-sm rounded-2xl border border-border bg-surface/90 p-5 shadow-[var(--shadow-card)]">
+              <p className="text-sm font-semibold text-text">Todavia no hay nodos</p>
+              <p className="mt-2 text-sm leading-6 text-muted">
+                Crea el primer paso del camino. Despues vas a poder conectarlo con metas y acciones.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <ReactFlow
+            nodes={flowNodes}
+            edges={flowEdges}
+            nodeTypes={nodeTypes}
+            fitView
+            fitViewOptions={{ padding: 0.2 }}
+            onNodeClick={(_, node) => setSelectedNode(node.data.node)}
+            onNodeDragStop={handleNodeDragStop}
+            onConnect={handleConnect}
+            nodesDraggable={roadmapType === 'free'}
+          >
+            <Background color="#334155" gap={20} />
+            <Controls className="!border-border !bg-surface !text-text" />
+          </ReactFlow>
+        )}
       </div>
 
       {selectedNode ? (

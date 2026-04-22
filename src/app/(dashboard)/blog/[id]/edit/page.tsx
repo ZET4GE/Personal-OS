@@ -14,7 +14,10 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { id } = await params
   const supabase = await createClient()
-  const { data: post } = await getPostById(supabase, id)
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { title: 'Post no encontrado' }
+
+  const { data: post } = await getPostById(supabase, id, user.id)
   if (!post) return { title: 'Post no encontrado' }
   return { title: `Editar: ${post.title}` }
 }
@@ -22,7 +25,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function EditPostPage({ params }: PageProps) {
   const { id } = await params
   const supabase = await createClient()
-  const { data: post } = await getPostById(supabase, id)
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) notFound()
+
+  const { data: post } = await getPostById(supabase, id, user.id)
 
   if (!post) notFound()
 

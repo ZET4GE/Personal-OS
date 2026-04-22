@@ -4,7 +4,7 @@ import { useTransition } from 'react'
 import { useTranslations } from 'next-intl'
 import { CheckCircle2, Circle, ExternalLink, Loader2 } from 'lucide-react'
 import { disconnectIntegrationAction } from '@/app/(dashboard)/settings/integrations/actions'
-import type { Integration, Provider } from '@/types/integrations'
+import type { IntegrationPublic, Provider } from '@/types/integrations'
 
 // ─────────────────────────────────────────────────────────────
 // Provider visuals
@@ -32,7 +32,7 @@ const PROVIDER_META: Record<Provider, {
 
 interface Props {
   provider:    Provider
-  integration: Integration | null
+  integration: IntegrationPublic | null
   description: string
 }
 

@@ -1,6 +1,6 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { trackPageView } from '@/services/analytics'
-import { PAGE_TYPES } from '@/types/analytics'
+import { PAGE_TYPES, type PageType } from '@/types/analytics'
 
 // ─────────────────────────────────────────────────────────────
 // POST /api/analytics/track
@@ -14,6 +14,54 @@ async function hashFingerprint(ip: string, ua: string): Promise<string> {
   return Array.from(new Uint8Array(buffer))
     .map((b) => b.toString(16).padStart(2, '0'))
     .join('')
+}
+
+async function getVerifiedOwnerId(
+  supabase: ReturnType<typeof createAdminClient>,
+  pageType: PageType,
+  pageId: string | null,
+  ownerId: string,
+) {
+  if (pageType === 'profile' || pageType === 'cv') {
+    const { data } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', ownerId)
+      .eq('is_public', true)
+      .maybeSingle()
+
+    return data?.id ?? null
+  }
+
+  if (pageType === 'project') {
+    if (!pageId) return null
+
+    const { data } = await supabase
+      .from('projects')
+      .select('user_id')
+      .eq('id', pageId)
+      .eq('user_id', ownerId)
+      .eq('is_public', true)
+      .maybeSingle()
+
+    return data?.user_id ?? null
+  }
+
+  if (pageType === 'post') {
+    if (!pageId) return null
+
+    const { data } = await supabase
+      .from('posts')
+      .select('user_id')
+      .eq('id', pageId)
+      .eq('user_id', ownerId)
+      .eq('status', 'published')
+      .maybeSingle()
+
+    return data?.user_id ?? null
+  }
+
+  return null
 }
 
 export async function POST(req: Request): Promise<Response> {
@@ -30,6 +78,7 @@ export async function POST(req: Request): Promise<Response> {
     if (!PAGE_TYPES.includes(page_type as never)) {
       return Response.json({ error: 'Invalid page_type' }, { status: 400 })
     }
+    const pageType = page_type as PageType
 
     // Extraer headers
     const headers  = req.headers
@@ -44,11 +93,21 @@ export async function POST(req: Request): Promise<Response> {
 
     const visitorId = await hashFingerprint(ip, ua)
 
-    const supabase = await createClient()
+    const supabase = createAdminClient()
+    const verifiedOwnerId = await getVerifiedOwnerId(
+      supabase,
+      pageType,
+      typeof page_id === 'string' ? page_id : null,
+      owner_id,
+    )
+
+    if (!verifiedOwnerId) {
+      return Response.json({ error: 'Page not found' }, { status: 404 })
+    }
 
     await trackPageView(supabase, {
-      userId:    owner_id,
-      pageType:  page_type as 'profile' | 'project' | 'cv',
+      userId:    verifiedOwnerId,
+      pageType,
       pageId:    typeof page_id === 'string' ? page_id : null,
       visitorId,
       referrer,

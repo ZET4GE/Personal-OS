@@ -150,6 +150,7 @@ export async function createNote(
 
 export async function updateNote(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdateNoteData,
 ): Promise<Result<Note>> {
   const { id, ...patch } = input
@@ -157,6 +158,7 @@ export async function updateNote(
     .from('notes')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -166,12 +168,14 @@ export async function updateNote(
 
 export async function deleteNote(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<Result<true>> {
   const { error } = await supabase
     .from('notes')
     .delete()
     .eq('id', id)
+    .eq('user_id', userId)
 
   if (error) return err(error.message)
   return ok(true as const)
@@ -179,6 +183,7 @@ export async function deleteNote(
 
 export async function togglePin(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
   value: boolean,
 ): Promise<Result<Note>> {
@@ -186,6 +191,7 @@ export async function togglePin(
     .from('notes')
     .update({ is_pinned: value })
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -195,6 +201,7 @@ export async function togglePin(
 
 export async function toggleArchive(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
   value: boolean,
 ): Promise<Result<Note>> {
@@ -202,6 +209,7 @@ export async function toggleArchive(
     .from('notes')
     .update({ is_archived: value, is_pinned: value ? false : undefined })
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -211,6 +219,7 @@ export async function toggleArchive(
 
 export async function togglePublic(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
   value: boolean,
 ): Promise<Result<Note>> {
@@ -218,6 +227,7 @@ export async function togglePublic(
     .from('notes')
     .update({ is_public: value })
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -251,10 +261,19 @@ export async function getBacklinks(
 
 export async function syncNoteLinks(
   supabase: SupabaseClient,
+  userId: string,
   sourceNoteId: string,
   targetNoteIds: string[],
 ): Promise<void> {
-  // Delete existing
+  const { data: sourceNote } = await supabase
+    .from('notes')
+    .select('id')
+    .eq('id', sourceNoteId)
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  if (!sourceNote) return
+
   await supabase
     .from('note_links')
     .delete()
@@ -262,7 +281,16 @@ export async function syncNoteLinks(
 
   if (targetNoteIds.length === 0) return
 
-  const rows = targetNoteIds.map((target_note_id) => ({
+  const { data: validTargets } = await supabase
+    .from('notes')
+    .select('id')
+    .eq('user_id', userId)
+    .in('id', targetNoteIds)
+
+  const validTargetIds = (validTargets ?? []).map((note) => String(note.id))
+  if (validTargetIds.length === 0) return
+
+  const rows = validTargetIds.map((target_note_id) => ({
     source_note_id: sourceNoteId,
     target_note_id,
   }))

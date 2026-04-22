@@ -50,12 +50,12 @@ export async function createPostAction(formData: FormData): Promise<PostActionRe
 // ─────────────────────────────────────────────────────────────
 
 export async function updatePostAction(formData: FormData): Promise<PostActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
 
   const parsed = UpdatePostSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' }
 
-  const result = await updatePost(supabase, parsed.data)
+  const result = await updatePost(supabase, user.id, parsed.data)
   if (result.error) return { error: result.error }
 
   revalidateBlog()
@@ -67,12 +67,12 @@ export async function updatePostAction(formData: FormData): Promise<PostActionRe
 // ─────────────────────────────────────────────────────────────
 
 export async function publishPostAction(formData: FormData): Promise<PostActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
 
   const parsed = PublishPostSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: 'ID inválido' }
 
-  const result = await publishPost(supabase, parsed.data.id)
+  const result = await publishPost(supabase, user.id, parsed.data.id)
   if (result.error) return { error: result.error }
 
   revalidateBlog()
@@ -80,12 +80,12 @@ export async function publishPostAction(formData: FormData): Promise<PostActionR
 }
 
 export async function unpublishPostAction(formData: FormData): Promise<PostActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
 
   const parsed = PublishPostSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: 'ID inválido' }
 
-  const result = await unpublishPost(supabase, parsed.data.id)
+  const result = await unpublishPost(supabase, user.id, parsed.data.id)
   if (result.error) return { error: result.error }
 
   revalidateBlog()
@@ -97,12 +97,12 @@ export async function unpublishPostAction(formData: FormData): Promise<PostActio
 // ─────────────────────────────────────────────────────────────
 
 export async function deletePostAction(formData: FormData): Promise<PostActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
 
   const id = formData.get('id')
   if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
 
-  const result = await deletePost(supabase, id)
+  const result = await deletePost(supabase, user.id, id)
   if (result.error) return { error: result.error }
 
   revalidateBlog()

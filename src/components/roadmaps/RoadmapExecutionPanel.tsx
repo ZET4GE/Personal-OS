@@ -23,7 +23,7 @@ function getActionLabel(type: LearningRoadmapNode['actions'][number]['entity_typ
 
 function getActionHref(action: LearningRoadmapNode['actions'][number]) {
   if (action.entity_type === 'goal') return `/goals/${action.entity_id}`
-  if (action.entity_type === 'project') return `/projects/${action.entity_id}`
+  if (action.entity_type === 'project') return '/projects'
   if (action.entity_type === 'habit') return '/habits'
   if (action.entity_type === 'routine') return '/routines'
   return '/dashboard'

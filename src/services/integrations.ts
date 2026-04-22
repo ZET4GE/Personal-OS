@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Integration, Provider, SaveIntegrationInput } from '@/types/integrations'
+import type { Integration, IntegrationPublic, Provider, SaveIntegrationInput } from '@/types/integrations'
 
 // ─────────────────────────────────────────────────────────────
 // Read
@@ -8,13 +8,13 @@ import type { Integration, Provider, SaveIntegrationInput } from '@/types/integr
 export async function getIntegrations(
   supabase: SupabaseClient,
   userId: string,
-): Promise<Integration[]> {
+): Promise<IntegrationPublic[]> {
   const { data } = await supabase
     .from('user_integrations')
-    .select('*')
+    .select('id, user_id, provider, provider_email, metadata, is_active, connected_at, updated_at')
     .eq('user_id', userId)
     .eq('is_active', true)
-  return (data ?? []) as Integration[]
+  return (data ?? []) as IntegrationPublic[]
 }
 
 export async function getIntegration(
