@@ -10,6 +10,7 @@ import type {
   DashboardInsight,
 } from '@/types/dashboard'
 import type { JobApplication } from '@/types/jobs'
+import type { EnabledModule } from '@/types/onboarding'
 import { getHabitsWithLogs, isHabitDueOn } from './habits'
 import { getPageViews } from './analytics'
 import { getActiveProviders } from './integrations'
@@ -24,6 +25,34 @@ type PendingPaymentRow = {
   paid_amount: number
   currency: string
   client?: ClientRef
+}
+
+const EMPTY_STATS: DashboardStats = {
+  totalJobs: 0,
+  interviews: 0,
+  activeProjects: 0,
+  activeClients: 0,
+  responseRate: 0,
+  monthlyRevenue: 0,
+}
+
+const EMPTY_TODAY_HABITS: TodayHabitsSummary = {
+  habits: [],
+  dueToday: 0,
+  completedToday: 0,
+  bestStreak: 0,
+}
+
+const EMPTY_ANALYTICS: DashboardAnalytics = {
+  viewsThisWeek: 0,
+  weeklyChange: 0,
+  totalViews: 0,
+}
+
+function shouldLoad(enabledModules: EnabledModule[] | undefined, modules: EnabledModule[]) {
+  if (!enabledModules) return true
+  const enabled = new Set(enabledModules)
+  return modules.some((module) => enabled.has(module))
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -304,17 +333,23 @@ async function fetchAnalytics(
 export async function getDashboardData(
   supabase: SupabaseClient,
   userId: string,
+  enabledModules?: EnabledModule[],
 ): Promise<DashboardData> {
   const todayStr = todayISO()
+  const loadStats = shouldLoad(enabledModules, ['projects', 'jobs', 'clients', 'freelance'])
+  const loadHabits = shouldLoad(enabledModules, ['habits'])
+  const loadFreelance = shouldLoad(enabledModules, ['freelance'])
+  const loadActivity = shouldLoad(enabledModules, ['projects', 'jobs', 'freelance'])
+  const loadAnalytics = shouldLoad(enabledModules, ['analytics'])
 
   const [stats, todayHabits, deadlines, pendingPayments, recentActivity, analytics, integrations] =
     await Promise.all([
-      fetchStats(supabase, userId),
-      fetchTodayHabits(supabase, userId, todayStr),
-      fetchDeadlines(supabase, userId, todayStr),
-      fetchPendingPayments(supabase, userId),
-      fetchRecentActivity(supabase, userId),
-      fetchAnalytics(supabase, userId),
+      loadStats ? fetchStats(supabase, userId) : EMPTY_STATS,
+      loadHabits ? fetchTodayHabits(supabase, userId, todayStr) : EMPTY_TODAY_HABITS,
+      loadFreelance ? fetchDeadlines(supabase, userId, todayStr) : [],
+      loadFreelance ? fetchPendingPayments(supabase, userId) : [],
+      loadActivity ? fetchRecentActivity(supabase, userId) : [],
+      loadAnalytics ? fetchAnalytics(supabase, userId) : EMPTY_ANALYTICS,
       getActiveProviders(supabase, userId),
     ])
 

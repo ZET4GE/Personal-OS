@@ -1,10 +1,14 @@
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
+import type { ReactNode } from 'react'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { getDashboardData } from '@/services/dashboard'
 import { getGoals } from '@/services/goals'
 import { getUserOnboarding } from '@/services/onboarding'
+import { getEnabledModules } from '@/lib/navigation/modules'
+import type { DashboardWidgetSize } from '@/types/dashboard-config'
+import type { EnabledModule } from '@/types/onboarding'
 
 import { StatsGrid } from '@/components/dashboard/widgets/StatsGrid'
 import { TodayHabits } from '@/components/dashboard/widgets/TodayHabits'
@@ -23,6 +27,16 @@ import { FocusDashboard } from '@/components/dashboard/focus/FocusDashboard'
 import { GettingStartedGuide } from '@/components/dashboard/focus/GettingStartedGuide'
 
 export const metadata: Metadata = { title: 'Dashboard' }
+
+interface DashboardPageWidget {
+  id: string
+  type: string
+  title: string
+  defaultSize: DashboardWidgetSize
+  defaultVisible?: boolean
+  module?: EnabledModule
+  content: ReactNode
+}
 
 function WidgetSkeleton() {
   return (
@@ -52,7 +66,8 @@ export default async function DashboardPage() {
     redirect('/onboarding')
   }
 
-  const data = await getDashboardData(supabase, user.id)
+  const enabledModules = getEnabledModules(onboardingResult.data)
+  const data = await getDashboardData(supabase, user.id, enabledModules)
   const [roadmapsCountResult, timeEntriesCountResult] = await Promise.all([
     supabase
       .from('learning_roadmaps')
@@ -66,26 +81,28 @@ export default async function DashboardPage() {
   const userName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'Usuario'
   const { google: hasGoogle, github: hasGitHub } = data.integrations
   const goals = goalsResult.data ?? []
+  const enabled = new Set(enabledModules)
   const activeGoal =
     goals.find((goal) => goal.id === onboardingResult.data?.primary_goal_id)
     ?? goals.find((goal) => goal.status === 'active')
     ?? goals[0]
     ?? null
   const hasActionSystem =
-    data.todayHabits.dueToday > 0
-    || data.stats.activeProjects > 0
-    || data.deadlines.length > 0
-  const widgets = [
+    (enabled.has('habits') && data.todayHabits.dueToday > 0)
+    || (enabled.has('projects') && data.stats.activeProjects > 0)
+    || (enabled.has('freelance') && data.deadlines.length > 0)
+  const widgets: DashboardPageWidget[] = [
     {
       id: 'dashboard-goals',
       type: 'dashboard-goals',
       title: 'Metas',
       defaultSize: 'md' as const,
-      content: <DashboardGoalsPanel />,
+      content: <DashboardGoalsPanel initialGoals={goals} />,
     },
     {
       id: 'stats-grid',
       type: 'stats-grid',
+      module: 'projects',
       title: 'Estadísticas',
       defaultSize: 'xl' as const,
       defaultVisible: false,
@@ -94,6 +111,7 @@ export default async function DashboardPage() {
     {
       id: 'today-habits',
       type: 'today-habits',
+      module: 'habits',
       title: 'Hábitos de hoy',
       defaultSize: 'md' as const,
       content: <TodayHabits data={data.todayHabits} todayStr={data.todayStr} />,
@@ -101,6 +119,7 @@ export default async function DashboardPage() {
     {
       id: 'streak-widget',
       type: 'streak-widget',
+      module: 'habits',
       title: 'Racha',
       defaultSize: 'sm' as const,
       defaultVisible: false,
@@ -114,6 +133,7 @@ export default async function DashboardPage() {
     {
       id: 'upcoming-deadlines',
       type: 'upcoming-deadlines',
+      module: 'freelance',
       title: 'Deadlines',
       defaultSize: 'md' as const,
       defaultVisible: false,
@@ -122,6 +142,7 @@ export default async function DashboardPage() {
     {
       id: 'time-invested',
       type: 'time-invested',
+      module: 'time',
       title: 'Tiempo invertido',
       defaultSize: 'md' as const,
       content: (
@@ -133,6 +154,7 @@ export default async function DashboardPage() {
     {
       id: 'pending-payments',
       type: 'pending-payments',
+      module: 'freelance',
       title: 'Pagos pendientes',
       defaultSize: 'md' as const,
       defaultVisible: false,
@@ -181,6 +203,7 @@ export default async function DashboardPage() {
     {
       id: 'recent-notes',
       type: 'recent-notes',
+      module: 'notes',
       title: 'Notas recientes',
       defaultSize: 'sm' as const,
       defaultVisible: false,
@@ -193,12 +216,14 @@ export default async function DashboardPage() {
     {
       id: 'recent-activity',
       type: 'recent-activity',
+      module: 'projects',
       title: 'Actividad reciente',
       defaultSize: 'md' as const,
       defaultVisible: false,
       content: <RecentActivity activity={data.recentActivity} />,
     },
   ]
+  const visibleWidgets = widgets.filter((widget) => !widget.module || enabled.has(widget.module))
 
   return (
     <div className="flex flex-col gap-6 animate-fade-in pb-8">
@@ -218,6 +243,7 @@ export default async function DashboardPage() {
       <FocusDashboard
         activeGoal={activeGoal}
         dashboardData={data}
+        enabledModules={enabledModules}
       />
 
       <details className="group rounded-2xl border border-border bg-surface/60 p-4 shadow-[var(--shadow-card)]">
@@ -232,7 +258,7 @@ export default async function DashboardPage() {
           </span>
         </summary>
         <div className="mt-5">
-          <DashboardCustomizer widgets={widgets} />
+          <DashboardCustomizer widgets={visibleWidgets} />
         </div>
       </details>
     </div>

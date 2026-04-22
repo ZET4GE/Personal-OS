@@ -1,11 +1,13 @@
 import Link from 'next/link'
-import { ArrowRight, Clock, Crosshair, GitBranch, NotebookText, Search, Target } from 'lucide-react'
+import { ArrowRight, Clock, Crosshair, GitBranch, NotebookText, Search, Target, type LucideIcon } from 'lucide-react'
 import type { DashboardData } from '@/types/dashboard'
 import type { Goal } from '@/types/goals'
+import type { EnabledModule } from '@/types/onboarding'
 
 interface FocusDashboardProps {
   activeGoal: Goal | null
   dashboardData: DashboardData
+  enabledModules: EnabledModule[]
 }
 
 function formatHours(seconds: number | null | undefined) {
@@ -22,8 +24,10 @@ function getGoalProgress(goal: Goal | null) {
   return Math.min(100, Math.round(Number(goal.progress ?? 0)))
 }
 
-function getNextAction(activeGoal: Goal | null, data: DashboardData) {
-  const pendingHabit = data.todayHabits.habits.find((item) => !item.todayCompleted)
+function getNextAction(activeGoal: Goal | null, data: DashboardData, enabled: Set<EnabledModule>) {
+  const pendingHabit = enabled.has('habits')
+    ? data.todayHabits.habits.find((item) => !item.todayCompleted)
+    : null
   if (pendingHabit) {
     return {
       label: pendingHabit.habit.name,
@@ -33,7 +37,7 @@ function getNextAction(activeGoal: Goal | null, data: DashboardData) {
     }
   }
 
-  const deadline = data.deadlines[0]
+  const deadline = enabled.has('freelance') ? data.deadlines[0] : null
   if (deadline) {
     return {
       label: deadline.title,
@@ -60,12 +64,19 @@ function getNextAction(activeGoal: Goal | null, data: DashboardData) {
   }
 }
 
-export function FocusDashboard({ activeGoal, dashboardData }: FocusDashboardProps) {
+export function FocusDashboard({ activeGoal, dashboardData, enabledModules }: FocusDashboardProps) {
+  const enabled = new Set(enabledModules)
   const goalProgress = getGoalProgress(activeGoal)
-  const nextAction = getNextAction(activeGoal, dashboardData)
+  const nextAction = getNextAction(activeGoal, dashboardData, enabled)
   const dueToday = dashboardData.todayHabits.dueToday
   const completedToday = dashboardData.todayHabits.completedToday
   const pendingToday = Math.max(dueToday - completedToday, 0)
+  const quickAccess = [
+    { href: '/roadmaps', label: 'Roadmap', icon: GitBranch, color: 'text-cyan-400' },
+    enabled.has('notes') ? { href: '/notes', label: 'Notas', icon: NotebookText, color: 'text-amber-400' } : null,
+    enabled.has('time') ? { href: '/time', label: 'Tiempo', icon: Clock, color: 'text-emerald-400' } : null,
+    { href: '/search', label: 'Buscar', icon: Search, color: 'text-violet-400' },
+  ].filter((item): item is { href: string; label: string; icon: LucideIcon; color: string } => Boolean(item))
 
   return (
     <section className="grid gap-4 xl:grid-cols-[1.2fr_0.9fr]">
@@ -104,16 +115,22 @@ export function FocusDashboard({ activeGoal, dashboardData }: FocusDashboardProp
 
           <div className="rounded-2xl border border-border bg-surface/70 p-4">
             <p className="text-xs uppercase tracking-[0.18em] text-muted">Tiempo invertido</p>
-            <p className="mt-2 text-3xl font-semibold text-text">{formatHours(activeGoal?.current_time)}</p>
+            <p className="mt-2 text-3xl font-semibold text-text">
+              {enabled.has('time') ? formatHours(activeGoal?.current_time) : '--'}
+            </p>
             <p className="mt-2 text-xs text-muted">
-              Objetivo: {activeGoal?.target_time ? formatHours(activeGoal.target_time) : 'sin definir'}
+              {enabled.has('time')
+                ? `Objetivo: ${activeGoal?.target_time ? formatHours(activeGoal.target_time) : 'sin definir'}`
+                : 'Modulo de tiempo desactivado'}
             </p>
           </div>
 
           <div className="rounded-2xl border border-border bg-surface/70 p-4">
             <p className="text-xs uppercase tracking-[0.18em] text-muted">Acciones de hoy</p>
-            <p className="mt-2 text-3xl font-semibold text-text">{pendingToday}</p>
-            <p className="mt-2 text-xs text-muted">{completedToday}/{dueToday} habitos hechos</p>
+            <p className="mt-2 text-3xl font-semibold text-text">{enabled.has('habits') ? pendingToday : 0}</p>
+            <p className="mt-2 text-xs text-muted">
+              {enabled.has('habits') ? `${completedToday}/${dueToday} habitos hechos` : 'Sin acciones configuradas'}
+            </p>
           </div>
         </div>
       </div>
@@ -144,22 +161,16 @@ export function FocusDashboard({ activeGoal, dashboardData }: FocusDashboardProp
             <Clock size={17} className="text-accent-500" />
           </div>
           <div className="grid grid-cols-2 gap-2">
-            <Link href="/roadmaps" className="rounded-xl bg-surface-2 px-3 py-3 text-sm text-text transition-colors hover:bg-surface-hover">
-              <GitBranch size={15} className="mb-2 text-cyan-400" />
-              Roadmap
-            </Link>
-            <Link href="/notes" className="rounded-xl bg-surface-2 px-3 py-3 text-sm text-text transition-colors hover:bg-surface-hover">
-              <NotebookText size={15} className="mb-2 text-amber-400" />
-              Notas
-            </Link>
-            <Link href="/time" className="rounded-xl bg-surface-2 px-3 py-3 text-sm text-text transition-colors hover:bg-surface-hover">
-              <Clock size={15} className="mb-2 text-emerald-400" />
-              Tiempo
-            </Link>
-            <Link href="/search" className="rounded-xl bg-surface-2 px-3 py-3 text-sm text-text transition-colors hover:bg-surface-hover">
-              <Search size={15} className="mb-2 text-violet-400" />
-              Buscar
-            </Link>
+            {quickAccess.map((item) => {
+              const Icon = item.icon
+
+              return (
+                <Link key={item.href} href={item.href} className="rounded-xl bg-surface-2 px-3 py-3 text-sm text-text transition-colors hover:bg-surface-hover">
+                  <Icon size={15} className={`mb-2 ${item.color}`} />
+                  {item.label}
+                </Link>
+              )
+            })}
           </div>
         </div>
       </div>

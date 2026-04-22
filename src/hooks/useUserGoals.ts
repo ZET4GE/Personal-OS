@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { getGoals } from '@/services/goals'
-import { getGoalProgress, type GoalProgressData } from '@/services/goal-progress'
+import type { GoalProgressData } from '@/services/goal-progress'
 import type { Goal } from '@/types/goals'
 
 export interface UserGoal extends Goal {
@@ -17,9 +17,24 @@ interface UseUserGoalsResult {
   refresh: () => Promise<void>
 }
 
-export function useUserGoals(): UseUserGoalsResult {
-  const [goals, setGoals] = useState<UserGoal[]>([])
-  const [loading, setLoading] = useState(true)
+function withVisibleProgress(goal: Goal): UserGoal {
+  const progress = Math.max(0, Math.min(1, Number(goal.progress ?? 0) / 100))
+
+  return {
+    ...goal,
+    goal_progress: {
+      progress,
+      habits_progress: progress,
+      projects_progress: progress,
+      routines_progress: progress,
+    },
+  }
+}
+
+export function useUserGoals(initialGoals?: Goal[]): UseUserGoalsResult {
+  const hasInitialGoals = initialGoals !== undefined
+  const [goals, setGoals] = useState<UserGoal[]>(() => (initialGoals ?? []).map(withVisibleProgress))
+  const [loading, setLoading] = useState(!hasInitialGoals)
   const [error, setError] = useState<string | null>(null)
 
   async function refresh() {
@@ -45,36 +60,21 @@ export function useUserGoals(): UseUserGoalsResult {
       setGoals([])
       setError(result.error)
     } else {
-      const baseGoals = result.data ?? []
-      const progressResults = await Promise.all(
-        baseGoals.map(async (goal) => {
-          const progressResult = await getGoalProgress(goal.id)
-
-          return {
-            ...goal,
-            goal_progress: progressResult.data ?? {
-              progress: 0,
-              habits_progress: 0,
-              projects_progress: 0,
-              routines_progress: 0,
-            },
-          }
-        }),
-      )
-
-      setGoals(progressResults)
+      setGoals((result.data ?? []).map(withVisibleProgress))
     }
 
     setLoading(false)
   }
 
   useEffect(() => {
+    if (hasInitialGoals) return
+
     const timer = window.setTimeout(() => {
       void refresh()
     }, 0)
 
     return () => window.clearTimeout(timer)
-  }, [])
+  }, [hasInitialGoals])
 
   return { goals, loading, error, refresh }
 }

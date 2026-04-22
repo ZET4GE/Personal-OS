@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { ChevronRight, Crosshair } from 'lucide-react'
 import { useUserGoals } from '@/hooks/useUserGoals'
+import type { Goal } from '@/types/goals'
 
 function getStatusColor(progress: number) {
   if (progress < 0.3) return 'bg-red-500'
@@ -10,8 +11,12 @@ function getStatusColor(progress: number) {
   return 'bg-emerald-500'
 }
 
-export function DashboardGoalsPanel() {
-  const { goals, loading, error } = useUserGoals()
+interface DashboardGoalsPanelProps {
+  initialGoals?: Goal[]
+}
+
+export function DashboardGoalsPanel({ initialGoals }: DashboardGoalsPanelProps) {
+  const { goals, loading, error } = useUserGoals(initialGoals)
 
   return (
     <section className="flex flex-col gap-5 rounded-xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
