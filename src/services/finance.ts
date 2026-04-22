@@ -33,11 +33,13 @@ export interface FinanceFilters {
 
 export async function getFinanceTransactions(
   supabase: SupabaseClient,
+  userId: string,
   filters: FinanceFilters = {},
 ): Promise<Result<FinanceTransaction[]>> {
   let query = supabase
     .from('finance_transactions')
     .select('*')
+    .eq('user_id', userId)
     .order('occurred_at', { ascending: false })
     .order('created_at', { ascending: false })
 

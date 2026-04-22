@@ -62,7 +62,7 @@ export default async function FinancePage({ searchParams }: PageProps) {
     categoriesResult,
     budgetStatusResult,
   ] = await Promise.all([
-    getFinanceTransactions(supabase, filters),
+    getFinanceTransactions(supabase, user.id, filters),
     getFinanceSummary(supabase, user.id, monthStart, monthEnd),
     getFinanceSummary(supabase, user.id),
     getFinanceCategorySummary(supabase, user.id, from || monthStart, to || monthEnd),

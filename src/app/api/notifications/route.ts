@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
-import { getNotifications } from '@/services/notifications'
+import { getNotificationsResult } from '@/services/notifications'
 
 export async function GET(): Promise<NextResponse> {
   const supabase = await createClient()
@@ -10,6 +10,10 @@ export async function GET(): Promise<NextResponse> {
     return NextResponse.json([], { status: 401 })
   }
 
-  const notifications = await getNotifications(supabase, user.id, false, 20)
-  return NextResponse.json(notifications)
+  const result = await getNotificationsResult(supabase, user.id, false, 20)
+  if (result.error) {
+    return NextResponse.json({ error: result.error }, { status: 500 })
+  }
+
+  return NextResponse.json(result.data)
 }

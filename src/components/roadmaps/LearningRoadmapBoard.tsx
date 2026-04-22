@@ -105,6 +105,17 @@ function buildNode(
   }
 }
 
+function wouldCreateCycle(nodes: LearningRoadmapNode[], parentId: string, nodeId: string) {
+  let cursor: string | null = parentId
+
+  while (cursor) {
+    if (cursor === nodeId) return true
+    cursor = nodes.find((node) => node.id === cursor)?.parent_id ?? null
+  }
+
+  return false
+}
+
 export function LearningRoadmapBoard({
   roadmap,
   initialNodes,
@@ -317,6 +328,7 @@ export function LearningRoadmapBoard({
         completed_at: completedAt,
       })
       .eq('id', nodeId)
+      .eq('roadmap_id', roadmap.id)
 
     if (error) {
       setNodes(previousNodes)
@@ -334,6 +346,8 @@ export function LearningRoadmapBoard({
   }
 
   async function syncNodeGoals(nodeId: string, goalIds: string[]) {
+    const uniqueGoalIds = Array.from(new Set(goalIds))
+
     const { error: deleteError } = await supabase
       .from('learning_node_goals')
       .delete()
@@ -341,9 +355,9 @@ export function LearningRoadmapBoard({
 
     if (deleteError) throw deleteError
 
-    if (goalIds.length === 0) return
+    if (uniqueGoalIds.length === 0) return
 
-    const payload = goalIds.map((goalId) => ({
+    const payload = uniqueGoalIds.map((goalId) => ({
       node_id: nodeId,
       goal_id: goalId,
     }))
@@ -431,6 +445,12 @@ export function LearningRoadmapBoard({
     if (!editDraft.title.trim() || isSaving) return
     setIsSaving(true)
 
+    if (editDraft.parentId && (editDraft.parentId === nodeId || wouldCreateCycle(nodes, editDraft.parentId, nodeId))) {
+      toast.error('Esa conexion genera un ciclo')
+      setIsSaving(false)
+      return
+    }
+
     const { data, error } = await supabase
       .from('learning_nodes')
       .update({
@@ -441,6 +461,7 @@ export function LearningRoadmapBoard({
         parent_id: editDraft.parentId || null,
       })
       .eq('id', nodeId)
+      .eq('roadmap_id', roadmap.id)
       .select('*')
       .single()
 
@@ -504,12 +525,16 @@ export function LearningRoadmapBoard({
     setNodes(withPositions)
     setIsSaving(true)
 
-    const payload = withPositions.map((node) => ({
-      id: node.id,
-      position: node.position,
-    }))
-
-    const { error } = await supabase.from('learning_nodes').upsert(payload)
+    const updates = await Promise.all(
+      withPositions.map((node) =>
+        supabase
+          .from('learning_nodes')
+          .update({ position: node.position })
+          .eq('id', node.id)
+          .eq('roadmap_id', roadmap.id),
+      ),
+    )
+    const error = updates.find((result) => result.error)?.error
 
     if (error) {
       toast.error(error.message || 'No se pudo reordenar')

@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import dagre from 'dagre'
 import {
   Background,
@@ -75,8 +75,10 @@ function getActivePath(edgeList: Edge[], activeNodeId: string | null) {
 
   const activeEdgeIds = new Set<string>()
   let cursor = activeNodeId
+  const visited = new Set<string>()
 
-  while (cursor) {
+  while (cursor && !visited.has(cursor)) {
+    visited.add(cursor)
     const edge = edgeList.find((item) => item.target === cursor)
     if (!edge) break
 
@@ -85,6 +87,17 @@ function getActivePath(edgeList: Edge[], activeNodeId: string | null) {
   }
 
   return activeEdgeIds
+}
+
+function wouldCreateCycle(nodes: LearningRoadmapNode[], sourceId: string, targetId: string) {
+  let cursor: string | null = sourceId
+
+  while (cursor) {
+    if (cursor === targetId) return true
+    cursor = nodes.find((node) => node.id === cursor)?.parent_id ?? null
+  }
+
+  return false
 }
 
 function getLayoutedNodes(
@@ -190,18 +203,18 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
   const supabase = createClient()
   const activeNode = getActiveNode(nodes)
 
-  const parentEdges = nodes
+  const parentEdges = useMemo(() => nodes
     .filter((node) => Boolean(node.parent_id))
     .map((node) => ({
       id: `${node.parent_id}-${node.id}`,
       source: String(node.parent_id),
       target: node.id,
-    }))
+    })), [nodes])
 
   const rawEdges = parentEdges
-  const activePath = getActivePath(rawEdges, activeNode?.id ?? null)
+  const activePath = useMemo(() => getActivePath(rawEdges, activeNode?.id ?? null), [rawEdges, activeNode?.id])
 
-  const flowEdges: Edge[] = rawEdges.map((edge) => {
+  const flowEdges: Edge[] = useMemo(() => rawEdges.map((edge) => {
     const isActive = activePath.has(edge.id)
 
     return {
@@ -217,9 +230,9 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
         color: isActive ? '#22d3ee' : '#64748b',
       },
     }
-  })
+  }), [rawEdges, activePath])
 
-  const baseNodes: Node<RoadmapFlowNodeData>[] = nodes.map((node, index) => ({
+  const baseNodes: Node<RoadmapFlowNodeData>[] = useMemo(() => nodes.map((node, index) => ({
     id: node.id,
     type: 'roadmapNode',
     data: {
@@ -234,17 +247,23 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
       x: node.position_x ?? (index % 3) * 300,
       y: node.position_y ?? Math.floor(index / 3) * 180,
     },
-  }))
+  })), [nodes, roadmapType, activeNode?.id])
 
-  const flowNodes = roadmapType === 'free'
-    ? baseNodes
-    : getLayoutedNodes(baseNodes, flowEdges, roadmapType)
+  const flowNodes = useMemo(() => (
+    roadmapType === 'free'
+      ? baseNodes
+      : getLayoutedNodes(baseNodes, flowEdges, roadmapType)
+  ), [baseNodes, flowEdges, roadmapType])
 
-  const sections = Array.from(new Set(nodes.map((node) => getSectionLabel(node, roadmapType))))
+  const sections = useMemo(
+    () => Array.from(new Set(nodes.map((node) => getSectionLabel(node, roadmapType)))),
+    [nodes, roadmapType],
+  )
 
   const handleNodeDragStop: NonNullable<ReactFlowProps<Node<RoadmapFlowNodeData>>['onNodeDragStop']> = async (_, node) => {
     if (roadmapType !== 'free') return
 
+    const previousNodes = nodes
     const x = Math.round(node.position.x)
     const y = Math.round(node.position.y)
 
@@ -256,11 +275,16 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
       ),
     )
 
-    await supabase
+    const { error } = await supabase
       .from('learning_nodes')
       .update({ position_x: x, position_y: y })
       .eq('id', node.id)
       .eq('roadmap_id', node.data.node.roadmap_id)
+
+    if (error) {
+      onNodesChange?.(previousNodes)
+      toast.error(error.message || 'No se pudo guardar la posicion')
+    }
   }
 
   const handleConnect = useCallback(async (connection: Connection) => {
@@ -272,6 +296,13 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
       toast.error('Conexion invalida')
       return
     }
+
+    if (wouldCreateCycle(nodes, connection.source, connection.target)) {
+      toast.error('Esa conexion genera un ciclo')
+      return
+    }
+
+    const previousNodes = nodes
 
     onNodesChange?.(
       nodes.map((node) =>
@@ -288,6 +319,7 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
       .eq('roadmap_id', targetNode.roadmap_id)
 
     if (error) {
+      onNodesChange?.(previousNodes)
       toast.error(error.message || 'No se pudo conectar')
     } else {
       toast.success('Conexion creada')

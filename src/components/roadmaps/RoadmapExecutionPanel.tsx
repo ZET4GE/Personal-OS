@@ -47,9 +47,12 @@ export function RoadmapExecutionPanel({
   activeFilter,
   onFilterChange,
 }: RoadmapExecutionPanelProps) {
-  const totalProgress = Math.round(nodes.reduce((acc, node) => acc + node.progress, 0) / Math.max(nodes.length, 1) * 100)
-  const nextNode = getNextNode(nodes)
-  const todaysActions = nodes
+  const visibleNodes = activeFilter === 'all'
+    ? nodes
+    : nodes.filter((node) => node.status === activeFilter)
+  const totalProgress = Math.round(visibleNodes.reduce((acc, node) => acc + node.progress, 0) / Math.max(visibleNodes.length, 1) * 100)
+  const nextNode = getNextNode(visibleNodes)
+  const todaysActions = visibleNodes
     .filter((node) => node.status === 'in_progress' || node.id === nextNode?.id)
     .flatMap((node) => node.actions.map((action) => ({ node, action })))
     .filter(({ action }) => action.entity_type === 'habit' || action.entity_type === 'routine' || action.entity_type === 'goal')
@@ -85,7 +88,9 @@ export function RoadmapExecutionPanel({
           <div className="w-full max-w-xs rounded-xl border border-border bg-surface-2 p-4">
             <div className="flex items-end justify-between">
               <div>
-                <p className="text-xs uppercase tracking-[0.18em] text-muted">Progreso total</p>
+                <p className="text-xs uppercase tracking-[0.18em] text-muted">
+                  {activeFilter === 'all' ? 'Progreso total' : 'Progreso filtrado'}
+                </p>
                 <p className="mt-1 text-3xl font-semibold text-text">{totalProgress}%</p>
               </div>
               <Target size={22} className="text-cyan-400" />
@@ -120,9 +125,9 @@ export function RoadmapExecutionPanel({
             {nextNode?.status === 'blocked' ? <AlertTriangle size={15} className="text-red-400" /> : <PlayCircle size={15} className="text-cyan-400" />}
             <p className="text-sm font-semibold text-text">Siguiente paso</p>
           </div>
-          <p className="text-sm font-medium text-text">{nextNode?.title ?? 'No hay pasos pendientes'}</p>
+          <p className="text-sm font-medium text-text">{nextNode?.title ?? 'No hay pasos para este filtro'}</p>
           <p className="mt-1 text-sm leading-6 text-muted">
-            {nextNode?.description ?? 'El roadmap no tiene nodos activos. Crea uno nuevo o revisa los completados.'}
+            {nextNode?.description ?? 'Cambia el filtro o crea un nuevo nodo desde el modo editar.'}
           </p>
         </div>
 

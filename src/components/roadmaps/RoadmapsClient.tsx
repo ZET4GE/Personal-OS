@@ -216,6 +216,10 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
       toast.error('Elegi una meta principal para un roadmap basado en metas')
       return
     }
+    if (primaryGoalId && !availableGoals.some((goal) => goal.id === primaryGoalId)) {
+      toast.error('Meta principal invalida')
+      return
+    }
 
     setIsSaving(true)
 
@@ -254,7 +258,14 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
     try {
       await createTemplateNodes(String(data.id), roadmapGoalId)
     } catch (templateError) {
+      await supabase
+        .from('learning_roadmaps')
+        .delete()
+        .eq('id', data.id)
+        .eq('user_id', user.id)
       toast.error(templateError instanceof Error ? templateError.message : 'No se pudo aplicar el template')
+      setIsSaving(false)
+      return
     }
 
     const newRoadmap = data as LearningRoadmap
@@ -280,6 +291,14 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
 
   async function handleUpdateRoadmap(id: string) {
     if (!editTitle.trim() || isSaving) return
+    if (editType === 'goal_based' && !editPrimaryGoalId) {
+      toast.error('Elegi una meta principal para un roadmap basado en metas')
+      return
+    }
+    if (editPrimaryGoalId && !availableGoals.some((goal) => goal.id === editPrimaryGoalId)) {
+      toast.error('Meta principal invalida')
+      return
+    }
     setIsSaving(true)
 
     let userId: string

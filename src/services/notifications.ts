@@ -1,16 +1,20 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
 import type { Notification, CreateNotificationInput } from '@/types/notifications'
 
+type NotificationResult =
+  | { data: Notification[]; error: null }
+  | { data: []; error: string }
+
 // ─────────────────────────────────────────────────────────────
 // List
 // ─────────────────────────────────────────────────────────────
 
-export async function getNotifications(
+export async function getNotificationsResult(
   supabase: SupabaseClient,
   userId: string,
   onlyUnread = false,
   limit = 50,
-): Promise<Notification[]> {
+): Promise<NotificationResult> {
   let query = supabase
     .from('notifications')
     .select('*')
@@ -23,8 +27,18 @@ export async function getNotifications(
   }
 
   const { data, error } = await query
-  if (error || !data) return []
-  return data as Notification[]
+  if (error) return { data: [], error: error.message }
+  return { data: (data ?? []) as Notification[], error: null }
+}
+
+export async function getNotifications(
+  supabase: SupabaseClient,
+  userId: string,
+  onlyUnread = false,
+  limit = 50,
+): Promise<Notification[]> {
+  const result = await getNotificationsResult(supabase, userId, onlyUnread, limit)
+  return result.data
 }
 
 // ─────────────────────────────────────────────────────────────

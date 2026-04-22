@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { AlertTriangle, Bell, Info } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { getNotifications } from '@/services/notifications'
+import { getNotificationsResult } from '@/services/notifications'
 import { NotificationItem } from '@/components/notifications/NotificationItem'
 import type { Notification } from '@/types/notifications'
 import type { SmartAlert } from '@/types/dashboard'
@@ -50,9 +50,10 @@ export default async function NotificationsPage() {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const notifications = user
-    ? await getNotifications(supabase, user.id, false, 100)
-    : []
+  const notificationsResult = user
+    ? await getNotificationsResult(supabase, user.id, false, 100)
+    : { data: [], error: null }
+  const notifications = notificationsResult.data
 
   const { data: smartAlertsData } = user
     ? await supabase.rpc('get_smart_alerts', { p_user_id: user.id })
@@ -85,7 +86,11 @@ export default async function NotificationsPage() {
         )}
       </div>
 
-      {!hasActivity ? (
+      {notificationsResult.error ? (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-100">
+          No se pudieron cargar las notificaciones: {notificationsResult.error}
+        </div>
+      ) : !hasActivity ? (
         <div className="flex flex-col items-center gap-3 rounded-xl border border-dashed border-border py-20 text-center">
           <Bell size={32} strokeWidth={1.5} className="text-muted" />
           <div>
