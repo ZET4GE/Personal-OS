@@ -33,6 +33,16 @@ const techStackInput = z
       .filter(Boolean),
   )
 
+const csvInput = z
+  .string()
+  .optional()
+  .transform((v) =>
+    (v ?? '')
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean),
+  )
+
 // ─────────────────────────────────────────────────────────────
 // Work Experience
 // ─────────────────────────────────────────────────────────────
@@ -96,6 +106,13 @@ export const CreateSkillSchema = z.object({
     .enum(SKILL_LEVELS)
     .optional()
     .transform((v) => v ?? null),
+  is_top:      z
+    .string()
+    .optional()
+    .transform((v) => v === 'true'),
+  evidence:    optionalText(500),
+  evidence_url: optionalUrl,
+  keywords:    csvInput,
   order_index: z
     .string()
     .optional()

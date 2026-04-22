@@ -2,7 +2,10 @@ import { renderToBuffer } from '@react-pdf/renderer'
 import { createClient } from '@/lib/supabase/server'
 import { getProfileByUsername } from '@/services/profiles'
 import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects } from '@/services/cv'
+import { getBillingStatus } from '@/services/billing'
 import { CVDocument } from '@/components/cv/pdf/CVDocumentPro'
+import { CVDocumentATS } from '@/components/cv/pdf/CVDocumentATS'
+import type { CVLanguage } from '@/types/cv'
 
 // ─────────────────────────────────────────────────────────────
 // Route — GET /api/cv/:username/pdf
@@ -10,11 +13,14 @@ import { CVDocument } from '@/components/cv/pdf/CVDocumentPro'
 // ─────────────────────────────────────────────────────────────
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ username: string }> },
 ) {
   const { username } = await params
   const supabase = await createClient()
+  const url = new URL(req.url)
+  const format = url.searchParams.get('format') === 'ats' ? 'ats' : 'visual'
+  const language: CVLanguage = url.searchParams.get('lang') === 'en' ? 'en' : 'es'
 
   // ── Fetch data ──────────────────────────────────────────────
   const { data: profile } = await getProfileByUsername(supabase, username)
@@ -37,20 +43,54 @@ export async function GET(
   const courses    = coursesResult.data ?? []
   const projects   = projectsResult.data ?? []
 
+  if (format === 'ats') {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user || user.id !== profile.id) {
+      return new Response('ATS CV disponible solo para el propietario del CV', { status: 403 })
+    }
+
+    const billing = await getBillingStatus(supabase, user.id)
+    const canUseAts =
+      billing.data &&
+      billing.data.plan !== 'free' &&
+      ['active', 'trialing'].includes(billing.data.status)
+
+    if (!canUseAts) {
+      return new Response('ATS CV requiere plan Pro o Team', { status: 402 })
+    }
+  }
+
   // ── Render to buffer ────────────────────────────────────────
-  const buffer = await renderToBuffer(
-    <CVDocument
-      profile={profile}
-      experience={experience}
-      education={education}
-      skills={skills}
-      courses={courses}
-      projects={projects}
-    />,
-  )
+  const document =
+    format === 'ats' ? (
+      <CVDocumentATS
+        profile={profile}
+        experience={experience}
+        education={education}
+        skills={skills}
+        courses={courses}
+        projects={projects}
+        language={language}
+      />
+    ) : (
+      <CVDocument
+        profile={profile}
+        experience={experience}
+        education={education}
+        skills={skills}
+        courses={courses}
+        projects={projects}
+        language={language}
+      />
+    )
+
+  const buffer = await renderToBuffer(document)
 
   // ── Return PDF ──────────────────────────────────────────────
-  const filename = `${username}-cv.pdf`
+  const filename = `${username}-cv-${format}-${language}.pdf`
 
   // Buffer → Uint8Array para satisfacer el tipo BodyInit del Response
   return new Response(new Uint8Array(buffer), {

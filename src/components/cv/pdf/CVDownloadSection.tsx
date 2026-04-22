@@ -39,7 +39,7 @@ export function CVDownloadSection({
         projects={projects}
       />
       <a
-        href={`/api/cv/${username}/pdf`}
+        href={`/api/cv/${username}/pdf?format=visual&lang=es`}
         download
         className="hidden text-xs text-muted underline underline-offset-2 hover:text-foreground sm:inline"
       >

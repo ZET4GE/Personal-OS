@@ -1,7 +1,7 @@
 'use client'
 
 import { useOptimistic, useTransition, useState } from 'react'
-import { Plus, X, Zap } from 'lucide-react'
+import { ExternalLink, Plus, Star, X, Zap } from 'lucide-react'
 import { toast } from 'sonner'
 import { createSkillAction, deleteSkillAction } from '@/app/(dashboard)/cv/actions'
 import {
@@ -40,6 +40,10 @@ function AddSkillForm({ onAdd }: { onAdd: (formData: FormData) => void }) {
   const [name, setName] = useState('')
   const [category, setCategory] = useState<SkillCategory>('technical')
   const [level, setLevel] = useState('')
+  const [isTop, setIsTop] = useState(false)
+  const [keywords, setKeywords] = useState('')
+  const [evidence, setEvidence] = useState('')
+  const [evidenceUrl, setEvidenceUrl] = useState('')
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -48,6 +52,10 @@ function AddSkillForm({ onAdd }: { onAdd: (formData: FormData) => void }) {
     onAdd(fd)
     setName('')
     setLevel('')
+    setIsTop(false)
+    setKeywords('')
+    setEvidence('')
+    setEvidenceUrl('')
   }
 
   return (
@@ -105,6 +113,50 @@ function AddSkillForm({ onAdd }: { onAdd: (formData: FormData) => void }) {
       >
         <Plus size={15} /> Agregar
       </button>
+
+      <label className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm text-muted">
+        <input
+          type="checkbox"
+          name="is_top"
+          value="true"
+          checked={isTop}
+          onChange={(e) => setIsTop(e.target.checked)}
+        />
+        Destacar como top skill
+      </label>
+
+      <div className="grid w-full gap-2 sm:grid-cols-3">
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-muted">Keywords ATS</label>
+          <input
+            name="keywords"
+            value={keywords}
+            onChange={(e) => setKeywords(e.target.value)}
+            placeholder="Linux, NOC, Redes"
+            className={inputCls + ' w-full'}
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-muted">Evidencia</label>
+          <input
+            name="evidence"
+            value={evidence}
+            onChange={(e) => setEvidence(e.target.value)}
+            placeholder="Usado en proyecto X"
+            className={inputCls + ' w-full'}
+          />
+        </div>
+        <div className="flex flex-col gap-1">
+          <label className="text-xs font-medium text-muted">Link evidencia</label>
+          <input
+            name="evidence_url"
+            value={evidenceUrl}
+            onChange={(e) => setEvidenceUrl(e.target.value)}
+            placeholder="https://..."
+            className={inputCls + ' w-full'}
+          />
+        </div>
+      </div>
     </form>
   )
 }
@@ -135,10 +187,25 @@ function SkillBadge({
         skill.isOptimistic ? 'opacity-50' : '',
       ].join(' ')}
     >
+      {skill.is_top && <Star size={12} className="fill-current" />}
       {skill.name}
       {skill.level && (
         <span className="text-xs opacity-60">· {SKILL_LEVEL_LABELS[skill.level]}</span>
       )}
+      {skill.keywords?.length ? (
+        <span className="text-xs font-normal opacity-70">- {skill.keywords.join(', ')}</span>
+      ) : null}
+      {skill.evidence ? <span className="text-xs font-normal opacity-70">- {skill.evidence}</span> : null}
+      {skill.evidence_url ? (
+        <a
+          href={skill.evidence_url}
+          target="_blank"
+          rel="noreferrer"
+          className="inline-flex items-center gap-1 text-xs font-medium underline underline-offset-2"
+        >
+          Evidencia <ExternalLink size={10} />
+        </a>
+      ) : null}
       <form
         action={onDelete}
         onSubmit={(e) => {
@@ -175,6 +242,13 @@ export function SkillsManager({ items }: { items: Skill[] }) {
       name:        String(formData.get('name') ?? ''),
       category:    (formData.get('category') as SkillCategory) ?? 'technical',
       level:       (formData.get('level') as Skill['level']) || null,
+      is_top:      formData.get('is_top') === 'true',
+      evidence:    String(formData.get('evidence') ?? '').trim() || null,
+      evidence_url: String(formData.get('evidence_url') ?? '').trim() || null,
+      keywords:    String(formData.get('keywords') ?? '')
+        .split(',')
+        .map((item) => item.trim())
+        .filter(Boolean),
       order_index: 0,
       isOptimistic: true,
     }

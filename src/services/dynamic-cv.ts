@@ -111,6 +111,10 @@ export async function getDynamicCV(userId: string): Promise<DynamicCVResult> {
         name: tag,
         category: inferSkillCategory(tag),
         level: null,
+        is_top: false,
+        evidence: null,
+        evidence_url: null,
+        keywords: [],
         order_index: 999,
       })
     }

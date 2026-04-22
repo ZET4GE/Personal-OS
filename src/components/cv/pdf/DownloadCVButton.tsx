@@ -3,6 +3,7 @@
 import { PDFDownloadLink } from '@react-pdf/renderer'
 import { Download } from 'lucide-react'
 import { CVDocument, type CVDocumentProps } from './CVDocumentPro'
+import type { CVLanguage } from '@/types/cv'
 
 // ─────────────────────────────────────────────────────────────
 // Props
@@ -12,6 +13,7 @@ interface DownloadCVButtonProps extends CVDocumentProps {
   username: string
   /** Variante visual: 'outline' para la vista pública, 'solid' para el dashboard */
   variant?: 'outline' | 'solid'
+  language?: CVLanguage
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -27,8 +29,9 @@ export function DownloadCVButton({
   skills,
   courses,
   projects,
+  language = 'es',
 }: DownloadCVButtonProps) {
-  const filename = `${username}-cv.pdf`
+  const filename = `${username}-cv-${language}.pdf`
 
   const baseClass =
     'inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors'
@@ -48,6 +51,7 @@ export function DownloadCVButton({
           skills={skills}
           courses={courses}
           projects={projects}
+          language={language}
         />
       }
       fileName={filename}

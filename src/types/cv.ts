@@ -5,11 +5,24 @@
 export const SKILL_CATEGORIES = ['technical', 'soft', 'language', 'tool'] as const
 export type SkillCategory = (typeof SKILL_CATEGORIES)[number]
 
+export const CV_LANGUAGES = ['es', 'en'] as const
+export type CVLanguage = (typeof CV_LANGUAGES)[number]
+
 export const SKILL_CATEGORY_LABELS: Record<SkillCategory, string> = {
   technical: 'Técnico',
   soft:      'Habilidades blandas',
   language:  'Idiomas',
   tool:      'Herramientas',
+}
+
+export const SKILL_CATEGORY_LABELS_BY_LANGUAGE: Record<CVLanguage, Record<SkillCategory, string>> = {
+  es: SKILL_CATEGORY_LABELS,
+  en: {
+    technical: 'Technical',
+    soft:      'Soft skills',
+    language:  'Languages',
+    tool:      'Tools',
+  },
 }
 
 export const SKILL_LEVELS = ['beginner', 'intermediate', 'advanced', 'expert'] as const
@@ -20,6 +33,16 @@ export const SKILL_LEVEL_LABELS: Record<SkillLevel, string> = {
   intermediate: 'Intermedio',
   advanced:     'Avanzado',
   expert:       'Experto',
+}
+
+export const SKILL_LEVEL_LABELS_BY_LANGUAGE: Record<CVLanguage, Record<SkillLevel, string>> = {
+  es: SKILL_LEVEL_LABELS,
+  en: {
+    beginner:     'Beginner',
+    intermediate: 'Intermediate',
+    advanced:     'Advanced',
+    expert:       'Expert',
+  },
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -59,6 +82,10 @@ export interface Skill {
   name:        string
   category:    SkillCategory
   level:       SkillLevel | null
+  is_top:      boolean
+  evidence:    string | null
+  evidence_url: string | null
+  keywords:    string[]
   order_index: number
 }
 

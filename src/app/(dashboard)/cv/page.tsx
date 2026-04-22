@@ -1,11 +1,13 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { BookOpen, Briefcase, FolderGit2, GraduationCap, Zap, ChevronRight, ExternalLink, Download } from 'lucide-react'
+import { BookOpen, Briefcase, FolderGit2, GraduationCap, Zap, ChevronRight, ExternalLink } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects } from '@/services/cv'
 import { getMyProfile } from '@/services/profiles'
+import { getBillingStatus } from '@/services/billing'
 import { CVModeSection } from '@/components/cv/CVModeSection'
+import { CVExportPanel } from '@/components/cv/CVExportPanel'
 
 export const metadata: Metadata = { title: 'Mi CV' }
 
@@ -65,13 +67,14 @@ export default async function CVPage() {
   if (!user) redirect('/login')
 
   // Fetch everything in parallel
-  const [expResult, eduResult, skillsResult, coursesResult, projectsResult, profileResult] = await Promise.all([
+  const [expResult, eduResult, skillsResult, coursesResult, projectsResult, profileResult, billingResult] = await Promise.all([
     getWorkExperience(supabase, user.id),
     getEducation(supabase, user.id),
     getSkills(supabase, user.id),
     getCVCourses(supabase, user.id),
     getCVProjects(supabase, user.id),
     getMyProfile(supabase),
+    getBillingStatus(supabase, user.id),
   ])
 
   const expCount    = expResult.data?.length    ?? 0
@@ -80,6 +83,8 @@ export default async function CVPage() {
   const coursesCount = coursesResult.data?.length ?? 0
   const projectsCount = projectsResult.data?.length ?? 0
   const profile     = profileResult.data
+  const billing     = billingResult.data
+  const canUseAts   = Boolean(billing && billing.plan !== 'free' && ['active', 'trialing'].includes(billing.status))
 
   const publicCvUrl = profile?.username ? `/${profile.username}/cv` : null
 
@@ -96,14 +101,6 @@ export default async function CVPage() {
         {profile?.username && (
           <div className="flex shrink-0 items-center gap-2">
             {/* Descarga directa via API route — no requiere JS */}
-            <a
-              href={`/api/cv/${profile.username}/pdf`}
-              download
-              className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
-            >
-              <Download size={13} />
-              Descargar PDF
-            </a>
             {profile.is_public && publicCvUrl && (
               <a
                 href={publicCvUrl}
@@ -118,6 +115,10 @@ export default async function CVPage() {
           </div>
         )}
       </div>
+
+      {profile?.username && (
+        <CVExportPanel username={profile.username} canUseAts={canUseAts} />
+      )}
 
       {/* Section cards */}
       <div className="space-y-3">
