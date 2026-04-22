@@ -21,6 +21,14 @@ function getActionLabel(type: LearningRoadmapNode['actions'][number]['entity_typ
   return 'Tarea'
 }
 
+function getActionHref(action: LearningRoadmapNode['actions'][number]) {
+  if (action.entity_type === 'goal') return `/goals/${action.entity_id}`
+  if (action.entity_type === 'project') return `/projects/${action.entity_id}`
+  if (action.entity_type === 'habit') return '/habits'
+  if (action.entity_type === 'routine') return '/routines'
+  return '/dashboard'
+}
+
 function getNextNode(nodes: LearningRoadmapNode[]) {
   return nodes.find((node) => node.status === 'in_progress')
     ?? nodes.find((node) => node.status === 'pending')
@@ -154,7 +162,7 @@ export function RoadmapExecutionPanel({
               return (
                 <Link
                   key={action.id}
-                  href={action.entity_type === 'routine' ? '/routines' : action.entity_type === 'habit' ? '/habits' : '/goals'}
+                  href={getActionHref(action)}
                   className="flex items-center gap-3 rounded-xl border border-border bg-surface-2 px-3 py-3 transition-colors hover:border-border-bright"
                 >
                   <Icon size={15} className="text-cyan-400" />

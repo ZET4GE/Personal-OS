@@ -260,10 +260,18 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
       .from('learning_nodes')
       .update({ position_x: x, position_y: y })
       .eq('id', node.id)
+      .eq('roadmap_id', node.data.node.roadmap_id)
   }
 
   const handleConnect = useCallback(async (connection: Connection) => {
     if (!connection.source || !connection.target || connection.source === connection.target) return
+
+    const sourceNode = nodes.find((node) => node.id === connection.source)
+    const targetNode = nodes.find((node) => node.id === connection.target)
+    if (!sourceNode || !targetNode || sourceNode.roadmap_id !== targetNode.roadmap_id) {
+      toast.error('Conexion invalida')
+      return
+    }
 
     onNodesChange?.(
       nodes.map((node) =>
@@ -277,6 +285,7 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
       .from('learning_nodes')
       .update({ parent_id: connection.source })
       .eq('id', connection.target)
+      .eq('roadmap_id', targetNode.roadmap_id)
 
     if (error) {
       toast.error(error.message || 'No se pudo conectar')
@@ -292,7 +301,7 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
           <h2 className="text-sm font-semibold text-text">Mapa visual</h2>
           <p className="text-xs text-muted">
             {roadmapType === 'free'
-              ? 'Modo libre con zoom, pan y nodos arrastrables'
+              ? 'Modo libre: mueve nodos y conecta el paso previo principal'
               : roadmapType === 'structured'
               ? 'Plan por niveles. Las conexiones son prerequisitos manuales.'
               : 'Plan por niveles con progreso conectado a metas y prerequisitos manuales.'}
@@ -361,7 +370,7 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
 
       <div className="border-t border-border bg-surface px-5 py-3 text-xs leading-5 text-muted">
         {roadmapType === 'free'
-          ? 'Tip: arrastra nodos para ordenar el canvas. Para conectar, arrastra desde el punto cyan derecho hacia otro nodo.'
+          ? 'Tip: arrastra nodos para ordenar el canvas. Para conectar, arrastra desde el punto cyan derecho al punto izquierdo de otro nodo.'
           : 'Tip: este modo se autoordena para mantener un camino claro. Para conectar, arrastra desde el punto cyan inferior hacia otro nodo.'}
       </div>
     </section>

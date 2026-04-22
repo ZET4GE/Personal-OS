@@ -121,10 +121,6 @@ export function LearningRoadmapBoard({
   const primaryGoal = availableGoals.find((goal) => goal.id === roadmap.primary_goal_id) ?? null
   const nextNode = getNextNode(nodes)
   const averageProgress = Math.round(nodes.reduce((acc, node) => acc + node.progress, 0) / Math.max(nodes.length, 1) * 100)
-  const filteredNodes = statusFilter === 'all'
-    ? nodes
-    : nodes.filter((node) => node.status === statusFilter)
-
   async function getUserId() {
     const { data: { user }, error } = await supabase.auth.getUser()
     if (error || !user) throw new Error('Sesion invalida')
@@ -649,6 +645,28 @@ export function LearningRoadmapBoard({
               {nextNode?.description ?? 'Define el primer paso del camino y conectalo con una meta.'}
             </p>
             <div className="mt-4 flex flex-wrap gap-2">
+              {nextNode && nextNode.status !== 'in_progress' ? (
+                <button
+                  type="button"
+                  onClick={() => updateNodeStatus(nextNode.id, 'in_progress')}
+                  disabled={isSaving}
+                  className="inline-flex items-center gap-2 rounded-lg bg-cyan-500/10 px-3 py-2 text-xs text-cyan-300 transition-colors hover:bg-cyan-500/15 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <PlayCircle size={13} />
+                  Empezar paso
+                </button>
+              ) : null}
+              {nextNode ? (
+                <button
+                  type="button"
+                  onClick={() => updateNodeStatus(nextNode.id, 'completed')}
+                  disabled={isSaving || nextNode.status === 'completed'}
+                  className="inline-flex items-center gap-2 rounded-lg bg-emerald-500/10 px-3 py-2 text-xs text-emerald-300 transition-colors hover:bg-emerald-500/15 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  <CheckCircle2 size={13} />
+                  Marcar hecho
+                </button>
+              ) : null}
               <button
                 type="button"
                 onClick={() => nextNode && createGoalFromNode(nextNode)}
@@ -676,7 +694,7 @@ export function LearningRoadmapBoard({
                 <Repeat size={13} />
                 Crear rutina
               </button>
-              <Link href="/dashboard" className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted transition-colors hover:text-text">
+              <Link href="/time" className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-xs text-muted transition-colors hover:text-text">
                 <Clock size={13} />
                 Registrar tiempo
               </Link>
@@ -795,7 +813,7 @@ export function LearningRoadmapBoard({
         </button>
       </section>
 
-      <LearningRoadmapFlow nodes={filteredNodes} roadmapType={roadmap.type} onNodesChange={handleFlowNodesChange} />
+      <LearningRoadmapFlow nodes={nodes} roadmapType={roadmap.type} onNodesChange={handleFlowNodesChange} />
 
       <section className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
         <div className="mb-5 flex items-center justify-between">
@@ -806,7 +824,7 @@ export function LearningRoadmapBoard({
         </div>
 
         <div className="space-y-4">
-          {filteredNodes.map((node, index) => {
+          {nodes.map((node, index) => {
             const isEditing = editingId === node.id
             const progress = Math.round(node.progress * 100)
             const currentDraft = isEditing ? editDraft : null
@@ -1025,7 +1043,7 @@ export function LearningRoadmapBoard({
                       <button
                         type="button"
                         onClick={() => moveNode(node.id, 1)}
-                        disabled={index === filteredNodes.length - 1 || isSaving}
+                        disabled={index === nodes.length - 1 || isSaving}
                         className="rounded-lg border border-border bg-surface px-2 py-2 text-muted transition-colors hover:text-text disabled:opacity-40"
                       >
                         <ChevronDown size={14} />
@@ -1064,10 +1082,10 @@ export function LearningRoadmapBoard({
             )
           })}
 
-          {filteredNodes.length === 0 ? (
+          {nodes.length === 0 ? (
             <div className="rounded-2xl border border-dashed border-border bg-surface-2 px-5 py-12 text-center">
-              <p className="text-sm font-medium text-text">No hay nodos para este filtro</p>
-              <p className="mt-1 text-sm text-muted">Cambia el filtro o agrega un nuevo nodo.</p>
+              <p className="text-sm font-medium text-text">Todavia no hay nodos</p>
+              <p className="mt-1 text-sm text-muted">Agrega el primer paso del camino.</p>
             </div>
           ) : null}
         </div>
