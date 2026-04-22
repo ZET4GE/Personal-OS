@@ -26,6 +26,22 @@ interface CreateTimeEntryInput {
   duration: number
 }
 
+async function userOwnsRecord(
+  supabase: ReturnType<typeof createClient>,
+  table: string,
+  id: string,
+  userId: string,
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from(table)
+    .select('id')
+    .eq('id', id)
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  return !error && Boolean(data)
+}
+
 export async function getTimerTargets(): Promise<Result<{ projects: TimerTargetOption[]; goals: TimerTargetOption[] }>> {
   const supabase = createClient()
   const {
@@ -64,6 +80,16 @@ export async function createTimeEntry(input: CreateTimeEntryInput): Promise<Resu
 
   if (userError || !user) return err(userError?.message || 'Sesion no valida')
 
+  if (input.projectId) {
+    const projectExists = await userOwnsRecord(supabase, 'projects', input.projectId, user.id)
+    if (!projectExists) return err('Proyecto no encontrado')
+  }
+
+  if (input.goalId) {
+    const goalExists = await userOwnsRecord(supabase, 'goals', input.goalId, user.id)
+    if (!goalExists) return err('Meta no encontrada')
+  }
+
   const { data, error } = await supabase
     .from('time_entries')
     .insert({
@@ -81,4 +107,3 @@ export async function createTimeEntry(input: CreateTimeEntryInput): Promise<Resu
   if (error) return err(error.message)
   return ok(data as TimeEntry)
 }
-

@@ -24,6 +24,35 @@ type TagResult<T> =
   | { data: T; error: null }
   | { data: null; error: string }
 
+const ENTITY_TABLES: Record<TagEntityType, string> = {
+  project: 'projects',
+  habit: 'habits',
+  routine: 'routines',
+  note: 'notes',
+  goal: 'goals',
+  roadmap: 'learning_roadmaps',
+  job: 'job_applications',
+  client: 'clients',
+  freelance: 'client_projects',
+  finance: 'finance_transactions',
+}
+
+async function userOwnsRecord(
+  supabase: ReturnType<typeof createClient>,
+  table: string,
+  id: string,
+  userId: string,
+): Promise<boolean> {
+  const { data, error } = await supabase
+    .from(table)
+    .select('id')
+    .eq('id', id)
+    .eq('user_id', userId)
+    .maybeSingle()
+
+  return !error && Boolean(data)
+}
+
 export async function getUserTags(): Promise<TagResult<Tag[]>> {
   const supabase = createClient()
   const {
@@ -126,6 +155,17 @@ export async function linkTagToEntity(
 
   if (userError || !user) {
     return { ok: false, error: 'Sesion no valida' }
+  }
+
+  const tagExists = await userOwnsRecord(supabase, 'tags', tagId, user.id)
+  if (!tagExists) {
+    return { ok: false, error: 'Tag no encontrado' }
+  }
+
+  const table = ENTITY_TABLES[entityType]
+  const entityExists = await userOwnsRecord(supabase, table, entityId, user.id)
+  if (!entityExists) {
+    return { ok: false, error: 'Entidad no encontrada' }
   }
 
   const { error } = await supabase

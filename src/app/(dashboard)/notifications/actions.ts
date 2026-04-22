@@ -27,8 +27,8 @@ async function getAuthed() {
 // ─────────────────────────────────────────────────────────────
 
 export async function markAsReadAction(id: string): Promise<void> {
-  const { supabase } = await getAuthed()
-  await markAsRead(supabase, id)
+  const { supabase, user } = await getAuthed()
+  await markAsRead(supabase, user.id, id)
   revalidatePath('/notifications')
 }
 
@@ -39,8 +39,8 @@ export async function markAllAsReadAction(): Promise<void> {
 }
 
 export async function deleteNotificationAction(id: string): Promise<void> {
-  const { supabase } = await getAuthed()
-  await deleteNotification(supabase, id)
+  const { supabase, user } = await getAuthed()
+  await deleteNotification(supabase, user.id, id)
   revalidatePath('/notifications')
 }
 

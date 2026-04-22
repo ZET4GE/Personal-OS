@@ -51,12 +51,14 @@ export async function getUnreadCount(
 
 export async function markAsRead(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<void> {
   await supabase
     .from('notifications')
     .update({ is_read: true, read_at: new Date().toISOString() })
     .eq('id', id)
+    .eq('user_id', userId)
 }
 
 export async function markAllAsRead(
@@ -76,9 +78,14 @@ export async function markAllAsRead(
 
 export async function deleteNotification(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<void> {
-  await supabase.from('notifications').delete().eq('id', id)
+  await supabase
+    .from('notifications')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', userId)
 }
 
 export async function deleteAllRead(

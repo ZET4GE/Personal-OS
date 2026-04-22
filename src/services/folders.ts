@@ -53,6 +53,7 @@ export async function createFolder(
 
 export async function updateFolder(
   supabase: SupabaseClient,
+  userId: string,
   input: UpdateFolderData,
 ): Promise<Result<NoteFolder>> {
   const { id, ...patch } = input
@@ -60,6 +61,7 @@ export async function updateFolder(
     .from('note_folders')
     .update(patch)
     .eq('id', id)
+    .eq('user_id', userId)
     .select()
     .single()
 
@@ -69,12 +71,14 @@ export async function updateFolder(
 
 export async function deleteFolder(
   supabase: SupabaseClient,
+  userId: string,
   id: string,
 ): Promise<Result<true>> {
   const { error } = await supabase
     .from('note_folders')
     .delete()
     .eq('id', id)
+    .eq('user_id', userId)
 
   if (error) return err(error.message)
   return ok(true as const)

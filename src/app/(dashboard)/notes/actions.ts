@@ -162,12 +162,12 @@ export async function createFolderAction(formData: FormData): Promise<FolderActi
 }
 
 export async function updateFolderAction(formData: FormData): Promise<FolderActionResult> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
 
   const parsed = UpdateFolderSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' }
 
-  const result = await updateFolder(supabase, parsed.data)
+  const result = await updateFolder(supabase, user.id, parsed.data)
   if (result.error) return { error: result.error }
 
   revalidateNotes()
@@ -175,12 +175,12 @@ export async function updateFolderAction(formData: FormData): Promise<FolderActi
 }
 
 export async function deleteFolderAction(formData: FormData): Promise<{ ok?: true; error?: string }> {
-  const { supabase } = await getAuthed()
+  const { supabase, user } = await getAuthed()
 
   const parsed = DeleteFolderSchema.safeParse(Object.fromEntries(formData))
   if (!parsed.success) return { error: 'ID inválido' }
 
-  const result = await deleteFolder(supabase, parsed.data.id)
+  const result = await deleteFolder(supabase, user.id, parsed.data.id)
   if (result.error) return { error: result.error }
 
   revalidateNotes()
