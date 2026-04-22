@@ -8,7 +8,7 @@ import { getPaymentsByProject } from '@/services/payments'
 import { ProjectStatusBadge } from '@/components/clients/ProjectStatusBadge'
 import { PaymentProgress } from '@/components/clients/PaymentProgress'
 import { PaymentsClient } from '@/components/clients/PaymentsClient'
-import { isOverdue, formatCurrency, formatDate } from '@/lib/utils'
+import { isOverdue, formatDate } from '@/lib/utils'
 import { PRIORITY_LABELS, PRIORITY_STYLES } from '@/types/clients'
 
 interface PageProps {

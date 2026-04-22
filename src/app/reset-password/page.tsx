@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Eye, EyeOff } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -81,12 +82,12 @@ export default function ResetPasswordPage() {
               <p className="text-sm font-medium text-red-500">Enlace inválido o expirado</p>
               <p className="mt-1 text-xs text-muted">{errMsg}</p>
             </div>
-            <a
+            <Link
               href="/?modal=login"
               className="block text-center text-sm text-accent-600 hover:underline dark:text-accent-400"
             >
               Volver al inicio
-            </a>
+            </Link>
           </div>
         )}
 

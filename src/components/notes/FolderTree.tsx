@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { Folder, FolderOpen, Plus, Trash2, ChevronRight, Archive, Pin } from 'lucide-react'
+import type { ElementType } from 'react'
+import { Folder, FolderOpen, Plus, Trash2, Archive, Pin } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import type { NoteFolder } from '@/types/notes'
 import { FOLDER_COLOR_CLASS } from '@/types/notes'
@@ -15,6 +16,38 @@ interface Props {
   totalCount:       number
   archivedCount:    number
   pinnedCount:      number
+}
+
+interface NavItemProps {
+  id: string | null
+  label: string
+  icon: ElementType
+  count: number
+  active: boolean
+  onSelect: (id: string | null) => void
+}
+
+function NavItem({
+  id, label, icon: Icon, count, active, onSelect,
+}: NavItemProps) {
+  return (
+    <button
+      onClick={() => onSelect(id)}
+      className={`group flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
+        active
+          ? 'bg-accent-600/10 text-accent-600 font-medium'
+          : 'text-muted hover:bg-surface-hover hover:text-text'
+      }`}
+    >
+      <span className="flex items-center gap-2">
+        <Icon size={14} className="shrink-0" />
+        {label}
+      </span>
+      <span className={`text-xs tabular-nums ${active ? 'text-accent-600/80' : 'text-muted/60'}`}>
+        {count}
+      </span>
+    </button>
+  )
 }
 
 export function FolderTree({
@@ -46,35 +79,12 @@ export function FolderTree({
     })
   }
 
-  const NavItem = ({
-    id, label, icon: Icon, count, active,
-  }: {
-    id: string | null; label: string; icon: React.ElementType; count: number; active: boolean
-  }) => (
-    <button
-      onClick={() => onSelect(id)}
-      className={`group flex w-full items-center justify-between gap-2 rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
-        active
-          ? 'bg-accent-600/10 text-accent-600 font-medium'
-          : 'text-muted hover:bg-surface-hover hover:text-text'
-      }`}
-    >
-      <span className="flex items-center gap-2">
-        <Icon size={14} className="shrink-0" />
-        {label}
-      </span>
-      <span className={`text-xs tabular-nums ${active ? 'text-accent-600/80' : 'text-muted/60'}`}>
-        {count}
-      </span>
-    </button>
-  )
-
   return (
     <div className="flex flex-col gap-1">
       {/* Fixed sections */}
-      <NavItem id={null} label={t('allNotes')} icon={FolderOpen} count={totalCount} active={selectedFolderId === null} />
-      <NavItem id="pinned" label={t('pinned')} icon={Pin} count={pinnedCount} active={selectedFolderId === 'pinned'} />
-      <NavItem id="archived" label={t('archived')} icon={Archive} count={archivedCount} active={selectedFolderId === 'archived'} />
+      <NavItem id={null} label={t('allNotes')} icon={FolderOpen} count={totalCount} active={selectedFolderId === null} onSelect={onSelect} />
+      <NavItem id="pinned" label={t('pinned')} icon={Pin} count={pinnedCount} active={selectedFolderId === 'pinned'} onSelect={onSelect} />
+      <NavItem id="archived" label={t('archived')} icon={Archive} count={archivedCount} active={selectedFolderId === 'archived'} onSelect={onSelect} />
 
       {/* Folders */}
       {folders.length > 0 && (

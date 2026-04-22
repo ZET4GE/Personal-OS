@@ -2,6 +2,7 @@
 
 import { useOptimistic, useRef, useTransition } from 'react'
 import type { ComponentType } from 'react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { BarChart3, PiggyBank, Plus, ReceiptText, SlidersHorizontal, Target, Trash2, TrendingDown, TrendingUp, WalletCards } from 'lucide-react'
 import { toast } from 'sonner'
@@ -387,9 +388,9 @@ function FinanceFilters({
         </select>
       </div>
       <div className="mt-3 flex justify-end gap-2">
-        <a href="/finance" className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted hover:text-text">
+        <Link href="/finance" className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-muted hover:text-text">
           Limpiar
-        </a>
+        </Link>
         <button type="submit" className="rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white">
           Aplicar
         </button>

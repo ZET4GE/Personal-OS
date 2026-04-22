@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { Eye, Users, TrendingUp, BarChart3, Globe, FileText } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getMyProfile } from '@/services/profiles'
@@ -193,9 +194,9 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
       {!profile?.is_public && (
         <p className="rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
           Tu perfil está configurado como privado. No recibirás visitas hasta que lo actives en{' '}
-          <a href="/settings" className="font-medium underline underline-offset-2">
+          <Link href="/settings" className="font-medium underline underline-offset-2">
             Configuración
-          </a>
+          </Link>
           .
         </p>
       )}

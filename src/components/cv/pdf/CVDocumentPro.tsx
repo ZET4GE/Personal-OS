@@ -237,7 +237,11 @@ export function CVDocument({ profile, experience, education, skills, courses, pr
               {profile.headline ? <Text style={styles.headline}>{profile.headline}</Text> : null}
               {profile.bio ? <Text style={styles.bio}>{profile.bio}</Text> : null}
             </View>
-            {profile.avatar_url ? <Image src={profile.avatar_url} style={styles.avatar} /> : null}
+            {profile.avatar_url ? (
+              // @react-pdf/renderer Image does not expose an alt prop.
+              // eslint-disable-next-line jsx-a11y/alt-text
+              <Image src={profile.avatar_url} style={styles.avatar} />
+            ) : null}
           </View>
         </View>
 

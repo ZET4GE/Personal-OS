@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { Calendar, ExternalLink, Clock } from 'lucide-react'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'

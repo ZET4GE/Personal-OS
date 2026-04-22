@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, ArrowRight } from 'lucide-react'
+import { Search } from 'lucide-react'
 
 export function ProfileSearch() {
   const router = useRouter()

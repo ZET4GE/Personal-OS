@@ -138,9 +138,3 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER milestone_progress_trigger
   AFTER INSERT OR UPDATE OR DELETE ON milestones
   FOR EACH ROW EXECUTE FUNCTION calculate_goal_progress();
-
--- Goals
-create table if not exists public.goals (...)
-
--- Goal Links
-create table if not exists public.goal_links (...)

@@ -1,136 +1,77 @@
 Proyecto: WINF (Work In One Framework)
 
-Descripción:
-WINF es una plataforma web modular tipo SaaS enfocada en centralizar múltiples funcionalidades en un solo sistema.
+Vision:
+WINF es una plataforma personal guiada para cumplir metas. No debe sentirse como una coleccion de modulos sueltos. La experiencia principal se ordena alrededor de:
 
-El objetivo es ofrecer a usuarios y empresas una solución todo-en-uno para gestión, productividad y operación digital.
+Meta activa -> Roadmap / camino -> Acciones de hoy -> Progreso real
 
----
-
-STACK TECNOLÓGICO:
-
-Frontend:
-- Next.js (App Router)
+Stack:
+- Next.js App Router
 - React
 - Tailwind CSS
+- Supabase Auth, Database y Storage
+- Server Actions
+- Vercel
 
-Backend:
-- Supabase (Auth + Database + Storage)
-- Server Actions (Next.js)
+Principio de producto:
+- La meta activa es el centro.
+- Roadmap es una herramienta para ejecutar metas, no el centro del producto.
+- Los modulos se muestran u ocultan segun perfil y preferencias.
+- No borrar features sin una migracion o decision explicita; primero ocultar y simplificar.
 
-Pagos:
-- MercadoPago
-- Transferencias manuales
+Perfiles:
+- student
+- freelancer
+- employee
+- builder
+- personal
 
-Infraestructura:
-- Vercel (deploy)
-- Supabase Cloud
+Modulos principales:
+- Dashboard: foco diario, meta activa, acciones, acceso rapido y widgets secundarios.
+- Goals: metas, progreso, hitos, tiempo invertido y entidades vinculadas.
+- Roadmaps: camino visual para aprender o ejecutar una meta.
+- Projects: proyectos personales o profesionales.
+- Habits: seguimiento diario de habitos.
+- Routines: bloques de rutina asociados o no a metas.
+- Time: timer global y estadisticas de tiempo.
+- Jobs: postulaciones, entrevistas y seguimiento laboral.
+- Clients/Freelance: clientes, proyectos freelance y cobros.
+- Finance: ingresos, gastos, presupuestos y balance personal.
+- Notes: notas y conocimiento.
+- CV: perfil profesional, experiencia, educacion, skills, cursos, proyectos y PDF.
+- Blog: posts publicos o privados.
+- Analytics: metricas del perfil publico.
 
----
+Reglas de arquitectura:
+- Cada usuario solo puede leer y modificar sus datos.
+- Toda query sensible debe filtrar por user_id o depender de RLS validada.
+- Las RPC security definer deben validar auth.uid().
+- Evitar fuentes paralelas de verdad para progreso: goals.progress es el valor visible final; milestones, goal_links y time_entries alimentan el calculo.
+- El dashboard no debe cargar todo por defecto. Cargar solo foco principal y widgets habilitados.
+- ReactFlow y librerias pesadas deben cargarse solo donde se usan.
 
-ARQUITECTURA:
+Estado actual:
+- Dashboard guiado por meta activa.
+- Onboarding con persona, modulos habilitados y primary_goal_id.
+- Sidebar filtrado por enabled_modules.
+- Guard de rutas opcionales por modulo.
+- Timer flotante independiente del dashboard.
+- Notificaciones y smart alerts integradas.
+- Finanzas personales implementadas.
+- CV mejorado con foto de perfil y PDF.
+- Tags y busqueda global implementados.
 
-El sistema está dividido en módulos dentro de /app:
+Prioridades actuales:
+1. Mantener foco de producto en meta activa.
+2. Consolidar seguridad/RLS y RPC.
+3. Simplificar roadmap en ejecutar/editar.
+4. Reducir ruido visual del dashboard.
+5. Optimizar queries y bundle.
+6. Dejar monetizacion para etapa final.
 
-- dashboard → panel principal del usuario
-- auth → login, registro, recuperación de contraseña
-- clients → gestión de clientes
-- projects → gestión de proyectos
-- jobs → tareas / trabajo
-- notes → notas
-- routines → hábitos / rutinas
-- goals → objetivos
-- analytics → métricas
-- settings → configuración del usuario
-- blog → contenido
-- freelance → funcionalidades para servicios
-
-Cada módulo es independiente pero comparte:
-- autenticación
-- base de datos
-- UI components
-
----
-
-AUTENTICACIÓN:
-
-- Supabase Auth
-- Login con email/password
-- Recupero de contraseña vía email
-- Futuro: integración API de correo personalizada
-
----
-
-BASE DE DATOS:
-
-- PostgreSQL (Supabase)
-- Tablas principales:
-  - users
-  - profiles
-  - projects
-  - clients
-  - tasks/jobs
-  - payments
-  - subscriptions
-
----
-
-PAGOS:
-
-- MercadoPago (principal)
-- Transferencia bancaria (manual)
-- Futuro:
-  - suscripciones mensuales
-  - planes FREE / PRO
-
----
-
-OBJETIVO DEL PRODUCTO:
-
-- No ser un "Tienda Nube"
-- No usar templates genéricos
-- Ofrecer soluciones personalizadas
-- Escalar como SaaS en el futuro
-
----
-
-REGLAS DE DESARROLLO:
-
-- Mantener código simple
-- No sobreingeniería
-- Modularidad por features
-- Reutilización de componentes
-- Seguridad en auth y pagos
-
----
-
-ESTADO ACTUAL:
-
-- MVP funcional
-- Ecommerce funcionando
-- Pagos integrados (MercadoPago)
-- Falta:
-  - sistema de suscripciones
-  - mejoras en email (API propia)
-  - optimización UX/UI
-  - escalabilidad
-
----
-
-FUTURO:
-
-- Multi-tenant (múltiples clientes)
-- Sistema SaaS completo
-- API pública
-- Automatizaciones
-- Integraciones externas
-
----
-
-INSTRUCCIONES PARA CODEX:
-
-- Asume siempre este contexto
-- No pedir explicación del proyecto
-- Respetar arquitectura modular
-- No romper estructura existente
-- Priorizar soluciones simples y escalables
+Instrucciones para Codex:
+- Lee este archivo antes de cambios grandes.
+- Prioriza cambios pequeños, verificables y seguros.
+- No reescribas modulos completos si un patch puntual resuelve el problema.
+- No introducir complejidad visual ni tecnica innecesaria.
+- Verificar con TypeScript, lint y build cuando sea posible.

@@ -1,10 +1,7 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import {
-  ChevronLeft, CalendarDays, Flag, Pencil, Trash2,
-  PauseCircle, PlayCircle, XCircle,
-} from 'lucide-react'
+import { ChevronLeft, CalendarDays, Flag, Pencil } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getGoal } from '@/services/goals'
 import { getGoalDetail, getGoalDetailProgress } from '@/services/goal-detail'

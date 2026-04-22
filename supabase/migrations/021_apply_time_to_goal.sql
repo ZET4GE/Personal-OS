@@ -1,3 +1,7 @@
+alter table public.goals
+  add column if not exists target_time integer,
+  add column if not exists "current_time" integer not null default 0;
+
 create or replace function public.apply_time_to_goal(
   p_goal_id uuid,
   p_duration integer
@@ -16,9 +20,9 @@ begin
   end if;
 
   update public.goals
-  set current_time = current_time + p_duration
+  set "current_time" = coalesce("current_time", 0) + p_duration
   where id = p_goal_id
-  returning target_time, current_time
+  returning target_time, "current_time"
   into v_target_time, v_current_time;
 
   if not found then
@@ -27,7 +31,7 @@ begin
 
   if v_target_time is not null and v_target_time > 0 then
     update public.goals
-    set progress = least(1, v_current_time::numeric / v_target_time::numeric)
+    set progress = least(100, greatest(0, floor((v_current_time::numeric / v_target_time::numeric) * 100)::integer))
     where id = p_goal_id;
   end if;
 end;

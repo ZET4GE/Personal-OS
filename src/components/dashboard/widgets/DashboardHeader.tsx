@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Plus, Briefcase, FolderOpen, Target } from 'lucide-react'
+import { Briefcase, FolderOpen, Target } from 'lucide-react'
 import { getTranslations, getLocale } from 'next-intl/server'
 import type { DashboardData } from '@/types/dashboard'
 

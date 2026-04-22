@@ -7,11 +7,9 @@ import type {
   PendingPaymentItem,
   ActivityItem,
   DashboardAnalytics,
-  DashboardIntegrations,
   DashboardInsight,
 } from '@/types/dashboard'
 import type { JobApplication } from '@/types/jobs'
-import type { ClientProject } from '@/types/clients'
 import { getHabitsWithLogs, isHabitDueOn } from './habits'
 import { getPageViews } from './analytics'
 import { getActiveProviders } from './integrations'
@@ -51,10 +49,10 @@ async function fetchStats(
   userId: string,
 ): Promise<DashboardStats> {
   const [jobsRes, projectsRes, clientsRes, cpRes] = await Promise.all([
-    supabase.from('job_applications').select('id, status'),
+    supabase.from('job_applications').select('id, status').eq('user_id', userId),
     supabase.from('projects').select('id, status').eq('user_id', userId),
-    supabase.from('clients').select('id'),
-    supabase.from('client_projects').select('paid_amount, updated_at'),
+    supabase.from('clients').select('id').eq('user_id', userId),
+    supabase.from('client_projects').select('paid_amount, updated_at').eq('user_id', userId),
   ])
 
   const jobs     = (jobsRes.data     ?? []) as Array<{ id: string; status: string }>
@@ -108,6 +106,7 @@ async function fetchTodayHabits(
 
 async function fetchDeadlines(
   supabase: SupabaseClient,
+  userId: string,
   todayStr: string,
 ): Promise<DeadlineItem[]> {
   const horizon = new Date(todayStr + 'T12:00:00')
@@ -117,6 +116,7 @@ async function fetchDeadlines(
   const { data } = await supabase
     .from('client_projects')
     .select('id, title, status, due_date, client:clients(name)')
+    .eq('user_id', userId)
     .not('due_date', 'is', null)
     .lte('due_date', horizonStr)
     .gte('due_date', todayStr)
@@ -145,10 +145,12 @@ async function fetchDeadlines(
 
 async function fetchPendingPayments(
   supabase: SupabaseClient,
+  userId: string,
 ): Promise<PendingPaymentItem[]> {
   const { data } = await supabase
     .from('client_projects')
     .select('id, title, budget, paid_amount, currency, client:clients(name)')
+    .eq('user_id', userId)
     .not('budget', 'is', null)
     .not('status', 'in', '("completed","cancelled")')
     .order('updated_at', { ascending: false })
@@ -186,6 +188,7 @@ async function fetchRecentActivity(
     supabase
       .from('job_applications')
       .select('id, company, role, status, applied_at, updated_at')
+      .eq('user_id', userId)
       .order('updated_at', { ascending: false })
       .limit(5),
     supabase
@@ -197,6 +200,7 @@ async function fetchRecentActivity(
     supabase
       .from('client_projects')
       .select('id, title, status, created_at, updated_at')
+      .eq('user_id', userId)
       .order('updated_at', { ascending: false })
       .limit(3),
   ])
@@ -307,8 +311,8 @@ export async function getDashboardData(
     await Promise.all([
       fetchStats(supabase, userId),
       fetchTodayHabits(supabase, userId, todayStr),
-      fetchDeadlines(supabase, todayStr),
-      fetchPendingPayments(supabase),
+      fetchDeadlines(supabase, userId, todayStr),
+      fetchPendingPayments(supabase, userId),
       fetchRecentActivity(supabase, userId),
       fetchAnalytics(supabase, userId),
       getActiveProviders(supabase, userId),

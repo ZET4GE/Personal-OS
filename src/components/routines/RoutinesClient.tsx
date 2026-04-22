@@ -1,7 +1,7 @@
 'use client'
 
 import { useOptimistic, useTransition, useRef } from 'react'
-import { Plus, ListChecks } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   createRoutineAction,

@@ -10,7 +10,6 @@ import {
   setHabitActiveAction,
 } from '@/app/(dashboard)/habits/actions'
 import { HabitForm, type HabitFormHandle } from './HabitForm'
-import { StreakBadge } from './StreakBadge'
 import { HABIT_COLOR_STYLES, FREQUENCY_LABELS } from '@/types/habits'
 import type { Habit } from '@/types/habits'
 

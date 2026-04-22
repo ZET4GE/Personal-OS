@@ -27,7 +27,7 @@ begin
 
   if v_target_time is not null and v_target_time > 0 then
     update public.goals
-    set progress = least(1, v_current_time::numeric / v_target_time::numeric)
+    set progress = least(100, greatest(0, floor((v_current_time::numeric / v_target_time::numeric) * 100)::integer))
     where id = p_goal_id;
   end if;
 end;

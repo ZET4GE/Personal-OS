@@ -58,7 +58,8 @@ export const HabitForm = forwardRef<HabitFormHandle, HabitFormProps>(
       const fd = new FormData(e.currentTarget)
       // target_days as comma-separated
       fd.set('target_days', selDays.join(','))
-      isEdit ? onSubmitUpdate(fd) : onSubmitCreate(fd)
+      if (isEdit) onSubmitUpdate(fd)
+      else onSubmitCreate(fd)
       dialogRef.current?.close()
     }
 

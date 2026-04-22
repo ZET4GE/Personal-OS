@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback, useTransition } from 'react'
 import {
   Eye, Code2, Globe, Lock, Pin, PinOff, Archive, Save,
-  Tag, CheckCheck, Loader2, Trash2,
+  Tag, CheckCheck, Loader2,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
 import type { Note } from '@/types/notes'
@@ -64,7 +64,7 @@ export function NoteEditor({ note }: Props) {
   const [tagInput, setTagInput] = useState(note.tags.join(', '))
   const [showTags, setShowTags] = useState(note.tags.length > 0)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [pending, start] = useTransition()
+  const [, start] = useTransition()
 
   // Reset when note changes
   useEffect(() => {
@@ -73,7 +73,7 @@ export function NoteEditor({ note }: Props) {
     setTagInput(note.tags.join(', '))
     setShowTags(note.tags.length > 0)
     setSaved(true)
-  }, [note.id])
+  }, [note.id, note.title, note.content, note.tags])
 
   const triggerSave = useCallback((t: string, c: string) => {
     if (debounceRef.current) clearTimeout(debounceRef.current)

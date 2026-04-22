@@ -37,7 +37,8 @@ export function RoutineRunner({ routine, items, log, date }: RoutineRunnerProps)
     // Optimistic local update
     setCompletedIds((prev) => {
       const next = new Set(prev)
-      next.has(itemId) ? next.delete(itemId) : next.add(itemId)
+      if (next.has(itemId)) next.delete(itemId)
+      else next.add(itemId)
       return next
     })
 
@@ -52,7 +53,8 @@ export function RoutineRunner({ routine, items, log, date }: RoutineRunnerProps)
         // Revert on error
         setCompletedIds((prev) => {
           const next = new Set(prev)
-          next.has(itemId) ? next.delete(itemId) : next.add(itemId)
+          if (next.has(itemId)) next.delete(itemId)
+          else next.add(itemId)
           return next
         })
         toast.error(r.error)

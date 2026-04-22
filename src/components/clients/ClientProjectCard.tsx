@@ -3,9 +3,8 @@
 import Link from 'next/link'
 import { Pencil, Trash2, AlertCircle } from 'lucide-react'
 import { isOverdue } from '@/lib/utils'
-import { PRIORITY_STYLES, PRIORITY_LABELS, PROJECT_STATUSES_CLIENT, PROJECT_STATUS_CLIENT_LABELS } from '@/types/clients'
+import { PRIORITY_LABELS, PROJECT_STATUSES_CLIENT, PROJECT_STATUS_CLIENT_LABELS } from '@/types/clients'
 import type { ClientProject } from '@/types/clients'
-import { ProjectStatusBadge } from './ProjectStatusBadge'
 import { PaymentProgress } from './PaymentProgress'
 import { TagSelector } from '@/components/tags/TagSelector'
 

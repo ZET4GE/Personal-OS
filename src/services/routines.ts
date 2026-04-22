@@ -111,7 +111,11 @@ export async function updateRoutineItem(
   supabase: SupabaseClient,
   input: UpdateRoutineItemData,
 ): Promise<Result<RoutineItem>> {
-  const { id, routine_id: _rid, ...patch } = input
+  const { id } = input
+  const patch: Partial<RoutineItem> = {
+    title: input.title,
+    duration_minutes: input.duration_minutes,
+  }
   const { data, error } = await supabase
     .from('routine_items')
     .update(patch)

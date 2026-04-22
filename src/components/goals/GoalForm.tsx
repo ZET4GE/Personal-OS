@@ -246,7 +246,7 @@ export function GoalForm({ goal }: GoalFormProps) {
         <div className="space-y-2">
           <label className="text-sm font-medium text-text">Hitos iniciales</label>
           <div className="space-y-2">
-            {milestones.map((m, i) => (
+            {milestones.map((m) => (
               <div key={m.tempId} className="flex items-center gap-2">
                 <div className="h-4 w-4 shrink-0 rounded-full border-2 border-border" />
                 <span className="flex-1 text-sm text-text">{m.title}</span>

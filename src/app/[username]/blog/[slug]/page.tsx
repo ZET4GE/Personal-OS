@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Clock, Calendar, ChevronRight, ChevronLeft, Share2 } from 'lucide-react'
+import { Clock, Calendar, ChevronRight, ChevronLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getProfileByUsername } from '@/services/profiles'
 import { getPostBySlug, getAdjacentPosts } from '@/services/posts'

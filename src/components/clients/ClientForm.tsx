@@ -32,7 +32,8 @@ export const ClientForm = forwardRef<ClientFormHandle, ClientFormProps>(
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
       e.preventDefault()
       const fd = new FormData(e.currentTarget)
-      isEdit ? onSubmitUpdate(fd) : onSubmitCreate(fd)
+      if (isEdit) onSubmitUpdate(fd)
+      else onSubmitCreate(fd)
       dialogRef.current?.close()
     }
 

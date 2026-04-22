@@ -6,11 +6,6 @@ import { isTokenExpired, updateTokens } from './integrations'
 // Token refresh
 // ─────────────────────────────────────────────────────────────
 
-interface RefreshedTokens {
-  access_token:     string
-  token_expires_at: string
-}
-
 async function refreshGoogleToken(
   supabase: SupabaseClient,
   integration: Integration,

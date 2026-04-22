@@ -36,7 +36,7 @@ export function calculateStreak(
 ): number {
   const logSet = new Set(logDates)
   let streak   = 0
-  let cursor   = new Date(todayStr + 'T12:00:00')
+  const cursor = new Date(todayStr + 'T12:00:00')
 
   // Walk backwards from today
   for (let i = 0; i < 365; i++) {
