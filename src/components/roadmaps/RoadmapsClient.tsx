@@ -154,6 +154,16 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
   const supabase = createClient()
   const selectedTypeHelp = getRoadmapTypeHelp(type)
 
+  async function getCurrentUserId() {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.getUser()
+
+    if (error || !user) throw new Error('Sesion invalida')
+    return user.id
+  }
+
   async function createTemplateNodes(roadmapId: string, goalId: string | null) {
     const selectedTemplate = ROADMAP_TEMPLATES.find((item) => item.value === template)
     const templateNodes = selectedTemplate?.nodes ?? []
@@ -272,6 +282,15 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
     if (!editTitle.trim() || isSaving) return
     setIsSaving(true)
 
+    let userId: string
+    try {
+      userId = await getCurrentUserId()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Sesion invalida')
+      setIsSaving(false)
+      return
+    }
+
     const { data, error } = await supabase
       .from('learning_roadmaps')
       .update({
@@ -281,6 +300,7 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
         primary_goal_id: editPrimaryGoalId || null,
       })
       .eq('id', id)
+      .eq('user_id', userId)
       .select('*')
       .single()
 
@@ -301,10 +321,20 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
     if (!window.confirm('Eliminar este roadmap? Esta accion no se puede deshacer.')) return
     setIsSaving(true)
 
+    let userId: string
+    try {
+      userId = await getCurrentUserId()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Sesion invalida')
+      setIsSaving(false)
+      return
+    }
+
     const { error } = await supabase
       .from('learning_roadmaps')
       .delete()
       .eq('id', id)
+      .eq('user_id', userId)
 
     if (error) {
       toast.error(error.message || 'No se pudo eliminar')
@@ -320,6 +350,14 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
 
   async function handleTogglePublic(roadmap: LearningRoadmap) {
     const nextValue = !roadmap.is_public
+    let userId: string
+    try {
+      userId = await getCurrentUserId()
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Sesion invalida')
+      return
+    }
+
     setRoadmaps((current) => current.map((item) => (
       item.id === roadmap.id ? { ...item, is_public: nextValue } : item
     )))
@@ -328,6 +366,7 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
       .from('learning_roadmaps')
       .update({ is_public: nextValue })
       .eq('id', roadmap.id)
+      .eq('user_id', userId)
 
     if (error) {
       setRoadmaps((current) => current.map((item) => (
