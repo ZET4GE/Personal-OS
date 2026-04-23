@@ -7,6 +7,8 @@ import { Loader2, Search } from 'lucide-react'
 import { useGlobalSearch } from '@/hooks/useGlobalSearch'
 import type { GlobalSearchResult, GlobalSearchResultType } from '@/types/search'
 
+const isMac = typeof navigator !== 'undefined' && /Mac|iPhone|iPad|iPod/.test(navigator.platform)
+
 const TYPE_LABELS: Record<GlobalSearchResultType, string> = {
   project: 'Proyecto',
   goal: 'Meta',
@@ -140,6 +142,24 @@ export function GlobalSearch() {
     }
   }, [])
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        inputRef.current?.focus()
+        setFocused(true)
+      }
+      if (e.key === 'Escape') {
+        setFocused(false)
+        setQuery('')
+        inputRef.current?.blur()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
   return (
     <div ref={containerRef} className="relative w-full max-w-md overflow-visible">
       <div className="relative">
@@ -150,8 +170,13 @@ export function GlobalSearch() {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
           placeholder="Buscar en todo..."
-          className="w-full rounded-xl border border-border bg-surface-2 py-2 pl-9 pr-3 text-sm text-text outline-none transition-colors focus:border-accent-600"
+          className="w-full rounded-xl border border-border bg-surface-2 py-2 pl-9 pr-16 text-sm text-text outline-none transition-colors focus:border-accent-600"
         />
+        {!focused && (
+          <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 hidden rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] text-muted sm:flex items-center gap-0.5">
+            {isMac ? '⌘' : 'Ctrl'}<span>K</span>
+          </kbd>
+        )}
       </div>
 
       {mounted && showResults && createPortal(

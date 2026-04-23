@@ -58,7 +58,7 @@ const STEPS = [
     target: '[data-tour="global-search"]',
     title: 'Busca cualquier cosa',
     description:
-      'El buscador encuentra metas, proyectos, notas, roadmaps, empleos, clientes y finanzas.',
+      'El buscador encuentra metas, proyectos, notas, roadmaps, empleos, clientes y finanzas. Desde cualquier pantalla, usa ⌘K (o Ctrl+K) para abrirlo al instante.',
     actionLabel: 'Abrir buscador',
     actionHref: '/search',
   },
