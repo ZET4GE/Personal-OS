@@ -85,18 +85,16 @@ export const styles = StyleSheet.create({
   main: {
     flex: 1,
   },
-  mainSection: {
-    backgroundColor: COLOR.surface,
-    borderRadius: 12,
-    padding: 15,
-    borderWidth: 0.5,
-    borderColor: COLOR.border,
-    marginBottom: 12,
+  // Each section (Experience, Projects, etc.) is a transparent block — no
+  // shared background — so react-pdf can break between individual items.
+  sectionBlock: {
+    marginBottom: 10,
   },
   sectionHeading: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 8,
+    marginTop: 2,
   },
   sectionAccent: {
     width: 4,
@@ -147,15 +145,12 @@ export const styles = StyleSheet.create({
     color: COLOR.muted,
   },
   itemCard: {
-    marginBottom: 10,
-    paddingBottom: 9,
-    borderBottomWidth: 0.5,
-    borderBottomColor: COLOR.border,
-  },
-  lastItemCard: {
-    marginBottom: 0,
-    paddingBottom: 0,
-    borderBottomWidth: 0,
+    backgroundColor: COLOR.surface,
+    borderRadius: 8,
+    borderWidth: 0.5,
+    borderColor: COLOR.border,
+    padding: 10,
+    marginBottom: 6,
   },
   itemHeaderRow: {
     flexDirection: 'row',
@@ -214,13 +209,15 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
   },
   skillGroup: {
-    marginBottom: 9,
+    marginBottom: 10,
   },
   skillCategoryLabel: {
-    fontSize: 7.8,
+    fontSize: 7.5,
     fontWeight: 'bold',
-    color: COLOR.subtle,
-    marginBottom: 4,
+    color: COLOR.label,
+    marginBottom: 5,
+    textTransform: 'uppercase',
+    letterSpacing: 0.6,
   },
   skillBadgesRow: {
     flexDirection: 'row',
@@ -236,9 +233,29 @@ export const styles = StyleSheet.create({
     borderRadius: 8,
     marginBottom: 3,
   },
-  skillBadgeLevel: {
-    fontSize: 7,
-    color: COLOR.muted,
+  // Skill row: name + optional bar
+  skillRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+    gap: 6,
+  },
+  skillName: {
+    fontSize: 8.2,
+    color: COLOR.subtle,
+    flex: 1,
+  },
+  skillBarTrack: {
+    width: 38,
+    height: 3,
+    backgroundColor: COLOR.border,
+    borderRadius: 2,
+  },
+  skillBarFill: {
+    height: 3,
+    backgroundColor: COLOR.accent,
+    borderRadius: 2,
   },
   emptyText: {
     color: COLOR.muted,
