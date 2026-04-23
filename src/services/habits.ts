@@ -237,6 +237,14 @@ export async function getHabitsWithLogs(
     last7.push(d)
   }
 
+  // Build 30-day range for stats view
+  const last30: Date[] = []
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(today)
+    d.setDate(d.getDate() - i)
+    last30.push(d)
+  }
+
   const result: HabitWithLogs[] = (habits as Habit[]).map((habit) => {
     const habitLogs = logsByHabit.get(habit.id) ?? []
     const logSet    = new Set(habitLogs)
@@ -252,9 +260,18 @@ export async function getHabitsWithLogs(
       }
     })
 
+    const last30days: HabitDay[] = last30.map((d) => {
+      const dStr = d.toISOString().slice(0, 10)
+      return {
+        date:      dStr,
+        completed: logSet.has(dStr),
+        isDue:     isHabitDueOn(habit, d),
+      }
+    })
+
     const streak = calculateStreak(habitLogs, habit, dateStr)
 
-    return { habit, todayCompleted, recentDays, streak }
+    return { habit, todayCompleted, recentDays, last30days, streak }
   })
 
   return ok(result)

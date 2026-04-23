@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 import { TimeStatsDashboard } from '@/components/time/TimeStatsDashboard'
+import { ManualTimeEntry } from '@/components/time/ManualTimeEntry'
 
 export const metadata: Metadata = { title: 'Tiempo' }
 
@@ -13,5 +14,10 @@ export default async function TimePage() {
 
   if (!user) redirect('/login')
 
-  return <TimeStatsDashboard userId={user.id} />
+  return (
+    <div className="space-y-6">
+      <ManualTimeEntry />
+      <TimeStatsDashboard userId={user.id} />
+    </div>
+  )
 }

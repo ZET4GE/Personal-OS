@@ -118,6 +118,7 @@ export interface HabitWithLogs {
   habit:          Habit
   todayCompleted: boolean
   recentDays:     HabitDay[]   // 7 entries: today + 6 past days
+  last30days:     HabitDay[]   // 30 entries for stats view
   streak:         number
 }
 
