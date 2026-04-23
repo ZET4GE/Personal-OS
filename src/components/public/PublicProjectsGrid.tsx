@@ -14,10 +14,7 @@ function PublicProjectCard({ project, username }: { project: Project; username: 
   const hiddenCount = project.tech_stack.length - MAX_TAGS
 
   return (
-    <article
-      className="flex flex-col rounded-xl border bg-surface transition-shadow hover:shadow-md"
-      style={{ borderColor: 'var(--color-border)' }}
-    >
+    <article className="public-card public-body flex flex-col rounded-xl border transition-shadow hover:shadow-md">
       {/* Clickable area → project detail */}
       <Link
         href={`/${username}/projects/${project.id}`}
@@ -51,13 +48,13 @@ function PublicProjectCard({ project, username }: { project: Project; username: 
             {visibleTags.map((tag) => (
               <span
                 key={tag}
-                className="rounded-md bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                className="rounded-md bg-[var(--public-accent-soft)] px-2 py-0.5 font-mono text-xs text-[var(--public-accent)]"
               >
                 {tag}
               </span>
             ))}
             {hiddenCount > 0 && (
-              <span className="rounded-md bg-slate-100 px-2 py-0.5 text-xs text-muted dark:bg-slate-800">
+              <span className="rounded-md bg-[var(--public-accent-soft)] px-2 py-0.5 text-xs text-muted">
                 +{hiddenCount}
               </span>
             )}
@@ -109,7 +106,7 @@ interface PublicProjectsGridProps {
 export function PublicProjectsGrid({ projects, username }: PublicProjectsGridProps) {
   if (projects.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border py-16 text-center">
+      <div className="public-card public-body flex flex-col items-center justify-center rounded-xl border border-dashed py-16 text-center">
         <FolderOpen size={32} className="mb-3 text-muted" />
         <p className="text-sm text-muted">Sin proyectos públicos todavía.</p>
       </div>

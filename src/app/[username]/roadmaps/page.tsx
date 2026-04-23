@@ -37,13 +37,13 @@ export default async function PublicRoadmapsPage({ params }: PageProps) {
   const { data: roadmaps } = await getPublicLearningRoadmapsByUser(supabase, profile.id)
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+    <main className="public-body mx-auto max-w-5xl px-4 py-12 sm:px-6">
       <PublicHeader profile={profile} />
 
-      <div className="my-10 border-t border-border" />
+      <div className="public-divider my-10 border-t border-border" />
 
       <nav className="mb-6 flex flex-wrap items-center gap-4">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
+        <h2 className="public-heading text-xs font-semibold uppercase tracking-widest text-muted">
           Roadmaps
         </h2>
         <Link

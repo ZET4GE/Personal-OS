@@ -2,11 +2,22 @@
 
 import { useActionState, useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Camera, CheckCircle2, Eye, Loader2, Save, X } from 'lucide-react'
+import { Camera, CheckCircle2, Eye, Loader2, Palette, Save, Sparkles, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { updateProfileAction } from '@/app/(dashboard)/settings/actions'
 import { createClient } from '@/lib/supabase/client'
-import { CV_AVAILABILITY_LABELS, CV_AVAILABILITY_OPTIONS } from '@/types/profile'
+import {
+  CV_AVAILABILITY_LABELS,
+  CV_AVAILABILITY_OPTIONS,
+  PORTFOLIO_ACCENT_STYLE_LABELS,
+  PORTFOLIO_ACCENT_STYLE_OPTIONS,
+  PORTFOLIO_BACKGROUND_STYLE_LABELS,
+  PORTFOLIO_BACKGROUND_STYLE_OPTIONS,
+  PORTFOLIO_CARD_STYLE_LABELS,
+  PORTFOLIO_CARD_STYLE_OPTIONS,
+  PORTFOLIO_FONT_STYLE_LABELS,
+  PORTFOLIO_FONT_STYLE_OPTIONS,
+} from '@/types/profile'
 import type { Profile } from '@/types/profile'
 
 // ─────────────────────────────────────────────────────────────
@@ -15,9 +26,10 @@ import type { Profile } from '@/types/profile'
 
 interface ProfileSettingsFormProps {
   profile: Profile | null
+  canCustomizePortfolio: boolean
 }
 
-export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
+export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileSettingsFormProps) {
   const [state, formAction, isPending] = useActionState(updateProfileAction, null)
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url ?? '')
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
@@ -277,6 +289,105 @@ export function ProfileSettingsForm({ profile }: ProfileSettingsFormProps) {
                 defaultValue={current?.twitter_url ?? ''}
                 placeholder="https://x.com/..."
                 className={inputCls} />
+            </Field>
+          </div>
+        </Section>
+
+        <Section title="Portfolio Pro">
+          <div className="flex flex-col gap-3 rounded-xl border border-border bg-surface px-4 py-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <Palette size={15} className="text-accent-500" />
+                <p className="text-sm font-medium">Customiza tu portfolio publico</p>
+                {canCustomizePortfolio ? (
+                  <span className="rounded-full bg-accent-500/12 px-2 py-0.5 text-[11px] font-semibold text-accent-500">
+                    Pro activo
+                  </span>
+                ) : (
+                  <span className="rounded-full bg-amber-500/12 px-2 py-0.5 text-[11px] font-semibold text-amber-500">
+                    Solo Pro
+                  </span>
+                )}
+              </div>
+              <p className="text-xs text-muted">
+                Cambia tipografia, fondo, tarjetas y color acento del portfolio publico.
+              </p>
+            </div>
+
+            {!canCustomizePortfolio && (
+              <Link
+                href="/settings/billing"
+                className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium transition-colors hover:bg-surface-hover"
+              >
+                <Sparkles size={13} />
+                Ver plan Pro
+              </Link>
+            )}
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Tipografia" htmlFor="portfolio_font_style">
+              <select
+                id="portfolio_font_style"
+                name="portfolio_font_style"
+                defaultValue={current?.portfolio_font_style ?? 'sans'}
+                className={inputCls}
+                disabled={!canCustomizePortfolio}
+              >
+                {PORTFOLIO_FONT_STYLE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {PORTFOLIO_FONT_STYLE_LABELS[option]}
+                  </option>
+                ))}
+              </select>
+            </Field>
+
+            <Field label="Fondo" htmlFor="portfolio_background_style">
+              <select
+                id="portfolio_background_style"
+                name="portfolio_background_style"
+                defaultValue={current?.portfolio_background_style ?? 'mist'}
+                className={inputCls}
+                disabled={!canCustomizePortfolio}
+              >
+                {PORTFOLIO_BACKGROUND_STYLE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {PORTFOLIO_BACKGROUND_STYLE_LABELS[option]}
+                  </option>
+                ))}
+              </select>
+            </Field>
+
+            <Field label="Tarjetas" htmlFor="portfolio_card_style">
+              <select
+                id="portfolio_card_style"
+                name="portfolio_card_style"
+                defaultValue={current?.portfolio_card_style ?? 'glass'}
+                className={inputCls}
+                disabled={!canCustomizePortfolio}
+              >
+                {PORTFOLIO_CARD_STYLE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {PORTFOLIO_CARD_STYLE_LABELS[option]}
+                  </option>
+                ))}
+              </select>
+            </Field>
+
+            <Field label="Color acento" htmlFor="portfolio_accent_style">
+              <select
+                id="portfolio_accent_style"
+                name="portfolio_accent_style"
+                defaultValue={current?.portfolio_accent_style ?? 'blue'}
+                className={inputCls}
+                disabled={!canCustomizePortfolio}
+              >
+                {PORTFOLIO_ACCENT_STYLE_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {PORTFOLIO_ACCENT_STYLE_LABELS[option]}
+                  </option>
+                ))}
+              </select>
             </Field>
           </div>
         </Section>

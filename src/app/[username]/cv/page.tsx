@@ -292,7 +292,7 @@ export default async function PublicCVPage({ params }: PageProps) {
   const displayName = profile.full_name ?? `@${username}`
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
+    <main className="public-body mx-auto max-w-3xl px-4 py-12 sm:px-6">
       <TrackingPixel pageType="cv" ownerId={profile.id} currentUserId={user?.id ?? null} />
       {/* Breadcrumb + download */}
       <div className="mb-8 flex items-center justify-between">

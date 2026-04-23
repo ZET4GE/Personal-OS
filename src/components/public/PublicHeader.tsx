@@ -10,7 +10,10 @@ function Avatar({ profile }: { profile: Profile }) {
     return (
       <div className="relative shrink-0">
         {/* Glow ring */}
-        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-accent-500 to-violet-600 blur-md opacity-40" />
+        <div
+          className="absolute inset-0 rounded-full blur-md opacity-40"
+          style={{ background: 'linear-gradient(135deg, var(--public-accent), color-mix(in srgb, var(--public-accent) 35%, white))' }}
+        />
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={profile.avatar_url}
@@ -35,8 +38,14 @@ function Avatar({ profile }: { profile: Profile }) {
   return (
     <div className="relative shrink-0">
       {/* Glow ring */}
-      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-accent-500 to-violet-600 blur-md opacity-40" />
-      <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-accent-500 to-violet-600 text-2xl font-bold text-white ring-2 ring-accent-500/30">
+      <div
+        className="absolute inset-0 rounded-full blur-md opacity-40"
+        style={{ background: 'linear-gradient(135deg, var(--public-accent), color-mix(in srgb, var(--public-accent) 35%, white))' }}
+      />
+      <div
+        className="relative flex h-24 w-24 items-center justify-center rounded-full text-2xl font-bold text-white ring-2 ring-accent-500/30"
+        style={{ background: 'linear-gradient(135deg, var(--public-accent), color-mix(in srgb, var(--public-accent) 35%, white))' }}
+      >
         {initials}
       </div>
     </div>
@@ -53,7 +62,7 @@ interface PublicHeaderProps {
 
 export function PublicHeader({ profile }: PublicHeaderProps) {
   return (
-    <header className="relative overflow-hidden rounded-2xl border border-border bg-surface p-8 shadow-[var(--shadow-card)]">
+    <header className="public-card public-body relative overflow-hidden rounded-2xl border p-8">
       {/* Ambient glow */}
       <div
         aria-hidden
@@ -66,8 +75,8 @@ export function PublicHeader({ profile }: PublicHeaderProps) {
         <div className="flex-1 space-y-3 min-w-0">
           {/* Name + username */}
           <div>
-            <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-              <span className="gradient-text">
+            <h1 className="public-heading text-2xl font-bold tracking-tight sm:text-3xl">
+              <span className="public-accent-text">
                 {profile.full_name ?? profile.username}
               </span>
             </h1>

@@ -38,41 +38,41 @@ export function PublicRoadmapDetail({ detail, username, displayName }: PublicRoa
   const progress = getAverageProgress(detail)
 
   return (
-    <article className="space-y-6">
+    <article className="public-body space-y-6">
       <Link href={`/${username}/roadmaps`} className="text-sm font-medium text-muted transition-colors hover:text-text">
         Volver a roadmaps
       </Link>
 
-      <header className="overflow-hidden rounded-2xl border border-border bg-surface p-6 shadow-[var(--shadow-card)]">
+      <header className="public-card overflow-hidden rounded-2xl border p-6">
         <div className="mb-4 flex flex-wrap items-center gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-cyan-500/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-cyan-300">
+          <span className="public-badge inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em]">
             <Route size={13} />
             Roadmap publico
           </span>
-          <span className="rounded-full bg-surface-2 px-3 py-1 text-xs font-medium text-muted">
+          <span className="rounded-full bg-[var(--public-accent-soft)] px-3 py-1 text-xs font-medium text-muted">
             {displayName}
           </span>
         </div>
 
         <div className="grid gap-6 md:grid-cols-[1fr_180px] md:items-end">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight text-text">{detail.roadmap.title}</h1>
+            <h1 className="public-heading text-3xl font-bold tracking-tight text-text">{detail.roadmap.title}</h1>
             {detail.roadmap.description && (
               <p className="mt-3 max-w-2xl text-sm leading-6 text-muted">{detail.roadmap.description}</p>
             )}
           </div>
 
-          <div className="rounded-xl border border-border bg-surface-2 p-4">
+          <div className="public-card rounded-xl border p-4">
             <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">Progreso</p>
             <p className="mt-2 text-3xl font-bold text-text">{progress}%</p>
             <div className="mt-3 h-2 overflow-hidden rounded-full bg-black/30">
-              <div className="h-full rounded-full bg-accent-500" style={{ width: `${progress}%` }} />
+              <div className="h-full rounded-full" style={{ width: `${progress}%`, backgroundColor: 'var(--public-accent)' }} />
             </div>
           </div>
         </div>
       </header>
 
-      <section className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
+      <section className="public-card rounded-2xl border p-5">
         <div className="mb-5 flex items-center justify-between gap-3">
           <div>
             <h2 className="text-base font-semibold text-text">Camino</h2>
@@ -84,7 +84,7 @@ export function PublicRoadmapDetail({ detail, username, displayName }: PublicRoa
         </div>
 
         {detail.nodes.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-border py-12 text-center">
+            <div className="public-card rounded-xl border border-dashed py-12 text-center">
             <p className="text-sm text-muted">Este roadmap todavia no tiene nodos publicados.</p>
           </div>
         ) : (
@@ -93,7 +93,7 @@ export function PublicRoadmapDetail({ detail, username, displayName }: PublicRoa
               const nodeProgress = Math.round(Number(node.progress ?? 0) * 100)
 
               return (
-                <div key={node.id} className="grid gap-3 rounded-xl border border-border bg-surface-2 p-4 sm:grid-cols-[36px_1fr]">
+                <div key={node.id} className="public-card grid gap-3 rounded-xl border p-4 sm:grid-cols-[36px_1fr]">
                   <div className="flex flex-row items-center gap-3 sm:flex-col">
                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-surface">
                       {statusIcon(node.status)}
@@ -104,7 +104,7 @@ export function PublicRoadmapDetail({ detail, username, displayName }: PublicRoa
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       {node.level && (
-                        <span className="rounded-full bg-black/20 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
+                        <span className="rounded-full bg-[var(--public-accent-soft)] px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">
                           {node.level}
                         </span>
                       )}
@@ -120,7 +120,7 @@ export function PublicRoadmapDetail({ detail, username, displayName }: PublicRoa
 
                     <div className="mt-4 flex items-center gap-3">
                       <div className="h-2 flex-1 overflow-hidden rounded-full bg-black/30">
-                        <div className="h-full rounded-full bg-cyan-400" style={{ width: `${nodeProgress}%` }} />
+                        <div className="h-full rounded-full" style={{ width: `${nodeProgress}%`, backgroundColor: 'var(--public-accent)' }} />
                       </div>
                       <span className="w-10 text-right text-xs font-semibold text-muted">{nodeProgress}%</span>
                     </div>
@@ -130,7 +130,7 @@ export function PublicRoadmapDetail({ detail, username, displayName }: PublicRoa
                         {node.goals.map((goal) => (
                           <span
                             key={goal.id}
-                            className="inline-flex items-center gap-1.5 rounded-full bg-accent-500/10 px-2.5 py-1 text-xs font-medium text-accent-200"
+                            className="public-badge inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium"
                           >
                             <Target size={12} />
                             {goal.title}

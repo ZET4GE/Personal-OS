@@ -31,7 +31,7 @@ export function Hero() {
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
               <AuthCTAButton label="Crear espacio gratis" mode="signup" />
               <Link
-                href="/williams"
+                href="/demo"
                 className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200/80 bg-white/62 px-6 py-3 text-sm font-semibold text-text shadow-[0_18px_32px_-26px_rgba(15,23,42,0.16)] backdrop-blur-xl transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_24px_42px_-28px_rgba(15,23,42,0.2)] active:scale-[0.98] dark:border-white/10 dark:bg-surface/70 dark:shadow-[var(--shadow-card)] dark:hover:border-border-bright dark:hover:shadow-[var(--shadow-card-hover)]"
               >
                 <PlayCircle size={15} className="text-accent-500" />

@@ -66,17 +66,17 @@ export default async function PublicProfilePage({ params }: PageProps) {
   ])
 
   return (
-    <main className="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+    <main className="public-body mx-auto max-w-5xl px-4 py-12 sm:px-6">
       <TrackingPixel pageType="profile" ownerId={profile.id} currentUserId={user?.id ?? null} />
       {/* Header: avatar, nombre, bio, links */}
       <PublicHeader profile={profile} />
 
       {/* Divider */}
-      <div className="my-10 border-t" style={{ borderColor: 'var(--color-border)' }} />
+      <div className="public-divider my-10 border-t" style={{ borderColor: 'var(--color-border)' }} />
 
       {/* Nav tabs: Proyectos · CV */}
       <nav className="mb-6 flex items-center gap-4">
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">
+        <h2 className="public-heading text-xs font-semibold uppercase tracking-widest text-muted">
           Proyectos
         </h2>
         <Link

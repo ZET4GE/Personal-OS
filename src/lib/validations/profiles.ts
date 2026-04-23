@@ -1,5 +1,11 @@
 import { z } from 'zod'
-import { CV_AVAILABILITY_OPTIONS } from '@/types/profile'
+import {
+  CV_AVAILABILITY_OPTIONS,
+  PORTFOLIO_ACCENT_STYLE_OPTIONS,
+  PORTFOLIO_BACKGROUND_STYLE_OPTIONS,
+  PORTFOLIO_CARD_STYLE_OPTIONS,
+  PORTFOLIO_FONT_STYLE_OPTIONS,
+} from '@/types/profile'
 
 // ─────────────────────────────────────────────────────────────
 // Helpers
@@ -61,6 +67,10 @@ export const UpdateProfileSchema = z.object({
   github_url:   optionalUrl(),
   linkedin_url: optionalUrl(),
   twitter_url:  optionalUrl(),
+  portfolio_font_style: z.enum(PORTFOLIO_FONT_STYLE_OPTIONS).optional(),
+  portfolio_background_style: z.enum(PORTFOLIO_BACKGROUND_STYLE_OPTIONS).optional(),
+  portfolio_card_style: z.enum(PORTFOLIO_CARD_STYLE_OPTIONS).optional(),
+  portfolio_accent_style: z.enum(PORTFOLIO_ACCENT_STYLE_OPTIONS).optional(),
   is_public: z
     .string()
     .optional()

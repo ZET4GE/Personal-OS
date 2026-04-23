@@ -53,7 +53,7 @@ function Breadcrumbs({
 
 export function ProjectDetail({ project, username, displayName }: ProjectDetailProps) {
   return (
-    <article className="space-y-8">
+    <article className="public-body space-y-8">
       {/* Nav */}
       <div className="space-y-3">
         <BackButton href={`/${username}`} label={`Volver al perfil de ${displayName}`} />
@@ -88,7 +88,7 @@ export function ProjectDetail({ project, username, displayName }: ProjectDetailP
         </span>
 
         {/* Title */}
-        <h1 className="text-3xl font-bold tracking-tight">{project.title}</h1>
+        <h1 className="public-heading text-3xl font-bold tracking-tight">{project.title}</h1>
 
         {/* Links */}
         {(project.github_url || project.live_url) && (
@@ -98,7 +98,7 @@ export function ProjectDetail({ project, username, displayName }: ProjectDetailP
                 href={project.github_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
+                className="public-button inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors"
               >
                 <GitBranch size={15} />
                 Ver código
@@ -109,7 +109,8 @@ export function ProjectDetail({ project, username, displayName }: ProjectDetailP
                 href={project.live_url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg bg-accent-600 px-3 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-[var(--public-accent-contrast)] transition-opacity hover:opacity-90"
+                style={{ backgroundColor: 'var(--public-accent)' }}
               >
                 <ExternalLink size={15} />
                 Ver demo
@@ -120,7 +121,7 @@ export function ProjectDetail({ project, username, displayName }: ProjectDetailP
       </div>
 
       {/* Divider */}
-      <div className="border-t" style={{ borderColor: 'var(--color-border)' }} />
+      <div className="public-divider border-t" style={{ borderColor: 'var(--color-border)' }} />
 
       {/* Description */}
       {project.description && (
