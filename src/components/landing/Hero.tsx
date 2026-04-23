@@ -10,14 +10,14 @@ export function Hero() {
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
         <div className="grid gap-14 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
           <Reveal className="relative" distance={34}>
-            <div className="inline-flex items-center gap-2 rounded-full border border-accent-500/20 bg-surface/70 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-accent-400 backdrop-blur-xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-white/68 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-accent-500 shadow-[0_12px_28px_-20px_rgba(15,23,42,0.16)] backdrop-blur-xl dark:border-accent-500/20 dark:bg-surface/70 dark:text-accent-400 dark:shadow-none">
               <Sparkles size={12} className="shrink-0" />
               Work in One Framework
             </div>
 
             <h1 className="mt-6 max-w-3xl text-4xl font-semibold tracking-[-0.04em] text-text sm:text-5xl lg:text-[4.5rem] lg:leading-[0.95]">
               Menos apps sueltas.
-              <span className="mt-2 block bg-gradient-to-r from-accent-400 via-cyan-300 to-violet-400 bg-clip-text text-transparent">
+              <span className="mt-2 block bg-gradient-to-r from-sky-600 via-cyan-500 to-indigo-500 bg-clip-text text-transparent dark:from-accent-400 dark:via-cyan-300 dark:to-violet-400">
                 Mas claridad para cumplir una meta real.
               </span>
             </h1>
@@ -32,7 +32,7 @@ export function Hero() {
               <AuthCTAButton label="Crear espacio gratis" mode="signup" />
               <Link
                 href="/williams"
-                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-surface/70 px-6 py-3 text-sm font-semibold text-text shadow-[var(--shadow-card)] backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:border-border-bright hover:shadow-[var(--shadow-card-hover)] active:scale-[0.98]"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200/80 bg-white/62 px-6 py-3 text-sm font-semibold text-text shadow-[0_18px_32px_-26px_rgba(15,23,42,0.16)] backdrop-blur-xl transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-[0_24px_42px_-28px_rgba(15,23,42,0.2)] active:scale-[0.98] dark:border-white/10 dark:bg-surface/70 dark:shadow-[var(--shadow-card)] dark:hover:border-border-bright dark:hover:shadow-[var(--shadow-card-hover)]"
               >
                 <PlayCircle size={15} className="text-accent-500" />
                 Ver demo en vivo
@@ -58,7 +58,7 @@ export function Hero() {
                 },
               ].map((item, index) => (
                 <Reveal key={item.label} delayMs={80 + index * 90} distance={18}>
-                  <div className="rounded-2xl border border-white/10 bg-surface/65 p-4 backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1">
+                  <div className="rounded-2xl border border-slate-200/80 bg-white/56 p-4 shadow-[0_16px_34px_-26px_rgba(15,23,42,0.14)] backdrop-blur-xl transition-transform duration-200 ease-out hover:-translate-y-1 dark:border-white/10 dark:bg-surface/65 dark:shadow-none">
                     <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-500/10 text-accent-400">
                       <item.icon size={17} />
                     </div>
@@ -81,14 +81,14 @@ export function Hero() {
 
           <Reveal delayMs={120} distance={42}>
             <div className="relative lg:pl-6">
-              <div className="absolute inset-x-12 top-8 h-32 rounded-full bg-gradient-to-r from-accent-500/25 via-cyan-500/10 to-violet-500/20 blur-3xl" />
+              <div className="absolute inset-x-12 top-8 h-32 rounded-full bg-gradient-to-r from-accent-500/12 via-cyan-500/8 to-violet-500/10 blur-3xl dark:from-accent-500/25 dark:via-cyan-500/10 dark:to-violet-500/20" />
               <HeroShowcase />
             </div>
           </Reveal>
         </div>
 
         <Reveal delayMs={180} className="mt-16" distance={20}>
-          <div className="grid gap-4 rounded-[2rem] border border-white/10 bg-surface/55 p-4 backdrop-blur-xl sm:grid-cols-3 sm:p-5">
+          <div className="grid gap-4 rounded-[2rem] border border-slate-200/75 bg-white/48 p-4 shadow-[0_20px_60px_-42px_rgba(15,23,42,0.16)] backdrop-blur-xl dark:border-white/10 dark:bg-surface/55 dark:shadow-none sm:grid-cols-3 sm:p-5">
             {[
               ['Para estudiantes', 'Roadmaps, cursos, CV y habitos sin perder el hilo.'],
               ['Para freelancers', 'Clientes, proyectos, finanzas y seguimiento del trabajo en un solo flujo.'],
@@ -97,7 +97,7 @@ export function Hero() {
               <div
                 key={title}
                 className={[
-                  'rounded-2xl border border-white/8 bg-black/[0.14] p-4 transition-transform duration-300 hover:-translate-y-1',
+                  'rounded-2xl border border-slate-200/75 bg-white/54 p-4 shadow-[0_16px_38px_-28px_rgba(15,23,42,0.15)] transition-transform duration-200 ease-out hover:-translate-y-1 dark:border-white/8 dark:bg-black/[0.14] dark:shadow-none',
                   index === 1 ? 'sm:scale-[1.02]' : '',
                 ].join(' ')}
               >

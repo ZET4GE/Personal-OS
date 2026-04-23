@@ -38,9 +38,9 @@ export function Navbar({ initialModal }: NavbarProps) {
     <>
       <header
         className={[
-          'fixed inset-x-0 top-0 z-40 transition-all duration-300',
+          'fixed inset-x-0 top-0 z-40 transition-all duration-200 ease-out',
           scrolled
-            ? 'border-b border-border bg-surface/90 backdrop-blur-md shadow-[var(--shadow-card)]'
+            ? 'border-b border-slate-200/80 bg-white/72 backdrop-blur-xl shadow-[0_20px_40px_-30px_rgba(15,23,42,0.16)] dark:border-border dark:bg-surface/90 dark:shadow-[var(--shadow-card)]'
             : 'bg-transparent',
         ].join(' ')}
       >
@@ -56,7 +56,7 @@ export function Navbar({ initialModal }: NavbarProps) {
               <a
                 key={l.href}
                 href={l.href}
-                className="text-sm text-muted transition-colors hover:text-text"
+                className="text-sm text-muted transition-colors duration-200 hover:text-text"
               >
                 {l.label}
               </a>
@@ -68,13 +68,13 @@ export function Navbar({ initialModal }: NavbarProps) {
             <ThemeToggle />
             <button
               onClick={() => openModal('login')}
-              className="rounded-lg px-3 py-1.5 text-sm text-muted transition-colors hover:text-text"
+              className="rounded-lg px-3 py-1.5 text-sm text-muted transition-colors duration-200 hover:text-text"
             >
               Iniciar sesión
             </button>
             <button
               onClick={() => openModal('signup')}
-              className="rounded-lg bg-accent-600 px-3.5 py-1.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+              className="rounded-lg bg-accent-600 px-3.5 py-1.5 text-sm font-medium text-white transition-all duration-200 ease-out hover:-translate-y-0.5 hover:opacity-95"
             >
               Registrarse
             </button>
@@ -85,7 +85,7 @@ export function Navbar({ initialModal }: NavbarProps) {
             <ThemeToggle />
             <button
               onClick={() => setMenuOpen((v) => !v)}
-              className="rounded-lg p-1.5 text-muted hover:bg-surface-hover hover:text-text"
+              className="rounded-lg p-1.5 text-muted transition-colors duration-200 hover:bg-surface-hover hover:text-text"
               aria-label="Menú"
             >
               {menuOpen ? <X size={18} /> : <Menu size={18} />}

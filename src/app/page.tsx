@@ -52,7 +52,7 @@ export default async function HomePage({
   const initialModal = modal === 'login' || modal === 'signup' ? modal : undefined
 
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-background">
+    <div className="landing-shell relative min-h-screen overflow-x-clip">
       <LandingBackground />
       <Navbar initialModal={initialModal} />
 

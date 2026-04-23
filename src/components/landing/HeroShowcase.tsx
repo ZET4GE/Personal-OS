@@ -72,14 +72,14 @@ export function HeroShowcase() {
         className="group relative [--hero-rotate-x:0deg] [--hero-rotate-y:0deg] [--hero-shine-x:50%] [--hero-shine-y:24%]"
       >
         <div
-          className="absolute -inset-8 rounded-[2.5rem] bg-[radial-gradient(circle_at_var(--hero-shine-x)_var(--hero-shine-y),rgba(59,130,246,0.22),transparent_34%),linear-gradient(135deg,rgba(59,130,246,0.14),transparent_48%,rgba(139,92,246,0.12))] blur-2xl transition-transform duration-300"
+          className="absolute -inset-8 rounded-[2.5rem] bg-[radial-gradient(circle_at_var(--hero-shine-x)_var(--hero-shine-y),rgba(59,130,246,0.14),transparent_34%),linear-gradient(135deg,rgba(59,130,246,0.08),transparent_48%,rgba(139,92,246,0.08))] blur-2xl transition-transform duration-150 ease-out dark:bg-[radial-gradient(circle_at_var(--hero-shine-x)_var(--hero-shine-y),rgba(59,130,246,0.22),transparent_34%),linear-gradient(135deg,rgba(59,130,246,0.14),transparent_48%,rgba(139,92,246,0.12))]"
           style={{
             transform: 'translate3d(0, 0, 0) scale(1.02)',
           }}
         />
 
         <div
-          className="relative transition-transform duration-300 will-change-transform"
+          className="relative transition-transform duration-150 ease-out will-change-transform"
           style={{
             transform: 'rotateX(var(--hero-rotate-x)) rotateY(var(--hero-rotate-y))',
             transformStyle: 'preserve-3d',
@@ -93,7 +93,7 @@ export function HeroShowcase() {
           <div
             key={note.title}
             className={[
-              'pointer-events-none absolute hidden w-44 rounded-2xl border border-white/10 bg-surface/80 p-3 backdrop-blur-xl shadow-[0_20px_60px_-30px_rgba(15,23,42,0.85)] sm:block',
+              'pointer-events-none absolute hidden w-44 rounded-2xl border border-slate-200/70 bg-white/68 p-3 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.18)] backdrop-blur-xl transition-transform duration-150 ease-out dark:border-white/10 dark:bg-surface/80 dark:shadow-[0_20px_60px_-30px_rgba(15,23,42,0.85)] sm:block',
               note.position,
             ].join(' ')}
             style={{
@@ -113,7 +113,7 @@ export function HeroShowcase() {
           </div>
         ))}
 
-        <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-white/10 bg-surface/75 px-3 py-1.5 text-[11px] text-muted backdrop-blur-xl">
+        <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-slate-200/70 bg-white/72 px-3 py-1.5 text-[11px] text-slate-600 shadow-[0_12px_30px_-18px_rgba(15,23,42,0.15)] backdrop-blur-xl dark:border-white/10 dark:bg-surface/75 dark:text-muted">
           <Sparkles size={12} className="text-accent-400" />
           Fondo y panel reaccionan al movimiento del mouse
         </div>
