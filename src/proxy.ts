@@ -104,6 +104,16 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
+  // Proteger rutas /admin
+  if (pathname.startsWith('/admin')) {
+    if (!user) {
+      return NextResponse.redirect(new URL('/', request.url))
+    }
+    if (user.app_metadata?.role !== 'admin') {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+  }
+
   // Si el usuario ya está autenticado, redirigir fuera de las páginas de auth
   if ((pathname === '/login' || pathname === '/signup') && user) {
     return NextResponse.redirect(new URL('/dashboard', request.url))
