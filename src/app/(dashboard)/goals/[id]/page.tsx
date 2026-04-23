@@ -1,10 +1,11 @@
 import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
-import { ChevronLeft, CalendarDays, Flag, Pencil } from 'lucide-react'
+import { ChevronLeft, CalendarDays, Flag, GitBranch, Pencil } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getGoal } from '@/services/goals'
 import { getGoalDetail, getGoalDetailProgress } from '@/services/goal-detail'
+import { getRoadmapsByGoalId } from '@/services/learning-roadmaps'
 import { GoalProgress } from '@/components/goals/GoalProgress'
 import { GoalDetail } from '@/components/goals/GoalDetail'
 import { CategoryBadge } from '@/components/goals/CategoryBadge'
@@ -44,9 +45,10 @@ export default async function GoalDetailPage({
   const result = await getGoal(supabase, user.id, id)
   if (!result.data) notFound()
 
-  const [detailResult, progressResult] = await Promise.all([
+  const [detailResult, progressResult, roadmapsResult] = await Promise.all([
     getGoalDetail(supabase, user.id, id),
     getGoalDetailProgress(supabase, id),
+    getRoadmapsByGoalId(supabase, user.id, id),
   ])
 
   if (!detailResult.data || !progressResult.data) notFound()
@@ -58,6 +60,7 @@ export default async function GoalDetailPage({
   const priority   = PRIORITY_META[goal.priority]
   const detail     = detailResult.data
   const progress   = progressResult.data
+  const roadmaps   = roadmapsResult.data ?? []
 
   const daysLeft = goal.target_date
     ? Math.ceil((new Date(goal.target_date).getTime() - Date.now()) / 86_400_000)
@@ -153,6 +156,30 @@ export default async function GoalDetailPage({
       </div>
 
       <GoalDetail detail={detail} progress={progress} />
+
+      {/* Linked roadmaps */}
+      {roadmaps.length > 0 && (
+        <div className="rounded-xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
+          <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-text">
+            <GitBranch size={14} className="text-accent-600 dark:text-accent-400" />
+            Roadmaps vinculados
+          </h3>
+          <div className="space-y-2">
+            {roadmaps.map((roadmap) => (
+              <Link
+                key={roadmap.id}
+                href={`/roadmaps/${roadmap.id}`}
+                className="flex items-center justify-between rounded-xl border border-border bg-surface-2 px-4 py-3 transition-all hover:border-border-bright hover:bg-surface-hover"
+              >
+                <span className="text-sm font-medium text-text">{roadmap.title}</span>
+                <span className="text-xs text-muted capitalize">
+                  {roadmap.type === 'free' ? 'Libre' : roadmap.type === 'structured' ? 'Guiado' : 'Basado en meta'}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Two columns: milestones + timeline */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">

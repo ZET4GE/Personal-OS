@@ -144,6 +144,22 @@ export async function getLearningRoadmaps(
   return ok((data ?? []) as LearningRoadmap[])
 }
 
+export async function getRoadmapsByGoalId(
+  supabase: SupabaseClient,
+  userId: string,
+  goalId: string,
+): Promise<Result<LearningRoadmap[]>> {
+  const { data, error } = await supabase
+    .from('learning_roadmaps')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('primary_goal_id', goalId)
+    .order('created_at', { ascending: false })
+
+  if (error) return err(error.message)
+  return ok((data ?? []) as LearningRoadmap[])
+}
+
 export async function getPublicLearningRoadmapsByUser(
   supabase: SupabaseClient,
   userId: string,

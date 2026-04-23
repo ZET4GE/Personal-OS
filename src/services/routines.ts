@@ -356,3 +356,76 @@ export async function getRoutineWithLog(
     log:     (logRes.data ?? null) as RoutineLog | null,
   })
 }
+
+export interface RoutineStatDay {
+  date: string       // 'YYYY-MM-DD'
+  completed: boolean // finished_at is set
+}
+
+export interface RoutineStats {
+  routine: Routine
+  last30days: RoutineStatDay[]
+  completionRate: number
+  totalDone: number
+}
+
+export async function getRoutineStats(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<Result<RoutineStats[]>> {
+  const now = new Date()
+  const since = new Date(now)
+  since.setDate(since.getDate() - 29)
+  const sinceStr = since.toISOString().slice(0, 10)
+  const todayStr = now.toISOString().slice(0, 10)
+
+  const [routinesRes, logsRes] = await Promise.all([
+    supabase
+      .from('routines')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('is_active', true)
+      .order('order_index', { ascending: true }),
+    supabase
+      .from('routine_logs')
+      .select('routine_id, completed_at, finished_at')
+      .eq('user_id', userId)
+      .gte('completed_at', sinceStr)
+      .lte('completed_at', todayStr),
+  ])
+
+  if (routinesRes.error) return err(routinesRes.error.message)
+
+  const routines = (routinesRes.data ?? []) as Routine[]
+  const logs = (logsRes.data ?? []) as { routine_id: string; completed_at: string; finished_at: string | null }[]
+
+  // Group logs by routine_id
+  const logsByRoutine = new Map<string, Set<string>>()
+  for (const log of logs) {
+    if (!log.finished_at) continue
+    const set = logsByRoutine.get(log.routine_id) ?? new Set<string>()
+    set.add(log.completed_at)
+    logsByRoutine.set(log.routine_id, set)
+  }
+
+  // Build 30-day array
+  const days: string[] = []
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(now)
+    d.setDate(d.getDate() - i)
+    days.push(d.toISOString().slice(0, 10))
+  }
+
+  const result: RoutineStats[] = routines.map((routine) => {
+    const completedDays = logsByRoutine.get(routine.id) ?? new Set<string>()
+    const last30days: RoutineStatDay[] = days.map((date) => ({
+      date,
+      completed: completedDays.has(date),
+    }))
+    const totalDone = last30days.filter((d) => d.completed).length
+    const completionRate = Math.round((totalDone / 30) * 100)
+    return { routine, last30days, completionRate, totalDone }
+  })
+
+  return ok(result)
+}

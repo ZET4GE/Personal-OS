@@ -1,6 +1,6 @@
 'use client'
 
-import { useOptimistic, useTransition, useRef } from 'react'
+import { useOptimistic, useTransition, useRef, useState } from 'react'
 import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -10,7 +10,9 @@ import {
 } from '@/app/(dashboard)/routines/actions'
 import { RoutineCard } from './RoutineCard'
 import { RoutineForm, type RoutineFormHandle } from './RoutineForm'
+import { RoutineStatsView } from './RoutineStatsView'
 import type { RoutineWithStatus, Routine } from '@/types/habits'
+import type { RoutineStats } from '@/services/routines'
 
 type OptRoutine = RoutineWithStatus & { isOptimistic?: boolean }
 
@@ -31,13 +33,15 @@ function reducer(
 
 interface RoutinesClientProps {
   routines: RoutineWithStatus[]
+  stats:    RoutineStats[]
   date:     string  // 'YYYY-MM-DD'
 }
 
-export function RoutinesClient({ routines, date }: RoutinesClientProps) {
+export function RoutinesClient({ routines, stats, date }: RoutinesClientProps) {
   const [optimistic, dispatch] = useOptimistic(routines as OptRoutine[], reducer)
   const [, startTransition]   = useTransition()
   const formRef               = useRef<RoutineFormHandle>(null)
+  const [view, setView]       = useState<'today' | 'stats'>('today')
 
   const completed = optimistic.filter((r) => r.isCompleted).length
   const total     = optimistic.length
@@ -88,21 +92,38 @@ export function RoutinesClient({ routines, date }: RoutinesClientProps) {
 
   return (
     <>
-      <div className="mb-6 flex items-center justify-between">
-        {total > 0 && (
-          <p className="text-sm text-muted">
-            {completed}/{total} completadas hoy
-          </p>
-        )}
-        <button
-          onClick={openCreate}
-          className="ml-auto flex items-center gap-2 rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
-        >
-          <Plus size={15} /> Nueva rutina
-        </button>
+      <div className="mb-6 flex items-center justify-between gap-3">
+        <div className="flex rounded-lg border border-border bg-surface-2 p-0.5">
+          {(['today', 'stats'] as const).map((v) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setView(v)}
+              className={[
+                'rounded-md px-3 py-1 text-xs font-medium transition-colors',
+                view === v ? 'bg-surface text-text shadow-sm' : 'text-muted hover:text-text',
+              ].join(' ')}
+            >
+              {v === 'today' ? 'Hoy' : 'Estadísticas'}
+            </button>
+          ))}
+        </div>
+        <div className="flex items-center gap-3">
+          {view === 'today' && total > 0 && (
+            <p className="text-sm text-muted">{completed}/{total} completadas</p>
+          )}
+          <button
+            onClick={openCreate}
+            className="flex items-center gap-2 rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          >
+            <Plus size={15} /> Nueva rutina
+          </button>
+        </div>
       </div>
 
-      {optimistic.length === 0 ? (
+      {view === 'stats' ? (
+        <RoutineStatsView stats={stats} />
+      ) : optimistic.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface py-16 text-center">
           <span className="mb-3 text-3xl">📋</span>
           <p className="font-medium">Sin rutinas todavía</p>

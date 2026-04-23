@@ -112,22 +112,27 @@ export function RoutineRunner({ routine, items, log, date }: RoutineRunnerProps)
               <Clock size={12} /> {routine.estimated_minutes} min
             </span>
           )}
-          <span>{completedCount}/{totalItems} items</span>
+          {totalItems > 0 && <span>{completedCount}/{totalItems} pasos</span>}
         </div>
 
-        {/* Progress bar */}
-        <div className="relative h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
-          <div
-            className="absolute inset-y-0 left-0 rounded-full bg-green-500 transition-all duration-500"
-            style={{ width: `${progressPct}%` }}
-          />
-        </div>
+        {/* Progress bar — only when there are items */}
+        {totalItems > 0 && (
+          <div className="relative h-2 w-full overflow-hidden rounded-full bg-slate-200 dark:bg-slate-700">
+            <div
+              className="absolute inset-y-0 left-0 rounded-full bg-green-500 transition-all duration-500"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Items */}
       {items.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-border bg-surface py-10 text-center text-sm text-muted">
-          Esta rutina no tiene items todavía.
+        <div className="rounded-xl border border-dashed border-border bg-surface px-5 py-10 text-center">
+          <p className="text-sm font-medium text-text">Sin pasos definidos</p>
+          <p className="mt-1 text-sm text-muted">
+            Esta rutina se puede completar directamente, o podés agregar pasos desde <strong>Gestionar rutinas</strong>.
+          </p>
         </div>
       ) : (
         <div className="space-y-2">
@@ -173,7 +178,7 @@ export function RoutineRunner({ routine, items, log, date }: RoutineRunnerProps)
           disabled={isSaving || isPending}
           className={[
             'w-full rounded-xl py-3 text-sm font-semibold transition-all',
-            allDone
+            (allDone || totalItems === 0)
               ? 'bg-green-600 text-white hover:bg-green-700'
               : 'border border-border bg-surface text-muted hover:text-foreground',
             isSaving ? 'opacity-60' : '',
@@ -181,9 +186,11 @@ export function RoutineRunner({ routine, items, log, date }: RoutineRunnerProps)
         >
           {isSaving
             ? 'Guardando...'
-            : allDone
-              ? '¡Completar rutina! 🎉'
-              : `Marcar como completada (${completedCount}/${totalItems})`
+            : totalItems === 0
+              ? 'Completar rutina'
+              : allDone
+                ? '¡Completar rutina! 🎉'
+                : `Completar (${completedCount}/${totalItems} pasos)`
           }
         </button>
       )}

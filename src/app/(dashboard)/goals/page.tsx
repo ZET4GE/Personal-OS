@@ -48,6 +48,18 @@ export default async function GoalsPage({
   const goals = goalsResult.data ?? []
   const stats = statsResult.data ?? { total: 0, active: 0, completed: 0, paused: 0, avgProgress: 0 }
 
+  // Fetch which goals are linked to roadmap nodes
+  const roadmapLinkedGoalIds = new Set<string>()
+  if (goals.length > 0) {
+    const { data: nodeGoals } = await supabase
+      .from('learning_node_goals')
+      .select('goal_id')
+      .in('goal_id', goals.map((g) => g.id))
+    for (const row of nodeGoals ?? []) {
+      roadmapLinkedGoalIds.add(row.goal_id)
+    }
+  }
+
   return (
     <div className="flex flex-col gap-6 pb-8 animate-fade-in">
       {/* Header */}
@@ -161,7 +173,7 @@ export default async function GoalsPage({
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {goals.map((goal) => (
-            <GoalCard key={goal.id} goal={goal} />
+            <GoalCard key={goal.id} goal={goal} isFromRoadmap={roadmapLinkedGoalIds.has(goal.id)} />
           ))}
         </div>
       )}

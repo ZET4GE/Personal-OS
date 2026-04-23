@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useTransition } from 'react'
-import { CalendarDays, CheckCircle2, ChevronRight } from 'lucide-react'
+import { CalendarDays, CheckCircle2, ChevronRight, GitBranch } from 'lucide-react'
 import type { Goal } from '@/types/goals'
 import { GOAL_COLOR_STYLES, PRIORITY_META } from '@/types/goals'
 import { CategoryBadge } from './CategoryBadge'
@@ -20,9 +20,10 @@ function daysLeft(dateStr: string | null): string | null {
 
 interface GoalCardProps {
   goal: Goal
+  isFromRoadmap?: boolean
 }
 
-export function GoalCard({ goal }: GoalCardProps) {
+export function GoalCard({ goal, isFromRoadmap }: GoalCardProps) {
   const [isPending, start] = useTransition()
   const styles = GOAL_COLOR_STYLES[goal.color] ?? GOAL_COLOR_STYLES.blue
   const priority = PRIORITY_META[goal.priority]
@@ -83,7 +84,15 @@ export function GoalCard({ goal }: GoalCardProps) {
 
       {/* Footer */}
       <div className="flex items-center justify-between">
-        <CategoryBadge category={goal.category} />
+        <div className="flex items-center gap-2">
+          <CategoryBadge category={goal.category} />
+          {isFromRoadmap && (
+            <span className="flex items-center gap-1 rounded-full bg-cyan-500/10 px-2 py-0.5 text-[10px] font-medium text-cyan-400">
+              <GitBranch size={10} />
+              Roadmap
+            </span>
+          )}
+        </div>
         {days && (
           <span className={`flex items-center gap-1 text-[11px] font-medium ${daysOverdue ? 'text-red-500' : 'text-muted'}`}>
             <CalendarDays size={12} />
