@@ -3,7 +3,7 @@
 import {
   LayoutDashboard, Briefcase, FolderOpen, FileText,
   Settings, X, BarChart3, Users, Wallet, Banknote, Target, ListChecks, PenLine, StickyNote, Crosshair, GitBranch, Clock3,
-  HelpCircle,
+  HelpCircle, ShieldCheck,
   type LucideIcon,
 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -24,7 +24,7 @@ type NavGroup = {
   items: NavItem[]
 }
 
-export function Sidebar({ collapsed, enabledModules }: { collapsed: boolean; enabledModules: EnabledModule[] }) {
+export function Sidebar({ collapsed, enabledModules, isAdmin }: { collapsed: boolean; enabledModules: EnabledModule[]; isAdmin?: boolean }) {
   const { sidebarOpen, setSidebarOpen } = useUIStore()
   const t = useTranslations('nav')
   const enabled = new Set(enabledModules)
@@ -73,6 +73,7 @@ export function Sidebar({ collapsed, enabledModules }: { collapsed: boolean; ena
   ]
 
   const BOTTOM_ITEMS = [
+    ...(isAdmin ? [{ href: '/admin', icon: ShieldCheck, label: 'Admin' }] : []),
     { href: '/help', icon: HelpCircle, label: t('help') },
     { href: '/settings', icon: Settings, label: t('settings') },
   ] as const

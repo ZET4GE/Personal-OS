@@ -19,6 +19,7 @@ export default async function DashboardLayout({
 
   const userEmail = user.email ?? ''
   const userName = user.user_metadata?.full_name as string | undefined
+  const isAdmin = user.app_metadata?.role === 'admin'
   const [onboarding, profile] = await Promise.all([
     getUserOnboarding(supabase, user.id),
     getMyProfile(supabase),
@@ -33,6 +34,7 @@ export default async function DashboardLayout({
       userAvatarUrl={profile.data?.avatar_url ?? null}
       enabledModules={enabledModules}
       showProductTour={showProductTour}
+      isAdmin={isAdmin}
     >
       {children}
     </DashboardShell>

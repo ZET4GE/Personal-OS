@@ -1,5 +1,6 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 
@@ -28,6 +29,7 @@ export async function assignPlan(
       .eq('user_id', userId)
 
     if (error) return { success: false, error: error.message }
+    revalidatePath('/admin/users')
     return { success: true }
   }
 
@@ -42,5 +44,6 @@ export async function assignPlan(
   )
 
   if (error) return { success: false, error: error.message }
+  revalidatePath('/admin/users')
   return { success: true }
 }

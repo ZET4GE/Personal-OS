@@ -13,6 +13,7 @@ interface DashboardShellProps {
   userAvatarUrl?: string | null
   enabledModules: EnabledModule[]
   showProductTour: boolean
+  isAdmin?: boolean
   children: React.ReactNode
 }
 
@@ -22,6 +23,7 @@ export function DashboardShell({
   userAvatarUrl,
   enabledModules,
   showProductTour,
+  isAdmin,
   children,
 }: DashboardShellProps) {
   const [collapsed, setCollapsed] = useState(false)
@@ -34,7 +36,7 @@ export function DashboardShell({
         className="pointer-events-none fixed right-0 top-0 -z-10 h-[500px] w-[500px] rounded-full bg-accent-600/[0.04] blur-3xl dark:bg-accent-600/[0.07]"
       />
 
-      <Sidebar collapsed={collapsed} enabledModules={enabledModules} />
+      <Sidebar collapsed={collapsed} enabledModules={enabledModules} isAdmin={isAdmin} />
 
       <div
         className={[
