@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { Plus, PenLine } from 'lucide-react'
+import { ExternalLink, Plus, PenLine } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getPosts } from '@/services/posts'
+import { getMyProfile } from '@/services/profiles'
 import { PostCard } from '@/components/blog/PostCard'
 import { POST_STATUSES, POST_STATUS_LABELS } from '@/types/posts'
 import type { PostStatus } from '@/types/posts'
@@ -25,6 +26,9 @@ export default async function BlogPage({ searchParams }: PageProps) {
   } = await supabase.auth.getUser()
 
   if (!user) redirect('/login')
+
+  const [profileResult] = await Promise.all([getMyProfile(supabase)])
+  const username = profileResult.data?.username ?? null
 
   const statusFilter = POST_STATUSES.includes(status as PostStatus)
     ? (status as PostStatus)
@@ -52,8 +56,19 @@ export default async function BlogPage({ searchParams }: PageProps) {
         <div>
           <h2 className="text-lg font-semibold">Blog</h2>
           <p className="text-sm text-muted">
-            Tus posts públicos. Los publicados aparecen en tu perfil.
+            Tus posts públicos. Los publicados son visibles para cualquier persona en internet.
           </p>
+          {username && (
+            <Link
+              href={`/${username}/blog`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-1.5 inline-flex items-center gap-1.5 text-xs font-medium text-accent-600 transition-colors hover:text-accent-700 dark:text-accent-400"
+            >
+              <ExternalLink size={12} />
+              Ver mi blog público → /{username}/blog
+            </Link>
+          )}
         </div>
         <Link
           href="/blog/new"
