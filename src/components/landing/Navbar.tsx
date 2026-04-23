@@ -40,7 +40,7 @@ export function Navbar({ initialModal }: NavbarProps) {
         className={[
           'fixed inset-x-0 top-0 z-40 transition-all duration-200 ease-out',
           scrolled
-            ? 'border-b border-slate-200/80 bg-white/72 backdrop-blur-xl shadow-[0_20px_40px_-30px_rgba(15,23,42,0.16)] dark:border-border dark:bg-surface/90 dark:shadow-[var(--shadow-card)]'
+            ? 'border-b border-slate-200/50 bg-slate-50/65 backdrop-blur-xl shadow-[0_12px_32px_-20px_rgba(15,23,42,0.10)] dark:border-border dark:bg-surface/90 dark:shadow-[var(--shadow-card)]'
             : 'bg-transparent',
         ].join(' ')}
       >

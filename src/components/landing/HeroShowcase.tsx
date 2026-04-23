@@ -93,7 +93,7 @@ export function HeroShowcase() {
           <div
             key={note.title}
             className={[
-              'pointer-events-none absolute hidden w-44 rounded-2xl border border-slate-200/70 bg-white/68 p-3 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.18)] backdrop-blur-xl transition-transform duration-150 ease-out dark:border-white/10 dark:bg-surface/80 dark:shadow-[0_20px_60px_-30px_rgba(15,23,42,0.85)] sm:block',
+              'pointer-events-none absolute hidden w-44 rounded-2xl border border-slate-200/50 bg-slate-50/60 p-3 shadow-[0_20px_60px_-30px_rgba(15,23,42,0.14)] backdrop-blur-xl transition-transform duration-150 ease-out dark:border-white/10 dark:bg-surface/80 dark:shadow-[0_20px_60px_-30px_rgba(15,23,42,0.85)] sm:block',
               note.position,
             ].join(' ')}
             style={{
@@ -113,7 +113,7 @@ export function HeroShowcase() {
           </div>
         ))}
 
-        <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-slate-200/70 bg-white/72 px-3 py-1.5 text-[11px] text-slate-600 shadow-[0_12px_30px_-18px_rgba(15,23,42,0.15)] backdrop-blur-xl dark:border-white/10 dark:bg-surface/75 dark:text-muted">
+        <div className="absolute bottom-4 left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full border border-slate-200/50 bg-slate-50/62 px-3 py-1.5 text-[11px] text-slate-600 shadow-[0_12px_30px_-18px_rgba(15,23,42,0.15)] backdrop-blur-xl dark:border-white/10 dark:bg-surface/75 dark:text-muted">
           <Sparkles size={12} className="text-accent-400" />
           Fondo y panel reaccionan al movimiento del mouse
         </div>

@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { Camera, CheckCircle2, Eye, Loader2, Palette, Save, Sparkles, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { updateProfileAction } from '@/app/(dashboard)/settings/actions'
-import { getPublicThemePreviewClasses, getPublicThemeStyle } from '@/lib/public-theme'
 import { createClient } from '@/lib/supabase/client'
 import {
   CV_AVAILABILITY_LABELS,
@@ -357,15 +356,6 @@ export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileS
             )}
           </div>
 
-          <PortfolioLivePreview
-            theme={{
-              portfolio_font_style: portfolioFontStyle,
-              portfolio_background_style: portfolioBackgroundStyle,
-              portfolio_card_style: portfolioCardStyle,
-              portfolio_accent_style: portfolioAccentStyle,
-            }}
-          />
-
           <div className="space-y-5">
             <ThemeOptionGroup
               label="Tipografias"
@@ -374,12 +364,6 @@ export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileS
               value={portfolioFontStyle}
               onChange={(value) => setPortfolioFontStyle(value as PortfolioFontStyle)}
               labels={PORTFOLIO_FONT_STYLE_LABELS}
-              getTheme={(option) => ({
-                portfolio_font_style: option as PortfolioFontStyle,
-                portfolio_background_style: portfolioBackgroundStyle,
-                portfolio_card_style: portfolioCardStyle,
-                portfolio_accent_style: portfolioAccentStyle,
-              })}
               previewType="font"
             />
 
@@ -390,12 +374,6 @@ export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileS
               value={portfolioBackgroundStyle}
               onChange={(value) => setPortfolioBackgroundStyle(value as PortfolioBackgroundStyle)}
               labels={PORTFOLIO_BACKGROUND_STYLE_LABELS}
-              getTheme={(option) => ({
-                portfolio_font_style: portfolioFontStyle,
-                portfolio_background_style: option as PortfolioBackgroundStyle,
-                portfolio_card_style: portfolioCardStyle,
-                portfolio_accent_style: portfolioAccentStyle,
-              })}
               previewType="background"
             />
 
@@ -406,12 +384,6 @@ export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileS
               value={portfolioCardStyle}
               onChange={(value) => setPortfolioCardStyle(value as PortfolioCardStyle)}
               labels={PORTFOLIO_CARD_STYLE_LABELS}
-              getTheme={(option) => ({
-                portfolio_font_style: portfolioFontStyle,
-                portfolio_background_style: portfolioBackgroundStyle,
-                portfolio_card_style: option as PortfolioCardStyle,
-                portfolio_accent_style: portfolioAccentStyle,
-              })}
               previewType="card"
             />
 
@@ -422,12 +394,6 @@ export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileS
               value={portfolioAccentStyle}
               onChange={(value) => setPortfolioAccentStyle(value as PortfolioAccentStyle)}
               labels={PORTFOLIO_ACCENT_STYLE_LABELS}
-              getTheme={(option) => ({
-                portfolio_font_style: portfolioFontStyle,
-                portfolio_background_style: portfolioBackgroundStyle,
-                portfolio_card_style: portfolioCardStyle,
-                portfolio_accent_style: option as PortfolioAccentStyle,
-              })}
               previewType="accent"
             />
           </div>
@@ -506,12 +472,45 @@ function Field({
   )
 }
 
-type PortfolioThemePreview = Pick<
-  Profile,
-  'portfolio_font_style' | 'portfolio_background_style' | 'portfolio_card_style' | 'portfolio_accent_style'
->
-
 type ThemePreviewType = 'font' | 'background' | 'card' | 'accent'
+
+const FONT_FAMILIES: Record<string, string> = {
+  sans:       'ui-sans-serif, system-ui, sans-serif',
+  grotesk:    '"Helvetica Neue", Arial, sans-serif',
+  humanist:   '"Segoe UI", "Trebuchet MS", sans-serif',
+  editorial:  'Georgia, "Palatino Linotype", serif',
+  display:    '"Arial Black", sans-serif',
+  mono:       'ui-monospace, monospace',
+}
+
+const BG_SWATCHES: Record<string, string> = {
+  mist:      'linear-gradient(135deg, #e8f0fe 0%, #f1f5f9 60%, #e2e8f0 100%)',
+  grid:      'repeating-linear-gradient(0deg, transparent, transparent 19px, rgba(148,163,184,0.25) 19px, rgba(148,163,184,0.25) 20px), repeating-linear-gradient(90deg, transparent, transparent 19px, rgba(148,163,184,0.25) 19px, rgba(148,163,184,0.25) 20px), linear-gradient(135deg, #f8fafc, #f1f5f9)',
+  stage:     'linear-gradient(170deg, #f8fafc 0%, #e0e7ff 50%, #0f172a 100%)',
+  aurora:    'linear-gradient(135deg, #fce7f3 0%, #dbeafe 40%, #d1fae5 100%)',
+  paper:     'linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fef9c3 100%)',
+  spotlight: 'radial-gradient(circle at 50% 0%, rgba(99,102,241,0.35) 0%, #0f172a 55%)',
+}
+
+const CARD_STYLES: Record<string, React.CSSProperties> = {
+  glass:    { background: 'rgba(255,255,255,0.65)', border: '1px solid rgba(148,163,184,0.25)', backdropFilter: 'blur(8px)' },
+  solid:    { background: '#ffffff', border: '1px solid #e2e8f0' },
+  outline:  { background: 'transparent', border: '2px solid #94a3b8' },
+  soft:     { background: 'rgba(241,245,249,0.9)', border: '1px solid rgba(226,232,240,0.6)', boxShadow: '0 2px 12px -4px rgba(15,23,42,0.08)' },
+  elevated: { background: '#ffffff', border: '1px solid #e2e8f0', boxShadow: '0 8px 24px -8px rgba(15,23,42,0.18)' },
+  tint:     { background: 'rgba(37,99,235,0.07)', border: '1px solid rgba(37,99,235,0.18)' },
+}
+
+const ACCENT_COLORS: Record<string, string> = {
+  blue:    '#2563eb',
+  emerald: '#059669',
+  sunset:  '#ea580c',
+  violet:  '#7c3aed',
+  rose:    '#e11d48',
+  amber:   '#d97706',
+  cyan:    '#0891b2',
+  mono:    '#334155',
+}
 
 function ThemeOptionGroup({
   label,
@@ -520,7 +519,6 @@ function ThemeOptionGroup({
   value,
   onChange,
   labels,
-  getTheme,
   previewType,
 }: {
   label: string
@@ -529,7 +527,6 @@ function ThemeOptionGroup({
   value: string
   onChange: (value: string) => void
   labels: Record<string, string>
-  getTheme: (option: string) => PortfolioThemePreview
   previewType: ThemePreviewType
 }) {
   return (
@@ -539,7 +536,7 @@ function ThemeOptionGroup({
         <p className="text-xs text-muted">{hint}</p>
       </div>
 
-      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
         {options.map((option) => (
           <button
             key={option}
@@ -552,7 +549,39 @@ function ThemeOptionGroup({
                 : 'border-border hover:border-border-bright hover:bg-surface-hover/40',
             ].join(' ')}
           >
-            <PortfolioMiniPreview theme={getTheme(option)} type={previewType} />
+            {previewType === 'font' && (
+              <div className="flex h-16 items-center justify-center rounded-t-2xl bg-slate-50 dark:bg-slate-900 px-3">
+                <p style={{ fontFamily: FONT_FAMILIES[option] ?? 'inherit' }} className="text-xl font-semibold text-slate-800 dark:text-slate-100 select-none">
+                  Aa Bb Cc
+                </p>
+              </div>
+            )}
+
+            {previewType === 'background' && (
+              <div
+                className="h-16 rounded-t-2xl"
+                style={{ background: BG_SWATCHES[option] ?? '#f8fafc' }}
+              />
+            )}
+
+            {previewType === 'card' && (
+              <div className="flex h-16 items-center justify-center rounded-t-2xl bg-slate-100/70 dark:bg-slate-800/60 px-4">
+                <div className="w-full max-w-[140px] rounded-xl p-3" style={CARD_STYLES[option] ?? {}}>
+                  <div className="h-1.5 w-16 rounded-full bg-slate-300/80 dark:bg-slate-600/80 mb-2" />
+                  <div className="h-1 w-10 rounded-full bg-slate-200/80 dark:bg-slate-700/80" />
+                </div>
+              </div>
+            )}
+
+            {previewType === 'accent' && (
+              <div className="flex h-16 items-center justify-center gap-3 rounded-t-2xl bg-slate-50 dark:bg-slate-900">
+                <div className="h-9 w-9 rounded-full shadow-md" style={{ background: ACCENT_COLORS[option] ?? '#2563eb' }} />
+                <div className="rounded-full px-3 py-1 text-xs font-semibold text-white" style={{ background: ACCENT_COLORS[option] ?? '#2563eb' }}>
+                  Pro
+                </div>
+              </div>
+            )}
+
             <div className="flex items-center justify-between border-t border-border px-3 py-2">
               <span className="text-sm font-medium text-text">{labels[option]}</span>
               {value === option && (
@@ -563,125 +592,6 @@ function ThemeOptionGroup({
             </div>
           </button>
         ))}
-      </div>
-    </div>
-  )
-}
-
-function PortfolioLivePreview({ theme }: { theme: PortfolioThemePreview }) {
-  return (
-    <div className="rounded-2xl border border-border bg-surface p-3">
-      <div className="mb-2 flex items-center justify-between">
-        <div>
-          <p className="text-sm font-medium text-text">Vista previa del portfolio</p>
-          <p className="text-xs text-muted">Asi se verian tu header, tarjetas y acentos publicos.</p>
-        </div>
-        <span className="rounded-full bg-accent-500/12 px-2.5 py-1 text-[11px] font-semibold text-accent-500">
-          Live
-        </span>
-      </div>
-
-      <div className="overflow-hidden rounded-[22px] border border-border">
-        <PortfolioMiniPreview theme={theme} type="background" large />
-      </div>
-    </div>
-  )
-}
-
-function PortfolioMiniPreview({
-  theme,
-  type,
-  large = false,
-}: {
-  theme: PortfolioThemePreview
-  type: ThemePreviewType
-  large?: boolean
-}) {
-  const classes = getPublicThemePreviewClasses(theme as Profile)
-  const style = getPublicThemeStyle(theme as Profile)
-
-  return (
-    <div
-      className={[
-        classes,
-        large ? 'min-h-[200px] p-4 sm:min-h-[240px]' : 'min-h-[132px] p-3',
-      ].join(' ')}
-      style={style}
-    >
-      <div className="grid h-full gap-3 sm:grid-cols-[1.2fr_0.8fr]">
-        <div className="public-card public-body flex min-h-[110px] flex-col justify-between rounded-2xl border p-3 sm:p-4">
-          <div className="space-y-2">
-            <span className="public-badge inline-flex w-fit rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]">
-              Meta activa
-            </span>
-            <div className="space-y-1">
-              <p className="public-heading text-lg font-semibold text-slate-950 dark:text-white">
-                Curso AWS + Portfolio
-              </p>
-              <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
-                Roadmap, proyectos y progreso visibles con una identidad propia.
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2">
-            <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-900/8 dark:bg-white/10">
-              <div
-                className="h-full rounded-full"
-                style={{ width: '68%', background: 'var(--public-accent)' }}
-              />
-            </div>
-            <span className="text-[11px] font-semibold public-accent-text">68%</span>
-          </div>
-        </div>
-
-        <div className="grid gap-3">
-          <div className="public-card public-body rounded-2xl border p-3">
-            {type === 'font' && (
-              <>
-                <p className="public-heading text-sm font-semibold text-slate-950 dark:text-white">Texto</p>
-                <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-300">
-                  El estilo tipografico define el tono del portfolio.
-                </p>
-              </>
-            )}
-
-            {type === 'background' && (
-              <>
-                <p className="public-heading text-sm font-semibold text-slate-950 dark:text-white">Fondo</p>
-                <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-300">
-                  Cambia el ambiente general sin tocar el contenido.
-                </p>
-              </>
-            )}
-
-            {type === 'card' && (
-              <>
-                <p className="public-heading text-sm font-semibold text-slate-950 dark:text-white">Tarjeta</p>
-                <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-300">
-                  Ajusta contraste, profundidad y presencia.
-                </p>
-              </>
-            )}
-
-            {type === 'accent' && (
-              <>
-                <p className="public-heading text-sm font-semibold text-slate-950 dark:text-white">Acento</p>
-                <div className="mt-2 flex items-center gap-2">
-                  <span className="h-3 w-3 rounded-full" style={{ background: 'var(--public-accent)' }} />
-                  <span className="text-xs text-slate-600 dark:text-slate-300">Botones y badges</span>
-                </div>
-              </>
-            )}
-          </div>
-
-          <div className="rounded-2xl border border-dashed border-border/80 bg-white/35 px-3 py-2 dark:bg-slate-950/20">
-            <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-              <span>Preview</span>
-              <span className="public-accent-text">WINF</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   )

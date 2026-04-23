@@ -14,7 +14,7 @@ export function Reveal({
   children,
   className,
   delayMs = 0,
-  distance = 26,
+  distance = 16,
 }: RevealProps) {
   const ref = useRef<HTMLDivElement | null>(null)
   const [visible, setVisible] = useState(false)
@@ -29,7 +29,7 @@ export function Reveal({
         setVisible(true)
         observer.disconnect()
       },
-      { threshold: 0.16, rootMargin: '0px 0px -8% 0px' },
+      { threshold: 0.10, rootMargin: '0px 0px -4% 0px' },
     )
 
     observer.observe(node)

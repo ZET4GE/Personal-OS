@@ -3,67 +3,129 @@
 import { useEffect, useRef } from 'react'
 
 export function LandingBackground() {
-  const ref = useRef<HTMLDivElement | null>(null)
+  const wrapRef  = useRef<HTMLDivElement>(null)
+  const orbARef  = useRef<HTMLDivElement>(null)
+  const orbBRef  = useRef<HTMLDivElement>(null)
+  const orbCRef  = useRef<HTMLDivElement>(null)
+  const glowRef  = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    const node = ref.current
-    if (!node) return
+    let rafId = 0
+    let targetX = 0.72
+    let targetY = 0.18
+    let currentX = 0.72
+    let currentY = 0.18
+    let scrollY  = 0
 
-    let frame = 0
+    const LERP = 0.06  // smoothing factor — lower = slower/smoother
 
-    const updatePointer = (clientX: number, clientY: number) => {
-      if (frame) cancelAnimationFrame(frame)
+    function lerp(a: number, b: number, t: number) { return a + (b - a) * t }
 
-      frame = window.requestAnimationFrame(() => {
-        const x = (clientX / window.innerWidth) * 100
-        const y = (clientY / window.innerHeight) * 100
-        node.style.setProperty('--pointer-x', `${x}%`)
-        node.style.setProperty('--pointer-y', `${y}%`)
-        node.style.setProperty('--pointer-shift-x', `${(x - 50) * 0.12}px`)
-        node.style.setProperty('--pointer-shift-y', `${(y - 50) * 0.12}px`)
-      })
+    const onPointer = (e: PointerEvent) => {
+      targetX = e.clientX / window.innerWidth
+      targetY = e.clientY / window.innerHeight
     }
 
-    const handlePointerMove = (event: PointerEvent) => {
-      updatePointer(event.clientX, event.clientY)
+    const onTouch = (e: TouchEvent) => {
+      const t = e.touches[0]
+      if (!t) return
+      targetX = t.clientX / window.innerWidth
+      targetY = t.clientY / window.innerHeight
     }
 
-    const handleTouchMove = (event: TouchEvent) => {
-      const touch = event.touches[0]
-      if (!touch) return
-      updatePointer(touch.clientX, touch.clientY)
+    const onScroll = () => { scrollY = window.scrollY }
+
+    function tick() {
+      currentX = lerp(currentX, targetX, LERP)
+      currentY = lerp(currentY, targetY, LERP)
+
+      const dx = (currentX - 0.5)   // -0.5 → 0.5
+      const dy = (currentY - 0.5)
+
+      const node = wrapRef.current
+      if (node) {
+        node.style.setProperty('--px', `${(currentX * 100).toFixed(2)}%`)
+        node.style.setProperty('--py', `${(currentY * 100).toFixed(2)}%`)
+      }
+
+      // Parallax: each orb drifts at a different rate relative to mouse + scroll
+      if (orbARef.current) {
+        const sx = (dx *  55).toFixed(2)
+        const sy = (dy *  38 - scrollY * 0.14).toFixed(2)
+        orbARef.current.style.transform = `translate(${sx}px, ${sy}px)`
+      }
+      if (orbBRef.current) {
+        const sx = (dx * -42).toFixed(2)
+        const sy = (dy * -30 - scrollY * 0.09).toFixed(2)
+        orbBRef.current.style.transform = `translate(${sx}px, ${sy}px)`
+      }
+      if (orbCRef.current) {
+        const sx = (dx *  28).toFixed(2)
+        const sy = (dy *  20 - scrollY * 0.06).toFixed(2)
+        orbCRef.current.style.transform = `translate(${sx}px, ${sy}px)`
+      }
+
+      // Mouse-follow glow
+      if (glowRef.current) {
+        const sx = (dx * 70).toFixed(2)
+        const sy = (dy * 50).toFixed(2)
+        glowRef.current.style.transform = `translate(calc(-50% + ${sx}px), calc(-50% + ${sy}px))`
+      }
+
+      rafId = requestAnimationFrame(tick)
     }
 
-    updatePointer(window.innerWidth * 0.72, window.innerHeight * 0.18)
-    window.addEventListener('pointermove', handlePointerMove, { passive: true })
-    window.addEventListener('touchmove', handleTouchMove, { passive: true })
+    window.addEventListener('pointermove', onPointer, { passive: true })
+    window.addEventListener('touchmove',   onTouch,   { passive: true })
+    window.addEventListener('scroll',      onScroll,  { passive: true })
+    rafId = requestAnimationFrame(tick)
 
     return () => {
-      if (frame) cancelAnimationFrame(frame)
-      window.removeEventListener('pointermove', handlePointerMove)
-      window.removeEventListener('touchmove', handleTouchMove)
+      cancelAnimationFrame(rafId)
+      window.removeEventListener('pointermove', onPointer)
+      window.removeEventListener('touchmove',   onTouch)
+      window.removeEventListener('scroll',      onScroll)
     }
   }, [])
 
   return (
     <div
-      ref={ref}
+      ref={wrapRef}
       aria-hidden
-      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden [--pointer-x:72%] [--pointer-y:18%] [--pointer-shift-x:0px] [--pointer-shift-y:0px]"
+      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden [--px:72%] [--py:18%]"
     >
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(251,252,254,0.95)_0%,rgba(239,244,251,0.92)_48%,rgba(247,249,252,0.96)_100%)] dark:bg-[linear-gradient(180deg,rgba(5,8,22,0.94)_0%,rgba(9,9,11,0.96)_48%,rgba(7,11,20,0.98)_100%)]" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_var(--pointer-x)_var(--pointer-y),rgba(96,165,250,0.12)_0%,transparent_24%),radial-gradient(circle_at_18%_14%,rgba(129,140,248,0.09)_0%,transparent_24%),radial-gradient(circle_at_84%_72%,rgba(6,182,212,0.08)_0%,transparent_20%)] dark:bg-[radial-gradient(circle_at_var(--pointer-x)_var(--pointer-y),rgba(96,165,250,0.2)_0%,transparent_28%),radial-gradient(circle_at_18%_14%,rgba(129,140,248,0.18)_0%,transparent_28%),radial-gradient(circle_at_84%_72%,rgba(6,182,212,0.14)_0%,transparent_24%)]" />
+      {/* Base gradient */}
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(245,247,251,0.97)_0%,rgba(234,239,247,0.95)_48%,rgba(242,245,250,0.97)_100%)] dark:bg-[linear-gradient(180deg,rgba(5,8,22,0.96)_0%,rgba(9,9,11,0.97)_48%,rgba(7,11,20,0.98)_100%)]" />
 
-      <div className="absolute inset-0 opacity-[0.12] dark:opacity-[0.22] landing-noise" />
-      <div className="absolute inset-0 bg-grid opacity-[0.035] dark:opacity-[0.08]" />
+      {/* Mouse-reactive radial glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_var(--px)_var(--py),rgba(96,165,250,0.10)_0%,transparent_26%),radial-gradient(circle_at_14%_12%,rgba(129,140,248,0.07)_0%,transparent_22%),radial-gradient(circle_at_86%_74%,rgba(6,182,212,0.06)_0%,transparent_18%)] dark:bg-[radial-gradient(circle_at_var(--px)_var(--py),rgba(96,165,250,0.22)_0%,transparent_30%),radial-gradient(circle_at_14%_12%,rgba(129,140,248,0.18)_0%,transparent_26%),radial-gradient(circle_at_86%_74%,rgba(6,182,212,0.14)_0%,transparent_22%)]" />
 
-      <div className="landing-orb landing-orb-a absolute left-[8%] top-[8%] h-[24rem] w-[24rem] rounded-full bg-accent-500/6 blur-3xl dark:bg-accent-500/12" />
-      <div className="landing-orb landing-orb-b absolute right-[10%] top-[18%] h-[18rem] w-[18rem] rounded-full bg-violet-500/6 blur-3xl dark:bg-violet-500/14" />
-      <div className="landing-orb landing-orb-c absolute bottom-[8%] left-[30%] h-[20rem] w-[20rem] rounded-full bg-cyan-500/5 blur-3xl dark:bg-cyan-500/10" />
+      {/* Texture */}
+      <div className="absolute inset-0 opacity-[0.10] dark:opacity-[0.20] landing-noise" />
+      <div className="absolute inset-0 bg-grid opacity-[0.03] dark:opacity-[0.07]" />
 
+      {/* Orb A — top-left, accent blue */}
       <div
-        className="absolute left-1/2 top-0 h-[42rem] w-[42rem] -translate-x-1/2 rounded-full bg-white/18 blur-3xl dark:bg-accent-400/6"
-        style={{ transform: 'translate(calc(-50% + var(--pointer-shift-x)), var(--pointer-shift-y))' }}
+        ref={orbARef}
+        className="landing-orb landing-orb-a absolute left-[6%] top-[6%] h-[28rem] w-[28rem] rounded-full bg-accent-400/5 blur-3xl dark:bg-accent-400/12 will-change-transform"
+      />
+
+      {/* Orb B — top-right, violet */}
+      <div
+        ref={orbBRef}
+        className="landing-orb landing-orb-b absolute right-[8%] top-[16%] h-[22rem] w-[22rem] rounded-full bg-violet-500/5 blur-3xl dark:bg-violet-500/13 will-change-transform"
+      />
+
+      {/* Orb C — bottom-center, cyan */}
+      <div
+        ref={orbCRef}
+        className="landing-orb landing-orb-c absolute bottom-[6%] left-[28%] h-[24rem] w-[24rem] rounded-full bg-cyan-500/4 blur-3xl dark:bg-cyan-500/10 will-change-transform"
+      />
+
+      {/* Soft mouse-following glow — top-center */}
+      <div
+        ref={glowRef}
+        className="absolute left-1/2 top-[28%] h-[36rem] w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/14 blur-3xl dark:bg-accent-400/5 will-change-transform"
       />
     </div>
   )

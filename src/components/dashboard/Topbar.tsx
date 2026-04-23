@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { usePathname } from 'next/navigation'
 import {
   Menu, PanelLeft, LogOut,
@@ -125,7 +126,10 @@ export function Topbar({
   const tAuth              = useTranslations('auth')
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [menuPos, setMenuPos] = useState({ top: 0, right: 0 })
   const profileMenuRef = useRef<HTMLDivElement | null>(null)
+  const shareButtonRef = useRef<HTMLButtonElement>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
 
   const { icon: PageIcon, key: navKey } = getPageInfo(pathname)
   const title = tNav(navKey)
@@ -133,7 +137,10 @@ export function Topbar({
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node)) {
+      if (
+        profileMenuRef.current && !profileMenuRef.current.contains(event.target as Node) &&
+        dropdownRef.current && !dropdownRef.current.contains(event.target as Node)
+      ) {
         setProfileMenuOpen(false)
       }
     }
@@ -244,8 +251,15 @@ export function Topbar({
           {profileUsername && (
             <>
               <button
+                ref={shareButtonRef}
                 type="button"
-                onClick={() => setProfileMenuOpen((open) => !open)}
+                onClick={() => {
+                  if (shareButtonRef.current) {
+                    const rect = shareButtonRef.current.getBoundingClientRect()
+                    setMenuPos({ top: rect.bottom + 8, right: window.innerWidth - rect.right })
+                  }
+                  setProfileMenuOpen((open) => !open)
+                }}
                 className="rounded-lg p-2 text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
                 title={copied ? 'Link copiado' : 'Compartir perfil'}
                 aria-label="Compartir perfil"
@@ -253,8 +267,12 @@ export function Topbar({
                 {copied ? <Check size={14} className="text-emerald-500" /> : <Share2 size={14} />}
               </button>
 
-              {profileMenuOpen && (
-                <div className="absolute right-0 top-full z-50 mt-2 w-56 rounded-2xl border border-border bg-surface-elevated p-2 shadow-xl backdrop-blur-sm">
+              {profileMenuOpen && typeof document !== 'undefined' && createPortal(
+                <div
+                  ref={dropdownRef}
+                  className="fixed z-[999] w-56 rounded-2xl border border-border bg-surface-elevated p-2 shadow-xl backdrop-blur-sm"
+                  style={{ top: menuPos.top, right: menuPos.right }}
+                >
                   <Link
                     href={profileHref}
                     className="flex items-center gap-2 rounded-xl px-3 py-2 text-sm text-text transition-colors hover:bg-surface-hover"
@@ -284,7 +302,8 @@ export function Topbar({
                       Tu perfil esta privado. Publicalo en configuracion para compartirlo.
                     </p>
                   )}
-                </div>
+                </div>,
+                document.body
               )}
             </>
           )}
