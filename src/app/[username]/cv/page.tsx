@@ -5,7 +5,7 @@ import { BookOpen, Calendar, Clock, FolderGit2, MapPin, GitBranch, ExternalLink,
 import { createClient } from '@/lib/supabase/server'
 import { getProfileByUsername } from '@/services/profiles'
 import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects } from '@/services/cv'
-import { SKILL_CATEGORIES, SKILL_CATEGORY_LABELS, SKILL_LEVEL_LABELS } from '@/types/cv'
+import { SKILL_CATEGORY_LABELS } from '@/types/cv'
 import type { WorkExperience, Education, Skill, SkillCategory, CVCourse, CVProject } from '@/types/cv'
 import { CV_AVAILABILITY_LABELS } from '@/types/profile'
 import { CVDownloadSection } from '@/components/cv/pdf/CVDownloadSection'
@@ -220,42 +220,44 @@ function ProjectsSection({ items }: { items: CVProject[] }) {
 function SkillsSection({ items }: { items: Skill[] }) {
   if (items.length === 0) return null
 
-  const grouped = SKILL_CATEGORIES.reduce<Record<SkillCategory, Skill[]>>(
-    (acc, cat) => {
-      acc[cat] = items.filter((s) => s.category === cat)
-      return acc
-    },
-    {} as Record<SkillCategory, Skill[]>,
-  )
+  const groupMap = new Map<string, { label: string; skills: Skill[] }>()
+  for (const skill of items) {
+    const key = `${skill.category}::${skill.subcategory ?? ''}`
+    if (!groupMap.has(key)) {
+      const catLabel = SKILL_CATEGORY_LABELS[skill.category as SkillCategory] ?? skill.category
+      const label    = skill.subcategory ? `${catLabel} · ${skill.subcategory}` : catLabel
+      groupMap.set(key, { label, skills: [] })
+    }
+    groupMap.get(key)!.skills.push(skill)
+  }
 
   return (
     <section>
       <SectionTitle icon={Zap} label="Skills" />
       <div className="space-y-4">
-        {SKILL_CATEGORIES.map((cat) => {
-          const skills = grouped[cat]
-          if (skills.length === 0) return null
-          return (
-            <div key={cat}>
-              <p className="mb-2 text-xs font-medium text-muted">{SKILL_CATEGORY_LABELS[cat]}</p>
-              <div className="flex flex-wrap gap-2">
-                {skills.map((skill) => (
-                  <span
-                    key={skill.id}
-                    className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                  >
-                    {skill.name}
-                    {skill.level && (
-                      <span className="ml-1.5 text-xs font-normal text-muted">
-                        {SKILL_LEVEL_LABELS[skill.level]}
-                      </span>
-                    )}
-                  </span>
-                ))}
-              </div>
+        {[...groupMap.values()].map(({ label, skills }) => (
+          <div key={label}>
+            <p className="mb-2 text-xs font-medium text-muted">{label}</p>
+            <div className="flex flex-wrap gap-2">
+              {skills.map((skill) => (
+                <span
+                  key={skill.id}
+                  className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200"
+                >
+                  {skill.name}
+                  {skill.level_pct != null && (
+                    <span className="inline-block h-1.5 w-10 overflow-hidden rounded-full bg-slate-200 align-middle dark:bg-slate-700">
+                      <span
+                        className="block h-full rounded-full bg-accent-500"
+                        style={{ width: `${skill.level_pct}%` }}
+                      />
+                    </span>
+                  )}
+                </span>
+              ))}
             </div>
-          )
-        })}
+          </div>
+        ))}
       </div>
     </section>
   )

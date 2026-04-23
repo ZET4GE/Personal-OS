@@ -81,7 +81,9 @@ export interface Skill {
   user_id:     string
   name:        string
   category:    SkillCategory
+  subcategory: string | null
   level:       SkillLevel | null
+  level_pct:   number | null
   is_top:      boolean
   evidence:    string | null
   evidence_url: string | null

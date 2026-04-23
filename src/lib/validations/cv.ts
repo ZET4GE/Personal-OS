@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { SKILL_CATEGORIES, SKILL_LEVELS } from '@/types/cv'
+import { SKILL_CATEGORIES } from '@/types/cv'
 
 // ─────────────────────────────────────────────────────────────
 // Helpers
@@ -102,10 +102,12 @@ export type UpdateEducationData = z.output<typeof UpdateEducationSchema>
 export const CreateSkillSchema = z.object({
   name:        z.string().min(1, { error: 'Nombre requerido' }).max(100).trim(),
   category:    z.enum(SKILL_CATEGORIES, { error: 'Categoría inválida' }).default('technical'),
-  level:       z
-    .enum(SKILL_LEVELS)
-    .optional()
-    .transform((v) => v ?? null),
+  subcategory: z.string().max(80).optional().transform((v) => v?.trim() || null),
+  level_pct:   z.string().optional().transform((v) => {
+    if (!v || v === '') return null
+    const n = parseInt(v, 10)
+    return isNaN(n) ? null : Math.min(100, Math.max(0, n))
+  }),
   is_top:      z
     .string()
     .optional()

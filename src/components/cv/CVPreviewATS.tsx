@@ -2,7 +2,7 @@
 
 import type { Profile } from '@/types/profile'
 import type { CVCourse, CVProject, Education, Skill, SkillCategory, WorkExperience } from '@/types/cv'
-import { SKILL_CATEGORIES, SKILL_CATEGORY_LABELS, SKILL_LEVEL_LABELS } from '@/types/cv'
+import { SKILL_CATEGORY_LABELS } from '@/types/cv'
 
 interface CVPreviewATSProps {
   profile: Profile
@@ -69,10 +69,17 @@ function SkillsSection({ skills }: { skills: Skill[] }) {
   if (skills.length === 0) return null
 
   const topSkills = skills.filter((s) => s.is_top)
-  const grouped = SKILL_CATEGORIES.reduce<Record<SkillCategory, Skill[]>>((acc, cat) => {
-    acc[cat] = skills.filter((s) => s.category === cat)
-    return acc
-  }, {} as Record<SkillCategory, Skill[]>)
+
+  const groupMap = new Map<string, { label: string; skills: Skill[] }>()
+  for (const skill of skills) {
+    const key = `${skill.category}::${skill.subcategory ?? ''}`
+    if (!groupMap.has(key)) {
+      const catLabel = SKILL_CATEGORY_LABELS[skill.category as SkillCategory] ?? skill.category
+      const label    = skill.subcategory ? `${catLabel} · ${skill.subcategory}` : catLabel
+      groupMap.set(key, { label, skills: [] })
+    }
+    groupMap.get(key)!.skills.push(skill)
+  }
 
   return (
     <section className="mb-4">
@@ -85,24 +92,20 @@ function SkillsSection({ skills }: { skills: Skill[] }) {
         </div>
       )}
 
-      {SKILL_CATEGORIES.map((cat) => {
-        const items = grouped[cat]
-        if (items.length === 0) return null
-        return (
-          <div key={cat} className="mb-2">
-            <p className="text-[11px] font-semibold text-gray-900">{SKILL_CATEGORY_LABELS[cat]}</p>
-            {items.map((skill) => {
-              const level = skill.level ? ` (${SKILL_LEVEL_LABELS[skill.level]})` : ''
-              const keywords = skill.keywords?.length ? ` – ${skill.keywords.join(', ')}` : ''
-              return (
-                <p key={skill.id} className="text-[11px] leading-relaxed text-gray-700">
-                  {skill.name}{level}{keywords}
-                </p>
-              )
-            })}
-          </div>
-        )
-      })}
+      {[...groupMap.values()].map(({ label, skills: groupSkills }) => (
+        <div key={label} className="mb-2">
+          <p className="text-[11px] font-semibold text-gray-900">{label}</p>
+          {groupSkills.map((skill) => {
+            const level    = skill.level_pct != null ? ` (${skill.level_pct}%)` : ''
+            const keywords = skill.keywords?.length ? ` – ${skill.keywords.join(', ')}` : ''
+            return (
+              <p key={skill.id} className="text-[11px] leading-relaxed text-gray-700">
+                {skill.name}{level}{keywords}
+              </p>
+            )
+          })}
+        </div>
+      ))}
     </section>
   )
 }
