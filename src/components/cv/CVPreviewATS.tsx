@@ -28,7 +28,7 @@ function expRange(exp: WorkExperience): string {
 
 function eduRange(edu: Education): string {
   const start = edu.start_date ? formatMonthYear(edu.start_date) : null
-  const end = edu.end_date ? formatMonthYear(edu.end_date) : null
+  const end   = edu.end_date   ? formatMonthYear(edu.end_date)   : null
   if (start && end) return `${start} – ${end}`
   return start ?? end ?? ''
 }
@@ -57,7 +57,7 @@ function TextBlock({ value }: { value: string | null }) {
     <ul className="mt-1 space-y-0.5">
       {lines.map((line) => (
         <li key={line} className="flex gap-1.5 text-[11px] leading-relaxed text-gray-700">
-          <span className="shrink-0">-</span>
+          <span className="shrink-0">–</span>
           <span>{line.replace(/^[-•]\s*/, '')}</span>
         </li>
       ))}
@@ -65,20 +65,26 @@ function TextBlock({ value }: { value: string | null }) {
   )
 }
 
+// ATS skills: no visual elements, clean text grouped by category · subcategory
 function SkillsSection({ skills }: { skills: Skill[] }) {
   if (skills.length === 0) return null
 
   const topSkills = skills.filter((s) => s.is_top)
 
-  const groupMap = new Map<string, { label: string; skills: Skill[] }>()
+  // Build ordered groups
+  const groupMap = new Map<string, { label: string; names: string[] }>()
   for (const skill of skills) {
     const key = `${skill.category}::${skill.subcategory ?? ''}`
     if (!groupMap.has(key)) {
       const catLabel = SKILL_CATEGORY_LABELS[skill.category as SkillCategory] ?? skill.category
-      const label    = skill.subcategory ? `${catLabel} · ${skill.subcategory}` : catLabel
-      groupMap.set(key, { label, skills: [] })
+      const label    = skill.subcategory ? `${catLabel} – ${skill.subcategory}` : catLabel
+      groupMap.set(key, { label, names: [] })
     }
-    groupMap.get(key)!.skills.push(skill)
+    // Include ATS keywords inline after skill name if present
+    const entry = skill.keywords?.length
+      ? `${skill.name} (${skill.keywords.join(', ')})`
+      : skill.name
+    groupMap.get(key)!.names.push(entry)
   }
 
   return (
@@ -86,26 +92,20 @@ function SkillsSection({ skills }: { skills: Skill[] }) {
       <SectionTitle>Skills</SectionTitle>
 
       {topSkills.length > 0 && (
-        <div className="mb-2">
-          <span className="text-[11px] font-semibold text-gray-900">Top skills: </span>
-          <span className="text-[11px] text-gray-700">{topSkills.map((s) => s.name).join(', ')}</span>
-        </div>
+        <p className="mb-2 text-[11px] text-gray-700">
+          <span className="font-semibold text-gray-900">Destacadas: </span>
+          {topSkills.map((s) => s.name).join(', ')}
+        </p>
       )}
 
-      {[...groupMap.values()].map(({ label, skills: groupSkills }) => (
-        <div key={label} className="mb-2">
-          <p className="text-[11px] font-semibold text-gray-900">{label}</p>
-          {groupSkills.map((skill) => {
-            const level    = skill.level_pct != null ? ` (${skill.level_pct}%)` : ''
-            const keywords = skill.keywords?.length ? ` – ${skill.keywords.join(', ')}` : ''
-            return (
-              <p key={skill.id} className="text-[11px] leading-relaxed text-gray-700">
-                {skill.name}{level}{keywords}
-              </p>
-            )
-          })}
-        </div>
-      ))}
+      <div className="space-y-1.5">
+        {[...groupMap.values()].map(({ label, names }) => (
+          <p key={label} className="text-[11px] leading-relaxed text-gray-700">
+            <span className="font-semibold text-gray-900">{label}: </span>
+            {names.join(', ')}
+          </p>
+        ))}
+      </div>
     </section>
   )
 }
@@ -124,24 +124,25 @@ export function CVPreviewATS({
     profile.location,
     profile.phone,
     profile.website ? profile.website.replace(/^https?:\/\//, '') : null,
-    profile.github_url ? 'GitHub' : null,
+    profile.github_url  ? `github.com/${profile.github_url.split('/').pop()}` : null,
     profile.linkedin_url ? 'LinkedIn' : null,
   ].filter(Boolean) as string[]
 
   return (
     <div className="relative">
       <div className="mb-3 rounded-lg border border-blue-200 bg-blue-50 px-3 py-2 text-xs text-blue-700 dark:border-blue-800 dark:bg-blue-900/20 dark:text-blue-300">
-        Vista previa ATS — el formato real puede variar levemente respecto al PDF descargado.
+        Vista previa ATS — formato optimizado para parsers. El PDF descargado puede diferir levemente.
       </div>
 
       <div
         className="mx-auto w-full max-w-[210mm] bg-white px-10 py-10 shadow-lg"
         style={{ fontFamily: 'Helvetica, Arial, sans-serif', minHeight: '297mm' }}
       >
-        <header className="mb-4 border-b border-gray-900 pb-3">
-          <h1 className="text-2xl font-bold text-gray-900">{displayName}</h1>
+        {/* Header */}
+        <header className="mb-5 border-b-2 border-gray-900 pb-3">
+          <h1 className="text-[22px] font-bold text-gray-900">{displayName}</h1>
           {profile.headline && (
-            <p className="mt-1 text-[12px] text-gray-700">{profile.headline}</p>
+            <p className="mt-0.5 text-[12px] font-medium text-gray-700">{profile.headline}</p>
           )}
           {contactItems.length > 0 && (
             <p className="mt-1.5 text-[10px] text-gray-600">
@@ -150,6 +151,7 @@ export function CVPreviewATS({
           )}
         </header>
 
+        {/* 1. Perfil / Resumen */}
         {profile.bio && (
           <section className="mb-4">
             <SectionTitle>Perfil</SectionTitle>
@@ -157,6 +159,7 @@ export function CVPreviewATS({
           </section>
         )}
 
+        {/* 2. Experiencia */}
         {experience.length > 0 && (
           <section className="mb-4">
             <SectionTitle>Experiencia</SectionTitle>
@@ -177,35 +180,10 @@ export function CVPreviewATS({
           </section>
         )}
 
-        {projects.length > 0 && (
-          <section className="mb-4">
-            <SectionTitle>Proyectos</SectionTitle>
-            <div className="space-y-3">
-              {projects.map((project) => (
-                <div key={project.id}>
-                  <p className="text-[11px] font-bold text-gray-900">
-                    {project.title}{project.is_featured ? ' – Destacado' : ''}
-                  </p>
-                  <TextBlock value={project.description} />
-                  {project.tech_stack.length > 0 && (
-                    <p className="mt-0.5 text-[10px] text-gray-600">{project.tech_stack.join(', ')}</p>
-                  )}
-                  {(project.url || project.repo_url) && (
-                    <p className="mt-0.5 text-[10px] text-gray-600">
-                      {project.url && <span>Demo: {project.url.replace(/^https?:\/\//, '')}</span>}
-                      {project.url && project.repo_url && <span>  ·  </span>}
-                      {project.repo_url && <span>Repositorio: {project.repo_url.replace(/^https?:\/\//, '')}</span>}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
+        {/* 3. Educación */}
         {education.length > 0 && (
           <section className="mb-4">
-            <SectionTitle>Educacion</SectionTitle>
+            <SectionTitle>Educación</SectionTitle>
             <div className="space-y-3">
               {education.map((item) => {
                 const title = item.field ? `${item.degree} – ${item.field}` : item.degree
@@ -225,18 +203,56 @@ export function CVPreviewATS({
           </section>
         )}
 
+        {/* 4. Skills */}
+        <SkillsSection skills={skills} />
+
+        {/* 5. Proyectos */}
+        {projects.length > 0 && (
+          <section className="mb-4">
+            <SectionTitle>Proyectos</SectionTitle>
+            <div className="space-y-3">
+              {projects.map((project) => (
+                <div key={project.id}>
+                  <p className="text-[11px] font-bold text-gray-900">
+                    {project.title}{project.is_featured ? ' – Destacado' : ''}
+                  </p>
+                  <TextBlock value={project.description} />
+                  {project.tech_stack.length > 0 && (
+                    <p className="mt-0.5 text-[10px] text-gray-600">
+                      Tecnologías: {project.tech_stack.join(', ')}
+                    </p>
+                  )}
+                  {(project.url || project.repo_url) && (
+                    <p className="mt-0.5 text-[10px] text-gray-600">
+                      {project.url && `Demo: ${project.url.replace(/^https?:\/\//, '')}`}
+                      {project.url && project.repo_url && '  ·  '}
+                      {project.repo_url && `Repo: ${project.repo_url.replace(/^https?:\/\//, '')}`}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* 6. Cursos y Certificaciones */}
         {courses.length > 0 && (
           <section className="mb-4">
-            <SectionTitle>Cursos</SectionTitle>
-            <div className="space-y-3">
+            <SectionTitle>Cursos y Certificaciones</SectionTitle>
+            <div className="space-y-2.5">
               {courses.map((course) => (
                 <div key={course.id}>
-                  <p className="text-[11px] font-bold text-gray-900">{course.title}</p>
-                  <p className="text-[10px] text-gray-600">
-                    {[course.provider, course.completed_at ? formatMonthYear(course.completed_at) : null]
-                      .filter(Boolean)
-                      .join(' – ')}
-                  </p>
+                  <div className="flex items-baseline justify-between gap-4">
+                    <span className="text-[11px] font-bold text-gray-900">{course.title}</span>
+                    {course.completed_at && (
+                      <span className="shrink-0 text-[10px] text-gray-600">
+                        {formatMonthYear(course.completed_at)}
+                      </span>
+                    )}
+                  </div>
+                  {course.provider && (
+                    <p className="text-[10px] text-gray-600">{course.provider}</p>
+                  )}
                   <TextBlock value={course.description} />
                   {course.credential_url && (
                     <p className="mt-0.5 text-[10px] text-gray-600">
@@ -248,8 +264,6 @@ export function CVPreviewATS({
             </div>
           </section>
         )}
-
-        <SkillsSection skills={skills} />
       </div>
     </div>
   )

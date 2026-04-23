@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { BookOpen, Calendar, Clock, FolderGit2, MapPin, GitBranch, ExternalLink, Briefcase, GraduationCap, Phone, Zap, ChevronRight } from 'lucide-react'
+import { BookOpen, Calendar, Clock, FolderGit2, MapPin, GitBranch, ExternalLink, Briefcase, GraduationCap, Phone, Star, Zap, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getProfileByUsername } from '@/services/profiles'
 import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects } from '@/services/cv'
@@ -57,7 +57,7 @@ function formatMonthYear(dateStr: string): string {
 
 function SectionTitle({ icon: Icon, label }: { icon: React.FC<{ size?: number; className?: string }>; label: string }) {
   return (
-    <div className="flex items-center gap-2 mb-5">
+    <div className="mb-5 flex items-center gap-2">
       <Icon size={16} className="text-muted" />
       <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">{label}</h2>
     </div>
@@ -77,12 +77,10 @@ function ExperienceSection({ items }: { items: WorkExperience[] }) {
 
           return (
             <div key={exp.id} className="flex gap-4">
-              {/* Timeline dot */}
               <div className="flex flex-col items-center">
                 <div className="mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full border-2 border-accent-600 bg-surface" />
                 <div className="mt-1 w-px flex-1 bg-border" />
               </div>
-
               <div className="pb-6">
                 <p className="font-semibold">{exp.role}</p>
                 <p className="text-sm text-muted">{exp.company}</p>
@@ -95,7 +93,7 @@ function ExperienceSection({ items }: { items: WorkExperience[] }) {
                   )}
                 </div>
                 {exp.description && (
-                  <p className="mt-2 text-sm text-muted leading-relaxed whitespace-pre-line">
+                  <p className="mt-2 text-sm leading-relaxed text-muted whitespace-pre-line">
                     {exp.description}
                   </p>
                 )}
@@ -133,7 +131,7 @@ function EducationSection({ items }: { items: Education[] }) {
                 <p className="text-sm text-muted">{edu.institution}</p>
                 {range && <p className="mt-0.5 text-xs text-muted">{range}</p>}
                 {edu.description && (
-                  <p className="mt-2 text-sm text-muted leading-relaxed">{edu.description}</p>
+                  <p className="mt-2 text-sm leading-relaxed text-muted">{edu.description}</p>
                 )}
               </div>
             </div>
@@ -144,27 +142,71 @@ function EducationSection({ items }: { items: Education[] }) {
   )
 }
 
-function CoursesSection({ items }: { items: CVCourse[] }) {
+function SkillsSection({ items }: { items: Skill[] }) {
   if (items.length === 0) return null
+
+  const topSkills = items.filter((s) => s.is_top)
+
+  const groupMap = new Map<string, { label: string; skills: Skill[] }>()
+  for (const skill of items) {
+    const key = `${skill.category}::${skill.subcategory ?? ''}`
+    if (!groupMap.has(key)) {
+      const catLabel = SKILL_CATEGORY_LABELS[skill.category as SkillCategory] ?? skill.category
+      const label    = skill.subcategory ? `${catLabel} · ${skill.subcategory}` : catLabel
+      groupMap.set(key, { label, skills: [] })
+    }
+    groupMap.get(key)!.skills.push(skill)
+  }
+
   return (
     <section>
-      <SectionTitle icon={BookOpen} label="Cursos" />
-      <div className="space-y-5">
-        {items.map((course) => (
-          <div key={course.id} className="rounded-xl border border-border bg-surface p-4">
-            <div className="flex flex-wrap items-start justify-between gap-2">
-              <div>
-                <p className="font-semibold">{course.title}</p>
-                {course.provider && <p className="text-sm text-muted">{course.provider}</p>}
-              </div>
-              {course.completed_at && <span className="text-xs text-muted">{formatMonthYear(course.completed_at)}</span>}
+      <SectionTitle icon={Zap} label="Skills" />
+
+      {/* Top skills strip */}
+      {topSkills.length > 0 && (
+        <div className="mb-6 flex flex-wrap gap-2">
+          {topSkills.map((s) => (
+            <span
+              key={s.id}
+              className="inline-flex items-center gap-1.5 rounded-full bg-accent-500/10 px-3 py-1 text-sm font-semibold text-accent-600 dark:text-accent-400"
+            >
+              <Star size={11} className="fill-current" />
+              {s.name}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div className="space-y-6">
+        {[...groupMap.values()].map(({ label, skills }) => (
+          <div key={label}>
+            <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-muted">
+              {label}
+            </p>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {skills.map((skill) => (
+                <div key={skill.id} className="flex items-center gap-3">
+                  <span className="min-w-0 flex-1 truncate text-sm font-medium text-text">
+                    {skill.name}
+                  </span>
+                  {skill.level_pct != null ? (
+                    <div className="flex w-28 shrink-0 items-center gap-2">
+                      <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-border">
+                        <div
+                          className="h-full rounded-full bg-accent-500"
+                          style={{ width: `${skill.level_pct}%` }}
+                        />
+                      </div>
+                      <span className="w-7 text-right text-[10px] tabular-nums text-muted">
+                        {skill.level_pct}%
+                      </span>
+                    </div>
+                  ) : (
+                    <div className="w-28 shrink-0" />
+                  )}
+                </div>
+              ))}
             </div>
-            {course.description && <p className="mt-2 text-sm leading-relaxed text-muted">{course.description}</p>}
-            {course.credential_url && (
-              <a href={course.credential_url} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-accent-600 hover:underline">
-                Ver credencial <ExternalLink size={12} />
-              </a>
-            )}
           </div>
         ))}
       </div>
@@ -177,7 +219,7 @@ function ProjectsSection({ items }: { items: CVProject[] }) {
   return (
     <section>
       <SectionTitle icon={FolderGit2} label="Proyectos" />
-      <div className="space-y-5">
+      <div className="space-y-4">
         {items.map((project) => (
           <div key={project.id} className="rounded-xl border border-border bg-surface p-4">
             <div className="flex flex-wrap items-center gap-2">
@@ -188,11 +230,13 @@ function ProjectsSection({ items }: { items: CVProject[] }) {
                 </span>
               )}
             </div>
-            {project.description && <p className="mt-2 text-sm leading-relaxed text-muted">{project.description}</p>}
+            {project.description && (
+              <p className="mt-2 text-sm leading-relaxed text-muted">{project.description}</p>
+            )}
             {project.tech_stack.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {project.tech_stack.map((tech) => (
-                  <span key={tech} className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                  <span key={tech} className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                     {tech}
                   </span>
                 ))}
@@ -217,45 +261,36 @@ function ProjectsSection({ items }: { items: CVProject[] }) {
   )
 }
 
-function SkillsSection({ items }: { items: Skill[] }) {
+function CoursesSection({ items }: { items: CVCourse[] }) {
   if (items.length === 0) return null
-
-  const groupMap = new Map<string, { label: string; skills: Skill[] }>()
-  for (const skill of items) {
-    const key = `${skill.category}::${skill.subcategory ?? ''}`
-    if (!groupMap.has(key)) {
-      const catLabel = SKILL_CATEGORY_LABELS[skill.category as SkillCategory] ?? skill.category
-      const label    = skill.subcategory ? `${catLabel} · ${skill.subcategory}` : catLabel
-      groupMap.set(key, { label, skills: [] })
-    }
-    groupMap.get(key)!.skills.push(skill)
-  }
-
   return (
     <section>
-      <SectionTitle icon={Zap} label="Skills" />
+      <SectionTitle icon={BookOpen} label="Cursos y Certificaciones" />
       <div className="space-y-4">
-        {[...groupMap.values()].map(({ label, skills }) => (
-          <div key={label}>
-            <p className="mb-2 text-xs font-medium text-muted">{label}</p>
-            <div className="flex flex-wrap gap-2">
-              {skills.map((skill) => (
-                <span
-                  key={skill.id}
-                  className="inline-flex items-center gap-2 rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200"
-                >
-                  {skill.name}
-                  {skill.level_pct != null && (
-                    <span className="inline-block h-1.5 w-10 overflow-hidden rounded-full bg-slate-200 align-middle dark:bg-slate-700">
-                      <span
-                        className="block h-full rounded-full bg-accent-500"
-                        style={{ width: `${skill.level_pct}%` }}
-                      />
-                    </span>
-                  )}
-                </span>
-              ))}
+        {items.map((course) => (
+          <div key={course.id} className="rounded-xl border border-border bg-surface p-4">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <p className="font-semibold">{course.title}</p>
+                {course.provider && <p className="text-sm text-muted">{course.provider}</p>}
+              </div>
+              {course.completed_at && (
+                <span className="text-xs text-muted">{formatMonthYear(course.completed_at)}</span>
+              )}
             </div>
+            {course.description && (
+              <p className="mt-2 text-sm leading-relaxed text-muted">{course.description}</p>
+            )}
+            {course.credential_url && (
+              <a
+                href={course.credential_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-accent-600 hover:underline"
+              >
+                Ver credencial <ExternalLink size={12} />
+              </a>
+            )}
           </div>
         ))}
       </div>
@@ -274,10 +309,8 @@ export default async function PublicCVPage({ params }: PageProps) {
   const { data: profile } = await getProfileByUsername(supabase, username)
   if (!profile) notFound()
 
-  // Visitor actual (para skip self-tracking)
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Fetch CV data in parallel — RLS filters non-public automatically
   const [expResult, eduResult, skillsResult, coursesResult, projectsResult] = await Promise.all([
     getWorkExperience(supabase, profile.id),
     getEducation(supabase, profile.id),
@@ -286,16 +319,20 @@ export default async function PublicCVPage({ params }: PageProps) {
     getCVProjects(supabase, profile.id),
   ])
 
-  const experience = expResult.data   ?? []
-  const education  = eduResult.data   ?? []
+  const experience = expResult.data    ?? []
+  const education  = eduResult.data    ?? []
   const skills     = skillsResult.data ?? []
   const courses    = coursesResult.data ?? []
   const projects   = projectsResult.data ?? []
   const displayName = profile.full_name ?? `@${username}`
 
+  const isEmpty = experience.length === 0 && education.length === 0 && skills.length === 0 &&
+                  courses.length === 0 && projects.length === 0
+
   return (
     <main className="public-body mx-auto max-w-3xl px-4 py-12 sm:px-6">
       <TrackingPixel pageType="cv" ownerId={profile.id} currentUserId={user?.id ?? null} />
+
       {/* Breadcrumb + download */}
       <div className="mb-8 flex items-center justify-between">
         <nav className="flex items-center gap-1 text-xs text-muted">
@@ -305,8 +342,6 @@ export default async function PublicCVPage({ params }: PageProps) {
           <ChevronRight size={12} />
           <span className="text-foreground">CV</span>
         </nav>
-
-        {/* Botón client-side + fallback al API route — CVDownloadSection es Client Component */}
         <CVDownloadSection
           username={username}
           profile={profile}
@@ -335,75 +370,68 @@ export default async function PublicCVPage({ params }: PageProps) {
             <p className="text-base font-medium text-foreground/80">{profile.headline}</p>
           )}
           {profile.bio && (
-            <p className="max-w-xl text-muted leading-relaxed">{profile.bio}</p>
+            <p className="max-w-xl leading-relaxed text-muted">{profile.bio}</p>
           )}
 
-          {/* Contact info */}
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 pt-1 text-sm text-muted">
-          {profile.location && (
-            <span className="flex items-center gap-1.5">
-              <MapPin size={13} /> {profile.location}
-            </span>
-          )}
-          {profile.phone && (
-            <span className="flex items-center gap-1.5">
-              <Phone size={13} /> {profile.phone}
-            </span>
-          )}
-          {profile.availability && (
-            <span className="flex items-center gap-1.5">
-              <Clock size={13} /> {CV_AVAILABILITY_LABELS[profile.availability]}
-            </span>
-          )}
-          {profile.birth_date && (
-            <span className="flex items-center gap-1.5">
-              <Calendar size={13} /> {profile.birth_date}
-            </span>
-          )}
-          {profile.website && (
-            <a href={profile.website} target="_blank" rel="noopener noreferrer"
-               className="flex items-center gap-1.5 hover:text-foreground transition-colors">
-              <ExternalLink size={13} /> {profile.website.replace(/^https?:\/\//, '')}
-            </a>
-          )}
-          {profile.github_url && (
-            <a href={profile.github_url} target="_blank" rel="noopener noreferrer"
-               className="flex items-center gap-1.5 hover:text-foreground transition-colors">
-              <GitBranch size={13} /> GitHub
-            </a>
-          )}
-          {profile.linkedin_url && (
-            <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer"
-               className="flex items-center gap-1.5 hover:text-foreground transition-colors">
-              <ExternalLink size={13} /> LinkedIn
-            </a>
-          )}
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-1 text-sm text-muted">
+            {profile.location && (
+              <span className="flex items-center gap-1.5">
+                <MapPin size={13} /> {profile.location}
+              </span>
+            )}
+            {profile.phone && (
+              <span className="flex items-center gap-1.5">
+                <Phone size={13} /> {profile.phone}
+              </span>
+            )}
+            {profile.availability && (
+              <span className="flex items-center gap-1.5">
+                <Clock size={13} /> {CV_AVAILABILITY_LABELS[profile.availability]}
+              </span>
+            )}
+            {profile.birth_date && (
+              <span className="flex items-center gap-1.5">
+                <Calendar size={13} /> {profile.birth_date}
+              </span>
+            )}
+            {profile.website && (
+              <a href={profile.website} target="_blank" rel="noopener noreferrer"
+                 className="flex items-center gap-1.5 transition-colors hover:text-foreground">
+                <ExternalLink size={13} /> {profile.website.replace(/^https?:\/\//, '')}
+              </a>
+            )}
+            {profile.github_url && (
+              <a href={profile.github_url} target="_blank" rel="noopener noreferrer"
+                 className="flex items-center gap-1.5 transition-colors hover:text-foreground">
+                <GitBranch size={13} /> GitHub
+              </a>
+            )}
+            {profile.linkedin_url && (
+              <a href={profile.linkedin_url} target="_blank" rel="noopener noreferrer"
+                 className="flex items-center gap-1.5 transition-colors hover:text-foreground">
+                <ExternalLink size={13} /> LinkedIn
+              </a>
+            )}
           </div>
         </div>
       </header>
 
-      {/* Divider */}
       <div className="mb-10 border-t" style={{ borderColor: 'var(--color-border)' }} />
 
-      {/* Sections */}
-      {experience.length === 0 && education.length === 0 && skills.length === 0 && courses.length === 0 && projects.length === 0 ? (
+      {isEmpty ? (
         <p className="text-center text-muted">Este CV está vacío por el momento.</p>
       ) : (
         <div className="space-y-10">
           <ExperienceSection items={experience} />
-          <EducationSection  items={education} />
-          <CoursesSection    items={courses} />
-          <ProjectsSection   items={projects} />
-          <SkillsSection     items={skills} />
+          <EducationSection  items={education}  />
+          <SkillsSection     items={skills}     />
+          <ProjectsSection   items={projects}   />
+          <CoursesSection    items={courses}    />
         </div>
       )}
 
-      {/* Link back to profile */}
       <div className="mt-12 border-t pt-6" style={{ borderColor: 'var(--color-border)' }}>
-        <Link
-          href={`/${username}`}
-          className="text-sm text-muted transition-colors hover:text-foreground"
-        >
+        <Link href={`/${username}`} className="text-sm text-muted transition-colors hover:text-foreground">
           ← Ver perfil completo de {displayName}
         </Link>
       </div>
