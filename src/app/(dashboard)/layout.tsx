@@ -32,6 +32,8 @@ export default async function DashboardLayout({
       userEmail={userEmail}
       userName={profile.data?.full_name ?? userName}
       userAvatarUrl={profile.data?.avatar_url ?? null}
+      profileUsername={profile.data?.username ?? null}
+      profileIsPublic={profile.data?.is_public ?? false}
       enabledModules={enabledModules}
       showProductTour={showProductTour}
       isAdmin={isAdmin}

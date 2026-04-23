@@ -10,16 +10,16 @@ export const CV_AVAILABILITY_OPTIONS = [
 
 export type CVAvailability = (typeof CV_AVAILABILITY_OPTIONS)[number]
 
-export const PORTFOLIO_FONT_STYLE_OPTIONS = ['sans', 'serif', 'mono'] as const
+export const PORTFOLIO_FONT_STYLE_OPTIONS = ['sans', 'grotesk', 'humanist', 'editorial', 'display', 'mono'] as const
 export type PortfolioFontStyle = (typeof PORTFOLIO_FONT_STYLE_OPTIONS)[number]
 
-export const PORTFOLIO_BACKGROUND_STYLE_OPTIONS = ['mist', 'grid', 'stage'] as const
+export const PORTFOLIO_BACKGROUND_STYLE_OPTIONS = ['mist', 'grid', 'stage', 'aurora', 'paper', 'spotlight'] as const
 export type PortfolioBackgroundStyle = (typeof PORTFOLIO_BACKGROUND_STYLE_OPTIONS)[number]
 
-export const PORTFOLIO_CARD_STYLE_OPTIONS = ['glass', 'solid', 'outline'] as const
+export const PORTFOLIO_CARD_STYLE_OPTIONS = ['glass', 'solid', 'outline', 'soft', 'elevated', 'tint'] as const
 export type PortfolioCardStyle = (typeof PORTFOLIO_CARD_STYLE_OPTIONS)[number]
 
-export const PORTFOLIO_ACCENT_STYLE_OPTIONS = ['blue', 'emerald', 'sunset', 'mono'] as const
+export const PORTFOLIO_ACCENT_STYLE_OPTIONS = ['blue', 'emerald', 'sunset', 'violet', 'rose', 'amber', 'cyan', 'mono'] as const
 export type PortfolioAccentStyle = (typeof PORTFOLIO_ACCENT_STYLE_OPTIONS)[number]
 
 export const CV_AVAILABILITY_LABELS: Record<CVAvailability, string> = {
@@ -33,26 +33,39 @@ export const CV_AVAILABILITY_LABELS: Record<CVAvailability, string> = {
 
 export const PORTFOLIO_FONT_STYLE_LABELS: Record<PortfolioFontStyle, string> = {
   sans: 'Sans moderna',
-  serif: 'Serif editorial',
+  grotesk: 'Grotesk limpia',
+  humanist: 'Humanist',
+  editorial: 'Editorial serif',
+  display: 'Display bold',
   mono: 'Mono tecnica',
 }
 
 export const PORTFOLIO_BACKGROUND_STYLE_LABELS: Record<PortfolioBackgroundStyle, string> = {
-  mist: 'Suave',
+  mist: 'Neblina',
   grid: 'Grid',
   stage: 'Escenico',
+  aurora: 'Aurora',
+  paper: 'Paper',
+  spotlight: 'Spotlight',
 }
 
 export const PORTFOLIO_CARD_STYLE_LABELS: Record<PortfolioCardStyle, string> = {
   glass: 'Glass',
   solid: 'Solid',
   outline: 'Outline',
+  soft: 'Soft',
+  elevated: 'Elevated',
+  tint: 'Tint',
 }
 
 export const PORTFOLIO_ACCENT_STYLE_LABELS: Record<PortfolioAccentStyle, string> = {
   blue: 'Azul',
   emerald: 'Emerald',
   sunset: 'Sunset',
+  violet: 'Violet',
+  rose: 'Rose',
+  amber: 'Amber',
+  cyan: 'Cyan',
   mono: 'Mono',
 }
 

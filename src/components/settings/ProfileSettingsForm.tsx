@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { Camera, CheckCircle2, Eye, Loader2, Palette, Save, Sparkles, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { updateProfileAction } from '@/app/(dashboard)/settings/actions'
+import { getPublicThemePreviewClasses, getPublicThemeStyle } from '@/lib/public-theme'
 import { createClient } from '@/lib/supabase/client'
 import {
   CV_AVAILABILITY_LABELS,
@@ -18,7 +19,13 @@ import {
   PORTFOLIO_FONT_STYLE_LABELS,
   PORTFOLIO_FONT_STYLE_OPTIONS,
 } from '@/types/profile'
-import type { Profile } from '@/types/profile'
+import type {
+  PortfolioAccentStyle,
+  PortfolioBackgroundStyle,
+  PortfolioCardStyle,
+  PortfolioFontStyle,
+  Profile,
+} from '@/types/profile'
 
 // ─────────────────────────────────────────────────────────────
 // Component
@@ -42,10 +49,26 @@ export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileS
 
   // Si el save fue exitoso, usar el perfil actualizado como fuente de verdad
   const current = state?.ok ? state.profile : profile
+  const [portfolioFontStyle, setPortfolioFontStyle] = useState<PortfolioFontStyle>(profile?.portfolio_font_style ?? 'sans')
+  const [portfolioBackgroundStyle, setPortfolioBackgroundStyle] = useState<PortfolioBackgroundStyle>(profile?.portfolio_background_style ?? 'mist')
+  const [portfolioCardStyle, setPortfolioCardStyle] = useState<PortfolioCardStyle>(profile?.portfolio_card_style ?? 'glass')
+  const [portfolioAccentStyle, setPortfolioAccentStyle] = useState<PortfolioAccentStyle>(profile?.portfolio_accent_style ?? 'blue')
 
   useEffect(() => {
     setAvatarUrl(current?.avatar_url ?? '')
   }, [current?.avatar_url])
+
+  useEffect(() => {
+    setPortfolioFontStyle(current?.portfolio_font_style ?? 'sans')
+    setPortfolioBackgroundStyle(current?.portfolio_background_style ?? 'mist')
+    setPortfolioCardStyle(current?.portfolio_card_style ?? 'glass')
+    setPortfolioAccentStyle(current?.portfolio_accent_style ?? 'blue')
+  }, [
+    current?.portfolio_accent_style,
+    current?.portfolio_background_style,
+    current?.portfolio_card_style,
+    current?.portfolio_font_style,
+  ])
 
   async function handleAvatarChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0]
@@ -119,6 +142,10 @@ export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileS
       {/* Form */}
       <form action={formAction} className="space-y-5">
         <input type="hidden" name="avatar_url" value={avatarUrl} />
+        <input type="hidden" name="portfolio_font_style" value={portfolioFontStyle} />
+        <input type="hidden" name="portfolio_background_style" value={portfolioBackgroundStyle} />
+        <input type="hidden" name="portfolio_card_style" value={portfolioCardStyle} />
+        <input type="hidden" name="portfolio_accent_style" value={portfolioAccentStyle} />
 
         {/* Success message */}
         {state?.ok && (
@@ -312,6 +339,11 @@ export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileS
               <p className="text-xs text-muted">
                 Cambia tipografia, fondo, tarjetas y color acento del portfolio publico.
               </p>
+              {!canCustomizePortfolio && (
+                <p className="text-xs text-amber-500">
+                  Podes probar la vista previa aca, pero solo se guarda con Pro.
+                </p>
+              )}
             </div>
 
             {!canCustomizePortfolio && (
@@ -325,70 +357,79 @@ export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileS
             )}
           </div>
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Tipografia" htmlFor="portfolio_font_style">
-              <select
-                id="portfolio_font_style"
-                name="portfolio_font_style"
-                defaultValue={current?.portfolio_font_style ?? 'sans'}
-                className={inputCls}
-                disabled={!canCustomizePortfolio}
-              >
-                {PORTFOLIO_FONT_STYLE_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {PORTFOLIO_FONT_STYLE_LABELS[option]}
-                  </option>
-                ))}
-              </select>
-            </Field>
+          <PortfolioLivePreview
+            theme={{
+              portfolio_font_style: portfolioFontStyle,
+              portfolio_background_style: portfolioBackgroundStyle,
+              portfolio_card_style: portfolioCardStyle,
+              portfolio_accent_style: portfolioAccentStyle,
+            }}
+          />
 
-            <Field label="Fondo" htmlFor="portfolio_background_style">
-              <select
-                id="portfolio_background_style"
-                name="portfolio_background_style"
-                defaultValue={current?.portfolio_background_style ?? 'mist'}
-                className={inputCls}
-                disabled={!canCustomizePortfolio}
-              >
-                {PORTFOLIO_BACKGROUND_STYLE_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {PORTFOLIO_BACKGROUND_STYLE_LABELS[option]}
-                  </option>
-                ))}
-              </select>
-            </Field>
+          <div className="space-y-5">
+            <ThemeOptionGroup
+              label="Tipografias"
+              hint="Elegi la voz visual del portfolio."
+              options={PORTFOLIO_FONT_STYLE_OPTIONS}
+              value={portfolioFontStyle}
+              onChange={(value) => setPortfolioFontStyle(value as PortfolioFontStyle)}
+              labels={PORTFOLIO_FONT_STYLE_LABELS}
+              getTheme={(option) => ({
+                portfolio_font_style: option as PortfolioFontStyle,
+                portfolio_background_style: portfolioBackgroundStyle,
+                portfolio_card_style: portfolioCardStyle,
+                portfolio_accent_style: portfolioAccentStyle,
+              })}
+              previewType="font"
+            />
 
-            <Field label="Tarjetas" htmlFor="portfolio_card_style">
-              <select
-                id="portfolio_card_style"
-                name="portfolio_card_style"
-                defaultValue={current?.portfolio_card_style ?? 'glass'}
-                className={inputCls}
-                disabled={!canCustomizePortfolio}
-              >
-                {PORTFOLIO_CARD_STYLE_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {PORTFOLIO_CARD_STYLE_LABELS[option]}
-                  </option>
-                ))}
-              </select>
-            </Field>
+            <ThemeOptionGroup
+              label="Fondos"
+              hint="Controla la atmosfera general del perfil."
+              options={PORTFOLIO_BACKGROUND_STYLE_OPTIONS}
+              value={portfolioBackgroundStyle}
+              onChange={(value) => setPortfolioBackgroundStyle(value as PortfolioBackgroundStyle)}
+              labels={PORTFOLIO_BACKGROUND_STYLE_LABELS}
+              getTheme={(option) => ({
+                portfolio_font_style: portfolioFontStyle,
+                portfolio_background_style: option as PortfolioBackgroundStyle,
+                portfolio_card_style: portfolioCardStyle,
+                portfolio_accent_style: portfolioAccentStyle,
+              })}
+              previewType="background"
+            />
 
-            <Field label="Color acento" htmlFor="portfolio_accent_style">
-              <select
-                id="portfolio_accent_style"
-                name="portfolio_accent_style"
-                defaultValue={current?.portfolio_accent_style ?? 'blue'}
-                className={inputCls}
-                disabled={!canCustomizePortfolio}
-              >
-                {PORTFOLIO_ACCENT_STYLE_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {PORTFOLIO_ACCENT_STYLE_LABELS[option]}
-                  </option>
-                ))}
-              </select>
-            </Field>
+            <ThemeOptionGroup
+              label="Tarjetas"
+              hint="Define profundidad, contraste y estilo de los bloques."
+              options={PORTFOLIO_CARD_STYLE_OPTIONS}
+              value={portfolioCardStyle}
+              onChange={(value) => setPortfolioCardStyle(value as PortfolioCardStyle)}
+              labels={PORTFOLIO_CARD_STYLE_LABELS}
+              getTheme={(option) => ({
+                portfolio_font_style: portfolioFontStyle,
+                portfolio_background_style: portfolioBackgroundStyle,
+                portfolio_card_style: option as PortfolioCardStyle,
+                portfolio_accent_style: portfolioAccentStyle,
+              })}
+              previewType="card"
+            />
+
+            <ThemeOptionGroup
+              label="Colores acento"
+              hint="Marca botones, badges y detalles clave."
+              options={PORTFOLIO_ACCENT_STYLE_OPTIONS}
+              value={portfolioAccentStyle}
+              onChange={(value) => setPortfolioAccentStyle(value as PortfolioAccentStyle)}
+              labels={PORTFOLIO_ACCENT_STYLE_LABELS}
+              getTheme={(option) => ({
+                portfolio_font_style: portfolioFontStyle,
+                portfolio_background_style: portfolioBackgroundStyle,
+                portfolio_card_style: portfolioCardStyle,
+                portfolio_accent_style: option as PortfolioAccentStyle,
+              })}
+              previewType="accent"
+            />
           </div>
         </Section>
 
@@ -461,6 +502,187 @@ function Field({
       </label>
       {children}
       {hint && <p className="text-xs text-muted">{hint}</p>}
+    </div>
+  )
+}
+
+type PortfolioThemePreview = Pick<
+  Profile,
+  'portfolio_font_style' | 'portfolio_background_style' | 'portfolio_card_style' | 'portfolio_accent_style'
+>
+
+type ThemePreviewType = 'font' | 'background' | 'card' | 'accent'
+
+function ThemeOptionGroup({
+  label,
+  hint,
+  options,
+  value,
+  onChange,
+  labels,
+  getTheme,
+  previewType,
+}: {
+  label: string
+  hint: string
+  options: readonly string[]
+  value: string
+  onChange: (value: string) => void
+  labels: Record<string, string>
+  getTheme: (option: string) => PortfolioThemePreview
+  previewType: ThemePreviewType
+}) {
+  return (
+    <div className="space-y-2">
+      <div>
+        <p className="text-sm font-medium text-text">{label}</p>
+        <p className="text-xs text-muted">{hint}</p>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        {options.map((option) => (
+          <button
+            key={option}
+            type="button"
+            onClick={() => onChange(option)}
+            className={[
+              'overflow-hidden rounded-2xl border text-left transition-all',
+              value === option
+                ? 'border-accent-500 shadow-[0_0_0_1px_rgba(59,130,246,0.25)]'
+                : 'border-border hover:border-border-bright hover:bg-surface-hover/40',
+            ].join(' ')}
+          >
+            <PortfolioMiniPreview theme={getTheme(option)} type={previewType} />
+            <div className="flex items-center justify-between border-t border-border px-3 py-2">
+              <span className="text-sm font-medium text-text">{labels[option]}</span>
+              {value === option && (
+                <span className="rounded-full bg-accent-500/12 px-2 py-0.5 text-[11px] font-semibold text-accent-500">
+                  Activo
+                </span>
+              )}
+            </div>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function PortfolioLivePreview({ theme }: { theme: PortfolioThemePreview }) {
+  return (
+    <div className="rounded-2xl border border-border bg-surface p-3">
+      <div className="mb-2 flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-text">Vista previa del portfolio</p>
+          <p className="text-xs text-muted">Asi se verian tu header, tarjetas y acentos publicos.</p>
+        </div>
+        <span className="rounded-full bg-accent-500/12 px-2.5 py-1 text-[11px] font-semibold text-accent-500">
+          Live
+        </span>
+      </div>
+
+      <div className="overflow-hidden rounded-[22px] border border-border">
+        <PortfolioMiniPreview theme={theme} type="background" large />
+      </div>
+    </div>
+  )
+}
+
+function PortfolioMiniPreview({
+  theme,
+  type,
+  large = false,
+}: {
+  theme: PortfolioThemePreview
+  type: ThemePreviewType
+  large?: boolean
+}) {
+  const classes = getPublicThemePreviewClasses(theme as Profile)
+  const style = getPublicThemeStyle(theme as Profile)
+
+  return (
+    <div
+      className={[
+        classes,
+        large ? 'min-h-[200px] p-4 sm:min-h-[240px]' : 'min-h-[132px] p-3',
+      ].join(' ')}
+      style={style}
+    >
+      <div className="grid h-full gap-3 sm:grid-cols-[1.2fr_0.8fr]">
+        <div className="public-card public-body flex min-h-[110px] flex-col justify-between rounded-2xl border p-3 sm:p-4">
+          <div className="space-y-2">
+            <span className="public-badge inline-flex w-fit rounded-full px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]">
+              Meta activa
+            </span>
+            <div className="space-y-1">
+              <p className="public-heading text-lg font-semibold text-slate-950 dark:text-white">
+                Curso AWS + Portfolio
+              </p>
+              <p className="text-xs leading-5 text-slate-600 dark:text-slate-300">
+                Roadmap, proyectos y progreso visibles con una identidad propia.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-900/8 dark:bg-white/10">
+              <div
+                className="h-full rounded-full"
+                style={{ width: '68%', background: 'var(--public-accent)' }}
+              />
+            </div>
+            <span className="text-[11px] font-semibold public-accent-text">68%</span>
+          </div>
+        </div>
+
+        <div className="grid gap-3">
+          <div className="public-card public-body rounded-2xl border p-3">
+            {type === 'font' && (
+              <>
+                <p className="public-heading text-sm font-semibold text-slate-950 dark:text-white">Texto</p>
+                <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-300">
+                  El estilo tipografico define el tono del portfolio.
+                </p>
+              </>
+            )}
+
+            {type === 'background' && (
+              <>
+                <p className="public-heading text-sm font-semibold text-slate-950 dark:text-white">Fondo</p>
+                <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-300">
+                  Cambia el ambiente general sin tocar el contenido.
+                </p>
+              </>
+            )}
+
+            {type === 'card' && (
+              <>
+                <p className="public-heading text-sm font-semibold text-slate-950 dark:text-white">Tarjeta</p>
+                <p className="mt-1 text-xs leading-5 text-slate-600 dark:text-slate-300">
+                  Ajusta contraste, profundidad y presencia.
+                </p>
+              </>
+            )}
+
+            {type === 'accent' && (
+              <>
+                <p className="public-heading text-sm font-semibold text-slate-950 dark:text-white">Acento</p>
+                <div className="mt-2 flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full" style={{ background: 'var(--public-accent)' }} />
+                  <span className="text-xs text-slate-600 dark:text-slate-300">Botones y badges</span>
+                </div>
+              </>
+            )}
+          </div>
+
+          <div className="rounded-2xl border border-dashed border-border/80 bg-white/35 px-3 py-2 dark:bg-slate-950/20">
+            <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+              <span>Preview</span>
+              <span className="public-accent-text">WINF</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   )
 }

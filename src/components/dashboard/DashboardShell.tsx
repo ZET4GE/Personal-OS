@@ -11,6 +11,8 @@ interface DashboardShellProps {
   userEmail: string
   userName?: string
   userAvatarUrl?: string | null
+  profileUsername?: string | null
+  profileIsPublic?: boolean
   enabledModules: EnabledModule[]
   showProductTour: boolean
   isAdmin?: boolean
@@ -21,6 +23,8 @@ export function DashboardShell({
   userEmail,
   userName,
   userAvatarUrl,
+  profileUsername,
+  profileIsPublic,
   enabledModules,
   showProductTour,
   isAdmin,
@@ -48,6 +52,8 @@ export function DashboardShell({
           userEmail={userEmail}
           userName={userName}
           userAvatarUrl={userAvatarUrl}
+          profileUsername={profileUsername}
+          profileIsPublic={profileIsPublic}
           collapsed={collapsed}
           onToggleCollapse={() => setCollapsed((c) => !c)}
         />

@@ -299,6 +299,17 @@ html:not(.dark) {
   isolation: isolate;
 }
 
+.public-theme-preview {
+  --public-card-bg: rgba(255, 255, 255, 0.74);
+  --public-card-border: rgba(148, 163, 184, 0.22);
+  --public-card-shadow: 0 18px 42px -34px rgba(15, 23, 42, 0.18);
+  --public-nav-bg: rgba(255, 255, 255, 0.68);
+  --public-muted: #64748b;
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
 .public-theme-shell::before {
   content: '';
   position: fixed;
@@ -314,6 +325,24 @@ html.dark .public-theme-shell::before {
   background:
     radial-gradient(circle at 12% 16%, color-mix(in srgb, var(--public-accent) 18%, transparent), transparent 28%),
     radial-gradient(circle at 84% 12%, color-mix(in srgb, var(--public-accent) 16%, transparent), transparent 24%),
+    linear-gradient(180deg, rgba(3, 7, 18, 0.98), rgba(9, 9, 11, 0.98));
+}
+
+.public-theme-preview::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 12% 16%, var(--public-glow, rgba(59, 130, 246, 0.14)), transparent 32%),
+    radial-gradient(circle at 84% 12%, color-mix(in srgb, var(--public-accent) 14%, transparent), transparent 28%),
+    linear-gradient(180deg, rgba(249, 250, 251, 0.98), rgba(241, 245, 249, 0.98));
+}
+
+html.dark .public-theme-preview::before {
+  background:
+    radial-gradient(circle at 12% 16%, color-mix(in srgb, var(--public-accent) 18%, transparent), transparent 34%),
+    radial-gradient(circle at 84% 12%, color-mix(in srgb, var(--public-accent) 16%, transparent), transparent 28%),
     linear-gradient(180deg, rgba(3, 7, 18, 0.98), rgba(9, 9, 11, 0.98));
 }
 
@@ -333,14 +362,46 @@ html.dark .public-theme-shell::after {
   background-image: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0.7px, transparent 0.8px);
 }
 
+.public-theme-preview::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.06;
+  background-image: radial-gradient(circle, rgba(15, 23, 42, 0.8) 0.7px, transparent 0.8px);
+  background-size: 18px 18px;
+  pointer-events: none;
+}
+
+html.dark .public-theme-preview::after {
+  opacity: 0.12;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0.7px, transparent 0.8px);
+}
+
 .public-font-sans {
   --public-heading-font: var(--font-sans);
   --public-body-font: var(--font-sans);
 }
 
+.public-font-grotesk {
+  --public-heading-font: 'Helvetica Neue', Arial, sans-serif;
+  --public-body-font: 'Helvetica Neue', Arial, sans-serif;
+}
+
+.public-font-humanist {
+  --public-heading-font: 'Segoe UI', 'Trebuchet MS', sans-serif;
+  --public-body-font: 'Segoe UI', 'Trebuchet MS', sans-serif;
+}
+
+.public-font-editorial,
 .public-font-serif {
-  --public-heading-font: 'Georgia', 'Times New Roman', serif;
-  --public-body-font: 'Georgia', 'Times New Roman', serif;
+  --public-heading-font: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+  --public-body-font: 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Georgia, serif;
+}
+
+.public-font-display {
+  --public-heading-font: 'Arial Black', 'Avenir Next Condensed', 'Helvetica Neue', sans-serif;
+  --public-body-font: 'Segoe UI', var(--font-sans);
 }
 
 .public-font-mono {
@@ -373,6 +434,61 @@ html.dark .public-bg-stage::before {
   background:
     radial-gradient(circle at 50% 10%, color-mix(in srgb, var(--public-accent) 24%, transparent), transparent 30%),
     linear-gradient(180deg, #020617, #09090b 58%, #0f172a);
+}
+
+.public-bg-aurora::before {
+  background:
+    radial-gradient(circle at 16% 18%, color-mix(in srgb, var(--public-accent) 22%, transparent), transparent 30%),
+    radial-gradient(circle at 78% 22%, rgba(56, 189, 248, 0.2), transparent 28%),
+    radial-gradient(circle at 54% 88%, rgba(236, 72, 153, 0.14), transparent 28%),
+    linear-gradient(180deg, #f8fbff, #eef6ff 58%, #f8fafc);
+}
+
+html.dark .public-bg-aurora::before {
+  background:
+    radial-gradient(circle at 16% 18%, color-mix(in srgb, var(--public-accent) 28%, transparent), transparent 32%),
+    radial-gradient(circle at 78% 22%, rgba(34, 211, 238, 0.16), transparent 30%),
+    radial-gradient(circle at 54% 88%, rgba(236, 72, 153, 0.12), transparent 28%),
+    linear-gradient(180deg, #020617, #0b1120 58%, #0f172a);
+}
+
+.public-bg-paper::before {
+  background:
+    linear-gradient(180deg, rgba(255, 251, 235, 0.98), rgba(248, 250, 252, 0.98)),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+}
+
+html.dark .public-bg-paper::before {
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(17, 24, 39, 0.98)),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+}
+
+.public-bg-paper::after {
+  opacity: 0.08;
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(148, 163, 184, 0.12) 1px, transparent 1px);
+  background-size: 100% 26px, 26px 100%;
+}
+
+html.dark .public-bg-paper::after {
+  opacity: 0.12;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+}
+
+.public-bg-spotlight::before {
+  background:
+    radial-gradient(circle at 50% 12%, color-mix(in srgb, var(--public-accent) 18%, transparent), transparent 24%),
+    linear-gradient(180deg, #f8fafc, #e2e8f0 52%, #f8fafc);
+}
+
+html.dark .public-bg-spotlight::before {
+  background:
+    radial-gradient(circle at 50% 12%, color-mix(in srgb, var(--public-accent) 30%, transparent), transparent 28%),
+    linear-gradient(180deg, #020617, #111827 52%, #020617);
 }
 
 .public-card-glass {
@@ -411,11 +527,55 @@ html.dark .public-card-outline {
   --public-card-shadow: 0 18px 38px -30px rgba(2, 6, 23, 0.62);
 }
 
+.public-card-soft {
+  --public-card-bg: rgba(248, 250, 252, 0.88);
+  --public-card-border: rgba(148, 163, 184, 0.18);
+  --public-card-shadow: 0 14px 28px -26px rgba(15, 23, 42, 0.18);
+}
+
+html.dark .public-card-soft {
+  --public-card-bg: rgba(15, 23, 42, 0.72);
+  --public-card-border: rgba(255, 255, 255, 0.05);
+  --public-card-shadow: 0 16px 34px -24px rgba(2, 6, 23, 0.62);
+}
+
+.public-card-elevated {
+  --public-card-bg: rgba(255, 255, 255, 0.94);
+  --public-card-border: rgba(148, 163, 184, 0.14);
+  --public-card-shadow: 0 28px 72px -38px rgba(15, 23, 42, 0.26);
+}
+
+html.dark .public-card-elevated {
+  --public-card-bg: rgba(15, 23, 42, 0.92);
+  --public-card-border: rgba(255, 255, 255, 0.06);
+  --public-card-shadow: 0 32px 72px -38px rgba(2, 6, 23, 0.82);
+}
+
+.public-card-tint {
+  --public-card-bg: color-mix(in srgb, var(--public-accent) 9%, rgba(255, 255, 255, 0.94));
+  --public-card-border: color-mix(in srgb, var(--public-accent) 24%, rgba(148, 163, 184, 0.18));
+  --public-card-shadow: 0 22px 54px -34px color-mix(in srgb, var(--public-accent) 20%, rgba(15, 23, 42, 0.18));
+}
+
+html.dark .public-card-tint {
+  --public-card-bg: color-mix(in srgb, var(--public-accent) 12%, rgba(15, 23, 42, 0.9));
+  --public-card-border: color-mix(in srgb, var(--public-accent) 34%, rgba(255, 255, 255, 0.08));
+  --public-card-shadow: 0 24px 58px -34px color-mix(in srgb, var(--public-accent) 22%, rgba(2, 6, 23, 0.8));
+}
+
 .public-accent-blue {}
 
 .public-accent-emerald {}
 
 .public-accent-sunset {}
+
+.public-accent-violet {}
+
+.public-accent-rose {}
+
+.public-accent-amber {}
+
+.public-accent-cyan {}
 
 .public-accent-mono {}
 
