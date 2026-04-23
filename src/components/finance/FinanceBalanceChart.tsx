@@ -104,6 +104,7 @@ export function FinanceBalanceChart({ transactions, currency = 'ARS' }: FinanceB
       <div className="overflow-x-auto">
         <svg
           width="100%"
+          height={220}
           viewBox={`0 0 ${svgWidth} ${svgHeight}`}
           preserveAspectRatio="xMidYMid meet"
           aria-label="Gráfico de balance mensual"
