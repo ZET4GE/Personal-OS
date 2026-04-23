@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
-import { GripVertical, Plus, Pencil, Save, X, ChevronUp, ChevronDown, Target, ListTodo, Repeat, Clock, CheckCircle2, PlayCircle, Ban } from 'lucide-react'
+import { GripVertical, Plus, Pencil, Save, X, ChevronUp, ChevronDown, Target, ListTodo, Repeat, Clock, CheckCircle2, PlayCircle, Ban, HelpCircle, BookOpen, Zap, Map } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { RoadmapExecutionPanel } from './RoadmapExecutionPanel'
@@ -128,6 +128,8 @@ export function LearningRoadmapBoard({
   const [isSaving, setIsSaving] = useState(false)
   const [statusFilter, setStatusFilter] = useState<LearningNodeStatus | 'all'>('all')
   const [mode, setMode] = useState<'execute' | 'edit'>('execute')
+  const [showAdvanced, setShowAdvanced] = useState(false)
+  const [showHelp, setShowHelp] = useState(false)
   const supabase = createClient()
   const primaryGoal = availableGoals.find((goal) => goal.id === roadmap.primary_goal_id) ?? null
   const nextNode = getNextNode(nodes)
@@ -732,113 +734,173 @@ export function LearningRoadmapBoard({
       ) : (
         <>
 
-      <section className="grid gap-3 lg:grid-cols-3">
-        <div className="rounded-2xl border border-border bg-surface p-4">
-          <p className="text-sm font-semibold text-text">Crear nodos</p>
-          <p className="mt-1 text-sm leading-6 text-muted">
-            Cada nodo es un paso del camino. Puede convertirse despues en sub-meta, habito, rutina o proyecto.
-          </p>
-        </div>
-        <div className="rounded-2xl border border-border bg-surface p-4">
-          <p className="text-sm font-semibold text-text">Conectar libremente</p>
-          <p className="mt-1 text-sm leading-6 text-muted">
-            Arrastra el punto cyan de salida de un nodo hacia otro nodo. Tambien podes elegir conexion previa al crear.
-          </p>
-        </div>
-        <div className="rounded-2xl border border-border bg-surface p-4">
-          <p className="text-sm font-semibold text-text">Mover nodos</p>
-          <p className="mt-1 text-sm leading-6 text-muted">
-            En modo Libre la posicion se guarda. En Plan de estudio y Basado en metas el orden se acomoda automaticamente.
-          </p>
-        </div>
-      </section>
+      {showHelp ? (
+        <section className="grid gap-3 lg:grid-cols-3">
+          <div className="rounded-2xl border border-border bg-surface p-4">
+            <p className="text-sm font-semibold text-text">Crear nodos</p>
+            <p className="mt-1 text-sm leading-6 text-muted">
+              Cada nodo es un paso del camino. Puede convertirse despues en sub-meta, habito, rutina o proyecto.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-border bg-surface p-4">
+            <p className="text-sm font-semibold text-text">Conectar libremente</p>
+            <p className="mt-1 text-sm leading-6 text-muted">
+              Arrastra el punto cyan de salida de un nodo hacia otro nodo. Tambien podes elegir conexion previa en opciones avanzadas.
+            </p>
+          </div>
+          <div className="rounded-2xl border border-border bg-surface p-4">
+            <p className="text-sm font-semibold text-text">Mover nodos</p>
+            <p className="mt-1 text-sm leading-6 text-muted">
+              En modo Libre la posicion se guarda. En Plan de estudio y Basado en metas el orden se acomoda automaticamente.
+            </p>
+          </div>
+        </section>
+      ) : null}
 
       <section className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
-        <div className="mb-4 flex items-center gap-2">
-          <Plus size={16} className="text-cyan-400" />
-          <h2 className="text-sm font-semibold text-text">Nuevo nodo</h2>
+        <div className="mb-4 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Plus size={16} className="text-cyan-400" />
+            <h2 className="text-sm font-semibold text-text">Nuevo paso</h2>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowHelp((v) => !v)}
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-xs text-muted transition-colors hover:text-text"
+          >
+            <HelpCircle size={13} />
+            {showHelp ? 'Ocultar ayuda' : '¿Cómo usar?'}
+          </button>
         </div>
 
-        <div className="grid gap-3 lg:grid-cols-[1.2fr_1fr]">
-          <div className="space-y-3">
-            <input
-              value={draft.title}
-              onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
-              placeholder="Titulo del nodo"
-              className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
-            />
-            <textarea
-              value={draft.description}
-              onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))}
-              placeholder="Que vas a aprender o practicar"
-              rows={3}
-              className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
-            />
-            <select
-              value={draft.type}
-              onChange={(event) => setDraft((current) => ({ ...current, type: event.target.value as LearningNodeType }))}
-              className={selectClassName}
-            >
-              <option value="topic">Topic</option>
-              <option value="skill">Skill</option>
-            </select>
-            {roadmap.type !== 'free' ? (
-              <input
-                value={draft.level}
-                onChange={(event) => setDraft((current) => ({ ...current, level: event.target.value }))}
-                placeholder="Nivel o seccion. Ej: Fundamentos"
-                className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
-              />
-            ) : null}
-            <select
-              value={draft.parentId}
-              onChange={(event) => setDraft((current) => ({ ...current, parentId: event.target.value }))}
-              className={selectClassName}
-            >
-              <option value="">Sin conexion previa</option>
-              {nodes.map((node) => (
-                <option key={node.id} value={node.id}>
-                  Conectar despues de: {node.title}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="rounded-xl border border-border bg-surface-2 p-3">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-              Metas conectadas
-            </p>
-            <div className="max-h-40 space-y-2 overflow-y-auto pr-1">
-              {availableGoals.map((goal) => (
-                <label
-                  key={goal.id}
-                  className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-text transition-colors hover:bg-surface"
-                >
-                  <input
-                    type="checkbox"
-                    checked={draft.goalIds.includes(goal.id)}
-                    onChange={() => toggleGoal(goal.id, 'create')}
-                    className="h-4 w-4 rounded border-border bg-transparent"
-                  />
-                  <span className="truncate">{goal.title}</span>
-                </label>
-              ))}
-            </div>
-          </div>
+        <div className="flex gap-2">
+          <input
+            value={draft.title}
+            onChange={(event) => setDraft((current) => ({ ...current, title: event.target.value }))}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') handleCreateNode()
+            }}
+            placeholder="¿Cuál es el siguiente paso?"
+            className="flex-1 rounded-xl border border-border bg-surface-2 px-4 py-3 text-base text-text outline-none transition-colors focus:border-accent-500 placeholder:text-muted"
+          />
+          <button
+            type="button"
+            onClick={handleCreateNode}
+            disabled={isSaving || !draft.title.trim()}
+            className="inline-flex items-center gap-2 rounded-xl bg-accent-600 px-5 py-3 text-sm font-medium text-white transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            <Plus size={15} />
+            {isSaving ? 'Guardando...' : 'Agregar'}
+          </button>
         </div>
 
         <button
           type="button"
-          onClick={handleCreateNode}
-          disabled={isSaving || !draft.title.trim()}
-          className="mt-4 inline-flex items-center gap-2 rounded-xl bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
+          onClick={() => setShowAdvanced((v) => !v)}
+          className="mt-3 inline-flex items-center gap-1 text-xs text-muted transition-colors hover:text-text"
         >
-          <Plus size={14} />
-          {isSaving ? 'Guardando...' : 'Crear nodo'}
+          {showAdvanced ? '▴' : '▾'} Opciones avanzadas
         </button>
+
+        {showAdvanced ? (
+          <div className="mt-4 grid gap-3 lg:grid-cols-[1.2fr_1fr]">
+            <div className="space-y-3">
+              <textarea
+                value={draft.description}
+                onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))}
+                placeholder="Descripcion opcional"
+                rows={3}
+                className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
+              />
+              <div>
+                <p className="mb-2 text-xs text-muted">Tipo</p>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setDraft((current) => ({ ...current, type: 'topic' }))}
+                    className={[
+                      'flex-1 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors',
+                      draft.type === 'topic'
+                        ? 'border-accent-500 bg-accent-600/10 text-text'
+                        : 'border-border bg-surface-2 text-muted hover:text-text',
+                    ].join(' ')}
+                  >
+                    <BookOpen size={14} className="mx-auto mb-1" />
+                    Aprendizaje
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setDraft((current) => ({ ...current, type: 'skill' }))}
+                    className={[
+                      'flex-1 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors',
+                      draft.type === 'skill'
+                        ? 'border-accent-500 bg-accent-600/10 text-text'
+                        : 'border-border bg-surface-2 text-muted hover:text-text',
+                    ].join(' ')}
+                  >
+                    <Zap size={14} className="mx-auto mb-1" />
+                    Practica
+                  </button>
+                </div>
+              </div>
+              {roadmap.type !== 'free' ? (
+                <input
+                  value={draft.level}
+                  onChange={(event) => setDraft((current) => ({ ...current, level: event.target.value }))}
+                  placeholder="Nivel o sección. Ej: Fundamentos, Avanzado..."
+                  className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
+                />
+              ) : null}
+              {nodes.length > 0 ? (
+                <select
+                  value={draft.parentId}
+                  onChange={(event) => setDraft((current) => ({ ...current, parentId: event.target.value }))}
+                  className={selectClassName}
+                >
+                  <option value="">Sin conexion previa</option>
+                  {nodes.map((node) => (
+                    <option key={node.id} value={node.id}>
+                      Conectar despues de: {node.title}
+                    </option>
+                  ))}
+                </select>
+              ) : null}
+            </div>
+
+            <div className="rounded-xl border border-border bg-surface-2 p-3">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+                Metas conectadas
+              </p>
+              <div className="max-h-40 space-y-2 overflow-y-auto pr-1">
+                {availableGoals.map((goal) => (
+                  <label
+                    key={goal.id}
+                    className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-text transition-colors hover:bg-surface"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={draft.goalIds.includes(goal.id)}
+                      onChange={() => toggleGoal(goal.id, 'create')}
+                      className="h-4 w-4 rounded border-border bg-transparent"
+                    />
+                    <span className="truncate">{goal.title}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
       </section>
 
-      <LearningRoadmapFlow nodes={nodes} roadmapType={roadmap.type} onNodesChange={handleFlowNodesChange} />
+      {nodes.length === 0 ? (
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-2 py-20 text-center">
+          <Map size={40} className="mb-4 text-muted opacity-40" />
+          <p className="text-base font-medium text-text">Ningún paso todavía</p>
+          <p className="mt-1 text-sm text-muted">Escribí el primer paso arriba y presioná Enter</p>
+        </div>
+      ) : (
+        <LearningRoadmapFlow nodes={nodes} roadmapType={roadmap.type} onNodesChange={handleFlowNodesChange} />
+      )}
 
       <section className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
         <div className="mb-5 flex items-center justify-between">
