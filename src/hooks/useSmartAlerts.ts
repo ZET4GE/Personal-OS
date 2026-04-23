@@ -1,18 +1,39 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { generateAlertId } from '@/lib/utils'
 import type { SmartAlert } from '@/types/dashboard'
+
+interface RawAlert {
+  type: 'warning' | 'info'
+  message: string
+}
+
+function todayKey(): string {
+  return new Date().toISOString().slice(0, 10)
+}
+
+function alertStorageKey(alertId: string): string {
+  return `dismissed_alert_${alertId}_${todayKey()}`
+}
+
+function isDismissedToday(alertId: string): boolean {
+  if (typeof window === 'undefined') return false
+  return localStorage.getItem(alertStorageKey(alertId)) === '1'
+}
 
 interface UseSmartAlertsResult {
   alerts: SmartAlert[]
   loading: boolean
   error: string | null
   refresh: () => Promise<void>
+  dismissAlert: (alertId: string) => void
 }
 
 export function useSmartAlerts(): UseSmartAlertsResult {
-  const [alerts, setAlerts] = useState<SmartAlert[]>([])
+  const [rawAlerts, setRawAlerts] = useState<SmartAlert[]>([])
+  const [dismissed, setDismissed] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -27,7 +48,7 @@ export function useSmartAlerts(): UseSmartAlertsResult {
     } = await supabase.auth.getUser()
 
     if (userError || !user) {
-      setAlerts([])
+      setRawAlerts([])
       setError('Sesion no valida')
       setLoading(false)
       return
@@ -38,15 +59,35 @@ export function useSmartAlerts(): UseSmartAlertsResult {
     })
 
     if (rpcError) {
-      setAlerts([])
+      setRawAlerts([])
       setError(rpcError.message)
       setLoading(false)
       return
     }
 
-    setAlerts((data ?? []) as SmartAlert[])
+    const withIds: SmartAlert[] = ((data ?? []) as RawAlert[]).map((raw) => ({
+      id: generateAlertId(raw.type, raw.message),
+      type: raw.type,
+      message: raw.message,
+    }))
+
+    const initialDismissed = new Set<string>()
+    for (const alert of withIds) {
+      if (isDismissedToday(alert.id)) {
+        initialDismissed.add(alert.id)
+      }
+    }
+
+    setRawAlerts(withIds)
+    setDismissed(initialDismissed)
     setLoading(false)
   }
+
+  const dismissAlert = useCallback((alertId: string) => {
+    if (typeof window === 'undefined') return
+    localStorage.setItem(alertStorageKey(alertId), '1')
+    setDismissed((prev) => new Set([...prev, alertId]))
+  }, [])
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -79,5 +120,7 @@ export function useSmartAlerts(): UseSmartAlertsResult {
     }
   }, [])
 
-  return { alerts, loading, error, refresh }
+  const alerts = rawAlerts.filter((a) => !dismissed.has(a.id))
+
+  return { alerts, loading, error, refresh, dismissAlert }
 }

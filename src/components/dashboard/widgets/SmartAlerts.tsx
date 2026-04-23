@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { AlertTriangle, ChevronRight, Info } from 'lucide-react'
+import { AlertTriangle, Check, ChevronRight, Info } from 'lucide-react'
 import { useSmartAlerts } from '@/hooks/useSmartAlerts'
 
 function getAlertStyles(type: 'warning' | 'info') {
@@ -10,6 +10,7 @@ function getAlertStyles(type: 'warning' | 'info') {
       icon: AlertTriangle,
       className: 'border-red-500/20 bg-red-500/8 text-red-200',
       badge: 'text-red-400',
+      dismissClass: 'text-red-300 hover:bg-red-500/15',
       href: '/goals',
       action: 'Revisar metas',
     }
@@ -19,13 +20,14 @@ function getAlertStyles(type: 'warning' | 'info') {
     icon: Info,
     className: 'border-amber-500/20 bg-amber-500/8 text-amber-100',
     badge: 'text-amber-400',
+    dismissClass: 'text-amber-300 hover:bg-amber-500/15',
     href: '/habits',
     action: 'Ir a hábitos',
   }
 }
 
 export function SmartAlerts() {
-  const { alerts, loading, error } = useSmartAlerts()
+  const { alerts, loading, error, dismissAlert } = useSmartAlerts()
 
   if (loading) {
     return (
@@ -50,13 +52,13 @@ export function SmartAlerts() {
       </div>
 
       <div className="grid grid-cols-1 gap-2 xl:grid-cols-3">
-        {alerts.map((alert, index) => {
+        {alerts.map((alert) => {
           const config = getAlertStyles(alert.type)
           const Icon = config.icon
 
           return (
             <div
-              key={`${alert.type}-${index}`}
+              key={alert.id}
               className={`animate-fade-in rounded-lg border px-3 py-3 ${config.className}`}
             >
               <div className="flex items-start gap-3">
@@ -65,13 +67,22 @@ export function SmartAlerts() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-medium leading-snug">{alert.message}</p>
-                  <Link
-                    href={config.href}
-                    className="mt-2 inline-flex items-center gap-1 text-[11px] font-medium text-white/80 transition-colors hover:text-white"
-                  >
-                    {config.action}
-                    <ChevronRight size={12} />
-                  </Link>
+                  <div className="mt-2 flex items-center gap-3">
+                    <Link
+                      href={config.href}
+                      className="inline-flex items-center gap-1 text-[11px] font-medium text-white/80 transition-colors hover:text-white"
+                    >
+                      {config.action}
+                      <ChevronRight size={12} />
+                    </Link>
+                    <button
+                      onClick={() => dismissAlert(alert.id)}
+                      className={`inline-flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-medium transition-colors ${config.dismissClass}`}
+                    >
+                      <Check size={11} />
+                      Resolver por hoy
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

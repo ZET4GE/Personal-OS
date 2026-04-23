@@ -6,6 +6,7 @@ import { getNotificationsResult } from '@/services/notifications'
 import { NotificationItem } from '@/components/notifications/NotificationItem'
 import type { Notification } from '@/types/notifications'
 import type { SmartAlert } from '@/types/dashboard'
+import { generateAlertId } from '@/lib/utils'
 import { MarkAllReadButton } from '@/components/notifications/MarkAllReadButton'
 import { DeleteAllReadButton } from '@/components/notifications/DeleteAllReadButton'
 
@@ -59,7 +60,9 @@ export default async function NotificationsPage() {
     ? await supabase.rpc('get_smart_alerts', { p_user_id: user.id })
     : { data: [] }
 
-  const smartAlerts = (smartAlertsData ?? []) as SmartAlert[]
+  const smartAlerts: SmartAlert[] = ((smartAlertsData ?? []) as { type: 'warning' | 'info'; message: string }[]).map(
+    (raw) => ({ id: generateAlertId(raw.type, raw.message), type: raw.type, message: raw.message }),
+  )
   const groups = groupByDate(notifications)
   const unreadCount = notifications.filter((notification) => !notification.is_read).length
   const hasUnread = unreadCount > 0

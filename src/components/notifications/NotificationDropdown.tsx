@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { AlertTriangle, CheckCheck, Info, Trash2 } from 'lucide-react'
+import { AlertTriangle, Check, CheckCheck, Info, Trash2 } from 'lucide-react'
 import type { SmartAlert } from '@/types/dashboard'
 import type { Notification } from '@/types/notifications'
 import { NotificationItem } from './NotificationItem'
@@ -15,6 +15,7 @@ interface Props {
   onReadAll: () => void
   onClose: () => void
   smartAlerts?: SmartAlert[]
+  onDismissAlert?: (alertId: string) => void
 }
 
 export function NotificationDropdown({
@@ -25,6 +26,7 @@ export function NotificationDropdown({
   onReadAll,
   onClose,
   smartAlerts = [],
+  onDismissAlert,
 }: Props) {
   const hasUnread = notifications.some((item) => !item.is_read)
   const hasRead = notifications.some((item) => item.is_read)
@@ -92,25 +94,43 @@ export function NotificationDropdown({
                   Alertas inteligentes
                 </p>
                 <div className="space-y-1">
-                  {smartAlerts.map((alert, index) => {
+                  {smartAlerts.map((alert) => {
                     const isWarning = alert.type === 'warning'
                     const Icon = isWarning ? AlertTriangle : Info
 
                     return (
-                      <Link
-                        key={`${alert.type}-${index}`}
-                        href={isWarning ? '/goals' : '/habits'}
-                        onClick={onClose}
+                      <div
+                        key={alert.id}
                         className={[
-                          'flex items-start gap-2 rounded-lg px-2.5 py-2 text-xs transition-colors',
+                          'rounded-lg px-2.5 py-2 text-xs',
                           isWarning
-                            ? 'bg-red-500/10 text-red-700 hover:bg-red-500/15 dark:text-red-100'
-                            : 'bg-amber-500/10 text-amber-700 hover:bg-amber-500/15 dark:text-amber-100',
+                            ? 'bg-red-500/10 text-red-700 dark:text-red-100'
+                            : 'bg-amber-500/10 text-amber-700 dark:text-amber-100',
                         ].join(' ')}
                       >
-                        <Icon size={14} className={isWarning ? 'mt-0.5 text-red-400' : 'mt-0.5 text-amber-400'} />
-                        <span className="leading-5">{alert.message}</span>
-                      </Link>
+                        <Link
+                          href={isWarning ? '/goals' : '/habits'}
+                          onClick={onClose}
+                          className="flex items-start gap-2 transition-colors hover:opacity-80"
+                        >
+                          <Icon size={14} className={isWarning ? 'mt-0.5 shrink-0 text-red-400' : 'mt-0.5 shrink-0 text-amber-400'} />
+                          <span className="leading-5">{alert.message}</span>
+                        </Link>
+                        {onDismissAlert && (
+                          <button
+                            onClick={() => onDismissAlert(alert.id)}
+                            className={[
+                              'mt-1.5 flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] font-medium transition-colors',
+                              isWarning
+                                ? 'text-red-600 hover:bg-red-500/15 dark:text-red-300'
+                                : 'text-amber-600 hover:bg-amber-500/15 dark:text-amber-300',
+                            ].join(' ')}
+                          >
+                            <Check size={11} />
+                            Resolver por hoy
+                          </button>
+                        )}
+                      </div>
                     )
                   })}
                 </div>

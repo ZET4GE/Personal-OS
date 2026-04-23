@@ -19,7 +19,7 @@ export function NotificationBell() {
     optimisticReadAll,
     optimisticDelete,
   } = useNotifications()
-  const { alerts: smartAlerts } = useSmartAlerts()
+  const { alerts: smartAlerts, dismissAlert } = useSmartAlerts()
 
   const [mounted, setMounted] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -85,6 +85,7 @@ export function NotificationBell() {
             onReadAll={optimisticReadAll}
             onClose={close}
             smartAlerts={smartAlerts}
+            onDismissAlert={dismissAlert}
           />
         </div>,
         document.body,

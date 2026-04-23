@@ -97,6 +97,7 @@ export interface DashboardInsight {
 }
 
 export interface SmartAlert {
+  id: string
   type: 'warning' | 'info'
   message: string
 }

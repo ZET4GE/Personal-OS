@@ -116,8 +116,17 @@ export default async function CVPage() {
         )}
       </div>
 
-      {profile?.username && (
-        <CVExportPanel username={profile.username} canUseAts={canUseAts} />
+      {profile && profile.username && (
+        <CVExportPanel
+          username={profile.username}
+          canUseAts={canUseAts}
+          profile={profile}
+          experience={expResult.data ?? []}
+          education={eduResult.data ?? []}
+          skills={skillsResult.data ?? []}
+          courses={coursesResult.data ?? []}
+          projects={projectsResult.data ?? []}
+        />
       )}
 
       {/* Section cards */}

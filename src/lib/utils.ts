@@ -26,3 +26,12 @@ export function isOverdue(dueDateStr: string | null): boolean {
   if (!dueDateStr) return false
   return new Date(dueDateStr + 'T23:59:59') < new Date()
 }
+
+export function generateAlertId(type: string, message: string): string {
+  return `${type}_${message
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s]/g, '')
+    .replace(/\s+/g, '_')
+    .slice(0, 80)}`
+}

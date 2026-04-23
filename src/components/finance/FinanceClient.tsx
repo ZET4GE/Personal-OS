@@ -14,6 +14,7 @@ import {
   updateFinanceTransactionAction,
   upsertFinanceBudgetAction,
 } from '@/app/(dashboard)/finance/actions'
+import { FinanceBalanceChart } from './FinanceBalanceChart'
 import { FinanceForm, type FinanceFormHandle } from './FinanceForm'
 import { FinanceTransactionCard } from './FinanceTransactionCard'
 import { formatCurrency } from '@/lib/utils'
@@ -249,6 +250,11 @@ export function FinanceClient({
         <SavingsCard summary={monthSummary} />
         <FinanceFilters filters={filters} categoryOptions={categoryOptions} />
       </section>
+
+      <FinanceBalanceChart
+        transactions={optimisticTransactions}
+        currency={monthSummary[0]?.currency ?? 'ARS'}
+      />
 
       <section className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
         <CategoryBreakdown items={categorySummary} />

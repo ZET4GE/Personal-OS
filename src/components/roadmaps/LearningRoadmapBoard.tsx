@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import dynamic from 'next/dynamic'
-import { GripVertical, Plus, Pencil, Save, X, ChevronUp, ChevronDown, Target, ListTodo, Repeat, Clock, CheckCircle2, PlayCircle, Ban, HelpCircle, BookOpen, Zap, Map } from 'lucide-react'
+import { GripVertical, Plus, Pencil, Save, X, ChevronUp, ChevronDown, Target, ListTodo, Repeat, Clock, CheckCircle2, PlayCircle, Ban, HelpCircle, BookOpen, Zap, Map as MapIcon } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { RoadmapExecutionPanel } from './RoadmapExecutionPanel'
@@ -894,7 +894,7 @@ export function LearningRoadmapBoard({
 
       {nodes.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-2 py-20 text-center">
-          <Map size={40} className="mb-4 text-muted opacity-40" />
+          <MapIcon size={40} className="mb-4 text-muted opacity-40" />
           <p className="text-base font-medium text-text">Ningún paso todavía</p>
           <p className="mt-1 text-sm text-muted">Escribí el primer paso arriba y presioná Enter</p>
         </div>
