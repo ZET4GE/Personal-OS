@@ -1,102 +1,190 @@
-// Static SVG/div mockup of the dashboard — avoids screenshots while still
-// conveying the product's structure.
+const STATS = [
+  { label: 'Meta activa', value: '1', tone: 'from-accent-500/18 to-cyan-500/8' },
+  { label: 'Tiempo hoy', value: '2.4h', tone: 'from-violet-500/18 to-accent-500/8' },
+  { label: 'Habitos', value: '4/5', tone: 'from-emerald-500/18 to-accent-500/8' },
+  { label: 'Progreso', value: '68%', tone: 'from-sky-500/18 to-violet-500/8' },
+]
+
+const HABITS = [
+  { label: 'Estudiar AWS', done: true, width: '78%' },
+  { label: 'Enviar propuestas', done: true, width: '62%' },
+  { label: 'Actualizar CV', done: false, width: '48%' },
+]
+
+const ROADMAP = [
+  { label: 'Fundamentos', active: true },
+  { label: 'Proyecto real', active: false },
+  { label: 'Aplicar a roles', active: false },
+]
+
+const BARS = [36, 52, 44, 78, 58, 82, 64, 72, 48, 88, 54, 69]
 
 export function DashboardMockup() {
   return (
-    <div className="relative w-full overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl">
-      {/* Fake browser chrome */}
-      <div className="flex items-center gap-1.5 border-b border-border bg-surface-2 px-3 py-2.5">
-        <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
-        <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/80" />
-        <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
-        <div className="mx-3 flex-1 rounded bg-surface-3 px-3 py-0.5 text-[10px] text-muted">
-          winf.com.ar/dashboard
+    <div className="relative w-full overflow-hidden rounded-[2rem] border border-white/10 bg-[#07111f]/95 shadow-[0_40px_120px_-40px_rgba(2,8,23,0.95)]">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_18%,rgba(59,130,246,0.18),transparent_26%),radial-gradient(circle_at_82%_14%,rgba(139,92,246,0.14),transparent_22%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_40%)]" />
+      <div className="absolute inset-0 opacity-40 bg-[linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)] bg-[size:34px_34px]" />
+
+      <div className="relative border-b border-white/10 px-4 py-3">
+        <div className="flex items-center gap-2">
+          <span className="h-2.5 w-2.5 rounded-full bg-rose-400/80" />
+          <span className="h-2.5 w-2.5 rounded-full bg-amber-400/80" />
+          <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
+          <div className="ml-2 flex-1 rounded-full border border-white/8 bg-white/[0.04] px-3 py-1 text-[10px] tracking-[0.18em] text-slate-400">
+            winf.com.ar/dashboard
+          </div>
         </div>
       </div>
 
-      {/* Dashboard shell */}
-      <div className="flex h-[340px] sm:h-[400px]">
-        {/* Sidebar */}
-        <aside className="hidden w-14 shrink-0 flex-col items-center gap-3 border-r border-border bg-surface py-4 sm:flex">
-          <div className="h-6 w-6 rounded-md bg-accent-600/90" />
-          <div className="mt-2 flex flex-col gap-2">
-            {[...Array(7)].map((_, i) => (
-              <div key={i} className={`h-5 w-5 rounded ${i === 0 ? 'bg-accent-600/30' : 'bg-surface-3'}`} />
+      <div className="flex h-[350px] sm:h-[420px]">
+        <aside className="hidden w-[84px] shrink-0 border-r border-white/8 bg-black/15 px-3 py-4 sm:flex sm:flex-col">
+          <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-accent-500/18 text-sm font-semibold text-white shadow-[0_14px_40px_-16px_rgba(59,130,246,0.75)]">
+            W
+          </div>
+
+          <div className="mt-5 space-y-2">
+            {['Inicio', 'Metas', 'Roadmap', 'Tiempo', 'Notas'].map((item, index) => (
+              <div
+                key={item}
+                className={[
+                  'rounded-2xl px-3 py-2 text-[10px] font-medium tracking-[0.16em]',
+                  index === 0
+                    ? 'border border-accent-400/20 bg-accent-500/16 text-accent-200'
+                    : 'text-slate-500',
+                ].join(' ')}
+              >
+                {item}
+              </div>
             ))}
+          </div>
+
+          <div className="mt-auto rounded-2xl border border-white/8 bg-white/[0.04] px-3 py-2">
+            <p className="text-[9px] uppercase tracking-[0.18em] text-slate-500">Focus</p>
+            <p className="mt-1 text-xs font-semibold text-slate-100">AWS Journey</p>
           </div>
         </aside>
 
-        {/* Main area */}
-        <div className="flex flex-1 flex-col overflow-hidden">
-          {/* Topbar */}
-          <div className="flex h-10 items-center justify-between border-b border-border px-4">
-            <div className="h-2.5 w-24 rounded bg-surface-3" />
-            <div className="flex gap-2">
-              <div className="h-5 w-5 rounded-full bg-surface-3" />
-              <div className="h-5 w-5 rounded-full bg-surface-3" />
+        <div className="flex min-w-0 flex-1 flex-col">
+          <div className="flex items-center justify-between border-b border-white/8 px-4 py-3">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.24em] text-slate-500">Tu foco de hoy</p>
+              <p className="mt-1 text-sm font-semibold text-white">Cumplir una meta sin perder contexto</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-full border border-white/10 bg-white/[0.05]" />
+              <div className="h-8 w-8 rounded-full border border-white/10 bg-accent-500/18" />
             </div>
           </div>
 
-          {/* Content */}
-          <div className="flex-1 overflow-hidden p-4 space-y-3">
-            {/* Stats row */}
-            <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-              {[
-                { label: 'Empleos', val: '12', accent: true },
-                { label: 'Proyectos', val: '5' },
-                { label: 'Clientes', val: '3' },
-                { label: 'Ingresos', val: '$2.4k' },
-              ].map((s) => (
-                <div key={s.label} className="rounded-lg border border-border bg-surface-2 p-2">
-                  <div className={`text-base font-bold ${s.accent ? 'text-accent-500' : 'text-text'}`}>
-                    {s.val}
+          <div className="flex-1 space-y-3 p-4">
+            <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+              {STATS.map((stat) => (
+                <div
+                  key={stat.label}
+                  className="relative overflow-hidden rounded-2xl border border-white/8 bg-white/[0.04] px-3 py-3"
+                >
+                  <div className={`absolute inset-0 bg-gradient-to-br ${stat.tone} opacity-80`} />
+                  <div className="relative">
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-slate-400">{stat.label}</p>
+                    <p className="mt-2 text-xl font-semibold text-white sm:text-2xl">{stat.value}</p>
                   </div>
-                  <div className="text-[10px] text-muted">{s.label}</div>
                 </div>
               ))}
             </div>
 
-            {/* Two-col */}
-            <div className="grid grid-cols-2 gap-2">
-              {/* Hábitos */}
-              <div className="rounded-lg border border-border bg-surface-2 p-3 space-y-2">
-                <div className="flex items-center justify-between">
-                  <div className="h-2.5 w-20 rounded bg-surface-3" />
-                  <div className="h-2 w-12 rounded bg-accent-600/20" />
-                </div>
-                {['Ejercicio', 'Leer', 'Meditar'].map((h, i) => (
-                  <div key={h} className="flex items-center gap-2">
-                    <div className={`h-3.5 w-3.5 rounded-full border ${i < 2 ? 'border-emerald-500 bg-emerald-500/20' : 'border-border'}`} />
-                    <div className="h-2 rounded bg-surface-3" style={{ width: `${50 + i * 15}%` }} />
-                  </div>
-                ))}
-              </div>
-              {/* Deadlines */}
-              <div className="rounded-lg border border-border bg-surface-2 p-3 space-y-2">
-                <div className="h-2.5 w-24 rounded bg-surface-3" />
-                {['Diseño Web', 'App Móvil', 'API REST'].map((p, i) => (
-                  <div key={p} className="flex items-center justify-between">
-                    <div className="h-2 rounded bg-surface-3" style={{ width: '55%' }} />
-                    <div className={`h-4 rounded-full px-1.5 text-[9px] leading-4 ${i === 0 ? 'bg-red-500/10 text-red-400' : 'bg-surface-3 text-muted'}`}>
-                      {i === 0 ? '2d' : i === 1 ? '5d' : '14d'}
+            <div className="grid h-[calc(100%-5.4rem)] min-h-0 gap-3 lg:grid-cols-[1.15fr_0.85fr]">
+              <div className="grid min-h-0 gap-3">
+                <section className="rounded-[1.6rem] border border-white/8 bg-white/[0.04] p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-[10px] uppercase tracking-[0.2em] text-slate-500">Meta activa</p>
+                      <p className="mt-1 text-base font-semibold text-white">Curso AWS + proyecto real</p>
                     </div>
+                    <span className="rounded-full border border-accent-400/20 bg-accent-500/12 px-3 py-1 text-[10px] font-medium text-accent-200">
+                      Continuar
+                    </span>
                   </div>
-                ))}
-              </div>
-            </div>
 
-            {/* Activity bar */}
-            <div className="rounded-lg border border-border bg-surface-2 p-3">
-              <div className="mb-2 h-2.5 w-28 rounded bg-surface-3" />
-              <div className="flex items-end gap-1 h-10">
-                {[40,65,30,80,55,90,45,70,35,85,60,75].map((h, i) => (
-                  <div
-                    key={i}
-                    className="flex-1 rounded-sm bg-accent-600/30"
-                    style={{ height: `${h}%` }}
-                  />
-                ))}
+                  <div className="mt-4 h-2 rounded-full bg-white/[0.05]">
+                    <div className="h-2 w-[68%] rounded-full bg-gradient-to-r from-accent-400 via-cyan-400 to-violet-400" />
+                  </div>
+
+                  <div className="mt-4 grid gap-2 sm:grid-cols-3">
+                    {ROADMAP.map((item) => (
+                      <div
+                        key={item.label}
+                        className={[
+                          'rounded-2xl border px-3 py-3',
+                          item.active
+                            ? 'border-accent-400/25 bg-accent-500/12'
+                            : 'border-white/8 bg-black/10',
+                        ].join(' ')}
+                      >
+                        <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Roadmap</p>
+                        <p className="mt-1 text-sm font-medium text-slate-100">{item.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="min-h-0 rounded-[1.6rem] border border-white/8 bg-white/[0.04] p-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-sm font-semibold text-white">Actividad reciente</p>
+                    <p className="text-[10px] uppercase tracking-[0.18em] text-slate-500">Tiempo real</p>
+                  </div>
+
+                  <div className="mt-4 flex h-[120px] items-end gap-1.5">
+                    {BARS.map((height, index) => (
+                      <div key={index} className="flex-1 rounded-full bg-white/[0.04] p-[1px]">
+                        <div
+                          className="w-full rounded-full bg-gradient-to-t from-accent-500/30 via-cyan-400/55 to-white/60"
+                          style={{ height: `${height}%` }}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </section>
               </div>
+
+              <section className="min-h-0 rounded-[1.6rem] border border-white/8 bg-white/[0.04] p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-white">Acciones de hoy</p>
+                    <p className="mt-1 text-[10px] uppercase tracking-[0.18em] text-slate-500">Habitos y sistema</p>
+                  </div>
+                  <span className="rounded-full bg-emerald-500/12 px-2.5 py-1 text-[10px] font-medium text-emerald-300">
+                    2 listas
+                  </span>
+                </div>
+
+                <div className="mt-4 space-y-3">
+                  {HABITS.map((habit) => (
+                    <div key={habit.label} className="rounded-2xl border border-white/8 bg-black/12 px-3 py-3">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex min-w-0 items-center gap-2">
+                          <span
+                            className={[
+                              'h-3.5 w-3.5 shrink-0 rounded-full border',
+                              habit.done
+                                ? 'border-emerald-400 bg-emerald-400/20'
+                                : 'border-slate-600 bg-transparent',
+                            ].join(' ')}
+                          />
+                          <p className="truncate text-sm font-medium text-slate-100">{habit.label}</p>
+                        </div>
+                        <p className="text-xs text-slate-400">{habit.done ? 'Hecho' : 'Pendiente'}</p>
+                      </div>
+
+                      <div className="mt-3 h-1.5 rounded-full bg-white/[0.05]">
+                        <div
+                          className="h-1.5 rounded-full bg-gradient-to-r from-accent-400 to-cyan-400"
+                          style={{ width: habit.width }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
             </div>
           </div>
         </div>

@@ -1,90 +1,92 @@
 import Link from 'next/link'
-import { ArrowRight, Globe, Code2, PenLine, BookOpen, FileText, Star } from 'lucide-react'
-
-// Static mockup of a public profile page
+import { ArrowRight, BookOpen, Code2, ExternalLink, FileText, Globe, PenLine, Star } from 'lucide-react'
+import { Reveal } from './Reveal'
 
 function ProfileMockup() {
   return (
-    <div className="overflow-hidden rounded-2xl border border-border bg-surface shadow-2xl">
-      {/* Browser chrome */}
-      <div className="flex items-center gap-1.5 border-b border-border bg-surface-2 px-3 py-2.5">
+    <div className="overflow-hidden rounded-[2rem] border border-white/10 bg-surface/75 shadow-[0_30px_80px_-40px_rgba(15,23,42,0.9)] backdrop-blur-xl">
+      <div className="flex items-center gap-1.5 border-b border-white/10 bg-black/10 px-3 py-2.5">
         <span className="h-2.5 w-2.5 rounded-full bg-red-400/80" />
         <span className="h-2.5 w-2.5 rounded-full bg-yellow-400/80" />
         <span className="h-2.5 w-2.5 rounded-full bg-emerald-400/80" />
-        <div className="mx-3 flex-1 rounded bg-surface-3 px-3 py-0.5 text-[10px] text-muted">
+        <div className="mx-3 flex-1 rounded-full border border-white/10 bg-white/5 px-3 py-0.5 text-[10px] text-muted">
           winf.com.ar/williams
         </div>
       </div>
 
-      <div className="p-6 space-y-5">
-        {/* Profile header */}
+      <div className="space-y-5 p-6">
         <div className="flex items-start gap-4">
-          <div className="h-14 w-14 shrink-0 rounded-full bg-gradient-to-br from-accent-500 to-violet-500 flex items-center justify-center text-white text-lg font-bold">
+          <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-accent-500 to-violet-500 text-lg font-bold text-white">
             W
           </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="font-bold text-text">Williams García</h3>
-            <p className="text-xs text-muted">@williams · Full-Stack Developer</p>
-            <p className="mt-1 text-xs text-muted line-clamp-2">
-              Desarrollador full-stack apasionado por crear productos útiles.
-              Actualmente buscando oportunidades remote.
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h3 className="font-semibold text-text">Williams Gutierrez</h3>
+                <p className="mt-1 text-xs text-muted">@williams - Infrastructure & systems</p>
+              </div>
+              <span className="rounded-full border border-white/10 bg-emerald-500/10 px-2 py-1 text-[10px] font-medium text-emerald-400">
+                Publico
+              </span>
+            </div>
+            <p className="mt-3 text-xs leading-6 text-muted">
+              Infraestructura, NOC, automatizacion y proyectos tecnicos conectados a metas reales.
             </p>
           </div>
         </div>
 
-        {/* Public links */}
         <div className="flex flex-wrap gap-2">
           {[
-            { icon: Globe, label: 'winf.com.ar' },
+            { icon: Globe, label: 'winf.com.ar/williams' },
+            { icon: ExternalLink, label: 'LinkedIn' },
             { icon: Code2, label: 'github/williams' },
-          ].map((l) => (
+          ].map((item) => (
             <span
-              key={l.label}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border px-2.5 py-1 text-[11px] text-muted"
+              key={item.label}
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] text-muted"
             >
-              <l.icon size={11} />
-              {l.label}
+              <item.icon size={11} />
+              {item.label}
             </span>
           ))}
         </div>
 
-        {/* Sections nav */}
-        <div className="flex gap-4 border-b border-border pb-3">
-          {(
-            [
-              { label: 'Proyectos', icon: Code2    },
-              { label: 'CV',        icon: FileText  },
-              { label: 'Blog',      icon: PenLine   },
-              { label: 'Wiki',      icon: BookOpen  },
-            ] as const
-          ).map(({ label, icon: Icon }, i) => (
+        <div className="flex gap-4 border-b border-white/10 pb-3">
+          {[
+            { label: 'Proyectos', icon: Code2 },
+            { label: 'CV', icon: FileText },
+            { label: 'Blog', icon: PenLine },
+            { label: 'Wiki', icon: BookOpen },
+          ].map((item, index) => (
             <span
-              key={label}
-              className={`flex items-center gap-1 text-xs font-medium ${i === 0 ? 'text-accent-600 border-b-2 border-accent-600 pb-3 -mb-3' : 'text-muted'}`}
+              key={item.label}
+              className={[
+                'flex items-center gap-1 text-xs font-medium',
+                index === 0 ? 'border-b-2 border-accent-500 pb-3 -mb-3 text-accent-400' : 'text-muted',
+              ].join(' ')}
             >
-              <Icon size={11} />
-              {label}
+              <item.icon size={11} />
+              {item.label}
             </span>
           ))}
         </div>
 
-        {/* Projects grid */}
         <div className="grid grid-cols-2 gap-2.5">
           {[
-            { name: 'WINF', tech: 'Next.js · Supabase', stars: 48 },
-            { name: 'CLI Tools', tech: 'Rust · Clap', stars: 23 },
-            { name: 'Portfolio API', tech: 'Go · Fiber', stars: 17 },
-            { name: 'UI Kit', tech: 'React · Tailwind', stars: 31 },
-          ].map((p) => (
-            <div key={p.name} className="rounded-lg border border-border bg-surface-2 p-3">
-              <div className="flex items-start justify-between gap-1">
-                <span className="text-xs font-semibold text-text leading-tight">{p.name}</span>
-                <span className="flex items-center gap-0.5 text-[10px] text-muted shrink-0">
-                  <Star size={9} className="text-yellow-400 fill-yellow-400" />
-                  {p.stars}
+            { name: 'AWS Lab', tech: 'Linux - Bash - Networking', stars: 48 },
+            { name: 'Infra Wiki', tech: 'Markdown - Documentation', stars: 23 },
+            { name: 'Client Stack', tech: 'Monitoring - OLT - DHCP', stars: 17 },
+            { name: 'Roadmap DevOps', tech: 'Goals - Notes - Tasks', stars: 31 },
+          ].map((project) => (
+            <div key={project.name} className="rounded-xl border border-white/10 bg-black/10 p-3">
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-xs font-semibold leading-tight text-text">{project.name}</span>
+                <span className="flex shrink-0 items-center gap-0.5 text-[10px] text-muted">
+                  <Star size={9} className="fill-yellow-400 text-yellow-400" />
+                  {project.stars}
                 </span>
               </div>
-              <span className="mt-1 block text-[10px] text-muted">{p.tech}</span>
+              <span className="mt-1 block text-[10px] text-muted">{project.tech}</span>
             </div>
           ))}
         </div>
@@ -96,79 +98,75 @@ function ProfileMockup() {
 export function ProfilePreview() {
   return (
     <section id="profiles" className="py-24 sm:py-32">
-      {/* Subtle background */}
       <div className="relative">
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-accent-600/[0.03] to-transparent"
+          className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-accent-600/[0.04] to-transparent"
         />
 
-        <div className="mx-auto max-w-6xl px-4 sm:px-6">
-          <div className="grid gap-12 lg:grid-cols-2 lg:items-center">
-            {/* Copy */}
-            <div>
-              <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-accent-600 dark:text-accent-400">
-                Portafolio público
-              </p>
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-                Tu portafolio profesional{' '}
-                <span className="bg-gradient-to-r from-accent-500 to-violet-500 bg-clip-text text-transparent">
-                  en minutos
-                </span>
-              </h2>
-              <p className="mt-4 text-muted">
-                Cada cuenta tiene un perfil público en{' '}
-                <code className="rounded bg-surface-2 px-1.5 py-0.5 font-mono text-xs">
-                  winf.com.ar/@usuario
-                </code>
-                . Mostrá tus proyectos, publicá tu CV, escribí en tu blog y compartí
-                tu wiki — todo listo para compartir con empleadores o clientes.
-              </p>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="grid gap-12 lg:grid-cols-[0.92fr_1.08fr] lg:items-center">
+            <Reveal>
+              <div>
+                <p className="mb-3 text-xs font-semibold uppercase tracking-[0.22em] text-accent-400">
+                  Perfil publico
+                </p>
+                <h2 className="text-3xl font-semibold tracking-[-0.04em] text-text sm:text-4xl lg:text-5xl">
+                  No mostras solo un portfolio.
+                  <span className="block text-muted">Mostras contexto, progreso y criterio.</span>
+                </h2>
+                <p className="mt-5 max-w-xl text-base leading-7 text-muted">
+                  Cada cuenta puede exponer proyectos, CV, blog, roadmaps y wiki en una sola URL.
+                  El resultado se siente mas cercano a un sistema profesional vivo que a una pagina estatica.
+                </p>
 
-              {/* Feature bullets */}
-              <ul className="mt-6 space-y-3">
-                {[
-                  { icon: Code2,    text: 'Proyectos con stack tecnológico y links' },
-                  { icon: FileText, text: 'CV profesional con export a PDF' },
-                  { icon: PenLine,  text: 'Blog de artículos en Markdown' },
-                  { icon: BookOpen, text: 'Wiki pública con wiki-links y backlinks' },
-                ].map((item) => (
-                  <li key={item.text} className="flex items-center gap-3 text-sm text-text">
-                    <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-accent-600/10">
-                      <item.icon size={12} className="text-accent-600" />
-                    </span>
-                    {item.text}
-                  </li>
-                ))}
-              </ul>
+                <ul className="mt-7 space-y-3">
+                  {[
+                    { icon: Code2, text: 'Proyectos con stack, links y visibilidad' },
+                    { icon: FileText, text: 'CV profesional con export PDF y ATS' },
+                    { icon: PenLine, text: 'Blog tecnico dentro del mismo perfil' },
+                    { icon: BookOpen, text: 'Wiki publica con notas conectadas' },
+                  ].map((item, index) => (
+                    <Reveal key={item.text} delayMs={80 + index * 60} distance={12}>
+                      <li className="flex items-center gap-3 rounded-2xl border border-white/8 bg-surface/40 px-4 py-3 text-sm text-text backdrop-blur-lg">
+                        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-accent-500/10">
+                          <item.icon size={14} className="text-accent-400" />
+                        </span>
+                        {item.text}
+                      </li>
+                    </Reveal>
+                  ))}
+                </ul>
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-                <Link
-                  href="/signup"
-                  className="group inline-flex items-center justify-center gap-2 rounded-xl bg-accent-600 px-5 py-2.5 text-sm font-semibold text-white hover:bg-accent-700 transition-all active:scale-[0.98]"
-                >
-                  Crear mi perfil
-                  <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
-                </Link>
-                <Link
-                  href="/williams"
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-border px-5 py-2.5 text-sm font-semibold text-text hover:border-border-bright hover:bg-surface-2 transition-all"
-                >
-                  Ver perfil de ejemplo
-                </Link>
+                <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                  <Link
+                    href="/signup"
+                    className="group inline-flex items-center justify-center gap-2 rounded-xl bg-accent-600 px-5 py-2.5 text-sm font-semibold text-white transition-all hover:bg-accent-700 active:scale-[0.98]"
+                  >
+                    Crear mi perfil
+                    <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+                  </Link>
+                  <Link
+                    href="/williams"
+                    className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/10 bg-surface/55 px-5 py-2.5 text-sm font-semibold text-text backdrop-blur-lg transition-all hover:border-border-bright hover:bg-surface/70"
+                  >
+                    Ver ejemplo
+                  </Link>
+                </div>
               </div>
-            </div>
+            </Reveal>
 
-            {/* Mockup */}
-            <div className="relative">
-              <div
-                aria-hidden
-                className="absolute -inset-4 rounded-3xl bg-gradient-to-r from-accent-600/10 to-violet-600/10 blur-2xl"
-              />
+            <Reveal delayMs={120} distance={30}>
               <div className="relative">
-                <ProfileMockup />
+                <div
+                  aria-hidden
+                  className="absolute -inset-6 rounded-[2.5rem] bg-gradient-to-r from-accent-600/15 via-cyan-500/10 to-violet-600/12 blur-2xl"
+                />
+                <div className="relative">
+                  <ProfileMockup />
+                </div>
               </div>
-            </div>
+            </Reveal>
           </div>
         </div>
       </div>

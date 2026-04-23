@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { createClient } from '@/lib/supabase/server'
 
 import { Navbar }         from '@/components/landing/Navbar'
+import { LandingBackground } from '@/components/landing/LandingBackground'
 import { Hero }           from '@/components/landing/Hero'
 import { SocialProof }    from '@/components/landing/SocialProof'
 import { FeaturesGrid }   from '@/components/landing/FeaturesGrid'
@@ -51,10 +52,11 @@ export default async function HomePage({
   const initialModal = modal === 'login' || modal === 'signup' ? modal : undefined
 
   return (
-    <div className="min-h-screen">
+    <div className="relative min-h-screen overflow-x-clip bg-background">
+      <LandingBackground />
       <Navbar initialModal={initialModal} />
 
-      <main>
+      <main className="relative z-10">
         {/* 1. Hero */}
         <Hero />
 

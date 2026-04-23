@@ -102,7 +102,83 @@ html.dark {
   to   { transform: rotate(360deg); }
 }
 
+@keyframes orb-float-a {
+  0%   { transform: translate(0px,    0px)   scale(1);    }
+  25%  { transform: translate(30px,  -40px)  scale(1.04); }
+  50%  { transform: translate(-20px, -70px)  scale(0.97); }
+  75%  { transform: translate(-45px, -30px)  scale(1.02); }
+  100% { transform: translate(0px,    0px)   scale(1);    }
+}
+
+@keyframes orb-float-b {
+  0%   { transform: translate(0px,   0px)   scale(1);    }
+  33%  { transform: translate(-50px, 35px)  scale(1.06); }
+  66%  { transform: translate(40px,  55px)  scale(0.95); }
+  100% { transform: translate(0px,   0px)   scale(1);    }
+}
+
+@keyframes orb-float-c {
+  0%   { transform: translate(0px,  0px)   scale(1);    }
+  40%  { transform: translate(25px, 45px)  scale(1.03); }
+  70%  { transform: translate(-30px, 20px) scale(0.98); }
+  100% { transform: translate(0px,  0px)   scale(1);    }
+}
+
+@keyframes orb-pulse {
+  0%, 100% { opacity: 0.55; }
+  50%       { opacity: 0.85; }
+}
+
 /* ── Animation utility classes ───────────────────────────── */
+.landing-reveal {
+  opacity: 0;
+  transform: translateY(var(--landing-reveal-distance, 26px)) scale(0.985);
+  filter: blur(12px);
+  transition:
+    opacity 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.75s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform, filter;
+}
+
+.landing-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  filter: blur(0);
+}
+
+.landing-noise {
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255, 255, 255, 0.06) 0, transparent 26%),
+    radial-gradient(circle at 80% 30%, rgba(59, 130, 246, 0.06) 0, transparent 24%),
+    radial-gradient(circle at 30% 80%, rgba(139, 92, 246, 0.06) 0, transparent 22%),
+    radial-gradient(circle, rgba(255, 255, 255, 0.08) 0.7px, transparent 0.8px);
+  background-size: auto, auto, auto, 18px 18px;
+  mix-blend-mode: screen;
+}
+
+.landing-orb {
+  will-change: transform, opacity;
+}
+
+.landing-orb-a {
+  animation:
+    orb-float-a 18s ease-in-out infinite,
+    orb-pulse 11s ease-in-out infinite;
+}
+
+.landing-orb-b {
+  animation:
+    orb-float-b 22s ease-in-out infinite,
+    orb-pulse 13s ease-in-out infinite;
+}
+
+.landing-orb-c {
+  animation:
+    orb-float-c 24s ease-in-out infinite,
+    orb-pulse 15s ease-in-out infinite;
+}
+
 .animate-fade-in  { animation: fade-in  0.2s ease-out both; }
 .animate-slide-up { animation: slide-up 0.25s ease-out both; }
 .animate-scale-in { animation: scale-in 0.2s ease-out both; }
@@ -196,4 +272,20 @@ html.dark {
 
 html:not(.dark) {
   color-scheme: light;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-reveal,
+  .landing-reveal.is-visible {
+    opacity: 1;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+
+  .landing-orb-a,
+  .landing-orb-b,
+  .landing-orb-c {
+    animation: none;
+  }
 }

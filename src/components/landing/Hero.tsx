@@ -1,81 +1,116 @@
 import Link from 'next/link'
-import { PlayCircle, Sparkles } from 'lucide-react'
-import { DashboardMockup } from './DashboardMockup'
+import { ArrowRight, Orbit, PlayCircle, Sparkles, Target, TimerReset } from 'lucide-react'
 import { AuthCTAButton } from './AuthCTAButton'
+import { HeroShowcase } from './HeroShowcase'
+import { Reveal } from './Reveal'
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden pt-28 pb-16 sm:pt-36 sm:pb-24">
-      {/* Background gradients */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10"
-      >
-        {/* Top center glow */}
-        <div className="absolute left-1/2 top-0 -translate-x-1/2 h-[600px] w-[800px] rounded-full bg-accent-600/8 blur-3xl dark:bg-accent-600/12" />
-        {/* Bottom left */}
-        <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-violet-600/5 blur-3xl dark:bg-violet-600/10" />
-        {/* Grid pattern overlay */}
-        <div
-          className="absolute inset-0 opacity-[0.025] dark:opacity-[0.04]"
-          style={{
-            backgroundImage: `linear-gradient(var(--color-border) 1px, transparent 1px), linear-gradient(90deg, var(--color-border) 1px, transparent 1px)`,
-            backgroundSize: '40px 40px',
-          }}
-        />
-      </div>
+    <section className="relative overflow-hidden pt-28 pb-20 sm:pt-36 sm:pb-28">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="grid gap-14 lg:grid-cols-[1.02fr_0.98fr] lg:items-center">
+          <Reveal className="relative" distance={34}>
+            <div className="inline-flex items-center gap-2 rounded-full border border-accent-500/20 bg-surface/70 px-3.5 py-1.5 text-[11px] font-semibold uppercase tracking-[0.22em] text-accent-400 backdrop-blur-xl">
+              <Sparkles size={12} className="shrink-0" />
+              Work in One Framework
+            </div>
 
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="flex flex-col items-center text-center">
-          {/* Badge */}
-          <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent-600/20 bg-accent-600/5 px-3.5 py-1.5 text-xs font-medium text-accent-600 dark:text-accent-400">
-            <Sparkles size={12} className="shrink-0" />
-            WINF - Work in One Framework
-          </div>
+            <h1 className="mt-6 max-w-3xl text-4xl font-semibold tracking-[-0.04em] text-text sm:text-5xl lg:text-[4.5rem] lg:leading-[0.95]">
+              Menos apps sueltas.
+              <span className="mt-2 block bg-gradient-to-r from-accent-400 via-cyan-300 to-violet-400 bg-clip-text text-transparent">
+                Mas claridad para cumplir una meta real.
+              </span>
+            </h1>
 
-          {/* Headline */}
-          <h1 className="max-w-4xl text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-            Cumpli tus metas con{' '}
-            <span className="bg-gradient-to-r from-accent-500 via-blue-400 to-violet-500 bg-clip-text text-transparent">
-              un sistema guiado
-            </span>
-          </h1>
+            <p className="mt-6 max-w-2xl text-base leading-7 text-muted sm:text-lg">
+              WINF convierte metas, roadmap, tiempo, habitos, proyectos y perfil publico
+              en un mismo sistema vivo. No es otra dashboard generica: es una estructura
+              para avanzar y mostrar progreso de verdad.
+            </p>
 
-          {/* Subheadline */}
-          <p className="mt-5 max-w-2xl text-base text-muted sm:text-lg">
-            Organiza metas, roadmaps, proyectos, habitos, tiempo y perfil publico.
-            Todo conectado en un solo framework de trabajo.
-          </p>
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+              <AuthCTAButton label="Crear espacio gratis" mode="signup" />
+              <Link
+                href="/williams"
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-surface/70 px-6 py-3 text-sm font-semibold text-text shadow-[var(--shadow-card)] backdrop-blur-xl transition-all hover:-translate-y-0.5 hover:border-border-bright hover:shadow-[var(--shadow-card-hover)] active:scale-[0.98]"
+              >
+                <PlayCircle size={15} className="text-accent-500" />
+                Ver demo en vivo
+              </Link>
+            </div>
 
-          {/* CTAs */}
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:gap-4">
-            <AuthCTAButton label="Comenzar gratis" mode="signup" />
-            <Link
-              href="/williams"
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface px-6 py-3 text-sm font-semibold text-text shadow-[var(--shadow-card)] transition-all hover:border-border-bright hover:shadow-[var(--shadow-card-hover)] active:scale-[0.98]"
-            >
-              <PlayCircle size={15} className="text-accent-600" />
-              Ver demo
-            </Link>
-          </div>
+            <div className="mt-8 grid gap-3 sm:grid-cols-3">
+              {[
+                {
+                  icon: Target,
+                  label: 'Meta activa',
+                  value: '1 foco claro',
+                },
+                {
+                  icon: Orbit,
+                  label: 'Roadmap conectado',
+                  value: 'pasos visibles',
+                },
+                {
+                  icon: TimerReset,
+                  label: 'Tiempo real',
+                  value: 'progreso medible',
+                },
+              ].map((item, index) => (
+                <Reveal key={item.label} delayMs={80 + index * 90} distance={18}>
+                  <div className="rounded-2xl border border-white/10 bg-surface/65 p-4 backdrop-blur-xl transition-transform duration-300 hover:-translate-y-1">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent-500/10 text-accent-400">
+                      <item.icon size={17} />
+                    </div>
+                    <p className="mt-4 text-sm font-semibold text-text">{item.value}</p>
+                    <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted">{item.label}</p>
+                  </div>
+                </Reveal>
+              ))}
+            </div>
 
-          {/* Social proof nudge */}
-          <p className="mt-6 text-xs text-muted">
-            Sin tarjeta de crédito · Sin límite de tiempo
-          </p>
+            <div className="mt-8 flex items-center gap-3 text-xs text-muted">
+              <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_18px_rgba(74,222,128,0.65)]" />
+              Sin tarjeta al empezar
+              <span className="inline-flex h-1 w-1 rounded-full bg-border-bright" />
+              Base gratuita real
+              <span className="inline-flex h-1 w-1 rounded-full bg-border-bright" />
+              Tour guiado al entrar
+            </div>
+          </Reveal>
+
+          <Reveal delayMs={120} distance={42}>
+            <div className="relative lg:pl-6">
+              <div className="absolute inset-x-12 top-8 h-32 rounded-full bg-gradient-to-r from-accent-500/25 via-cyan-500/10 to-violet-500/20 blur-3xl" />
+              <HeroShowcase />
+            </div>
+          </Reveal>
         </div>
 
-        {/* Dashboard mockup */}
-        <div className="relative mt-16 sm:mt-20">
-          {/* Glow behind mockup */}
-          <div
-            aria-hidden
-            className="absolute -inset-x-4 -top-4 -bottom-8 rounded-3xl bg-gradient-to-b from-accent-600/5 to-transparent blur-xl dark:from-accent-600/10"
-          />
-          <div className="relative">
-            <DashboardMockup />
+        <Reveal delayMs={180} className="mt-16" distance={20}>
+          <div className="grid gap-4 rounded-[2rem] border border-white/10 bg-surface/55 p-4 backdrop-blur-xl sm:grid-cols-3 sm:p-5">
+            {[
+              ['Para estudiantes', 'Roadmaps, cursos, CV y habitos sin perder el hilo.'],
+              ['Para freelancers', 'Clientes, proyectos, finanzas y seguimiento del trabajo en un solo flujo.'],
+              ['Para profesionales', 'Tu perfil publico, progreso real y todo listo para mostrar.'],
+            ].map(([title, description], index) => (
+              <div
+                key={title}
+                className={[
+                  'rounded-2xl border border-white/8 bg-black/[0.14] p-4 transition-transform duration-300 hover:-translate-y-1',
+                  index === 1 ? 'sm:scale-[1.02]' : '',
+                ].join(' ')}
+              >
+                <p className="text-sm font-semibold text-text">{title}</p>
+                <p className="mt-2 text-sm leading-6 text-muted">{description}</p>
+                <div className="mt-4 inline-flex items-center gap-1 text-xs font-medium text-accent-400">
+                  Entrar con foco
+                  <ArrowRight size={12} />
+                </div>
+              </div>
+            ))}
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   )
