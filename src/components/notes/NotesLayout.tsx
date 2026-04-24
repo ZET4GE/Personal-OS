@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition, useMemo } from 'react'
 import { Plus, Search, X } from 'lucide-react'
@@ -109,7 +109,7 @@ export function NotesLayout({ notes, folders, tags }: Props) {
       </aside>
 
       {/* ── Col 2: Note list ── */}
-      <div className={`flex w-full flex-col border-r border-border bg-surface-2 lg:w-72 xl:w-80 ${currentNote ? 'hidden lg:flex' : 'flex'}`}>
+      <div className={`flex w-full flex-col border-r border-border bg-surface-elevated lg:w-72 xl:w-80 ${currentNote ? 'hidden lg:flex' : 'flex'}`}>
         {/* Search + new */}
         <div className="flex items-center gap-2 border-b border-border px-3 py-2.5">
           <div className="relative flex-1">

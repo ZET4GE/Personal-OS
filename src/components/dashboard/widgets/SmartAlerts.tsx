@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { AlertTriangle, Check, ChevronRight, Info } from 'lucide-react'
@@ -33,8 +33,8 @@ export function SmartAlerts() {
     return (
       <section className="rounded-xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
         <div className="space-y-3">
-          <div className="h-4 w-36 animate-pulse rounded bg-surface-3" />
-          <div className="h-14 animate-pulse rounded-xl bg-surface-3" />
+          <div className="h-4 w-36 animate-pulse rounded bg-surface-hover" />
+          <div className="h-14 animate-pulse rounded-xl bg-surface-hover" />
         </div>
       </section>
     )

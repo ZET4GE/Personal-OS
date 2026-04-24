@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState } from 'react'
 import Link from 'next/link'
@@ -588,7 +588,7 @@ export function LearningRoadmapBoard({
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 rounded-xl border border-border bg-surface-2 p-2 text-center">
+          <div className="grid grid-cols-3 gap-2 rounded-xl border border-border bg-surface-elevated p-2 text-center">
             <div className="rounded-lg bg-surface px-3 py-2">
               <p className="text-lg font-semibold text-text">{nodes.length}</p>
               <p className="text-[11px] uppercase tracking-[0.2em] text-muted">Nodos</p>
@@ -664,9 +664,9 @@ export function LearningRoadmapBoard({
               <h2 className="text-sm font-semibold text-text">Siguiente accion recomendada</h2>
               <p className="text-xs text-muted">El roadmap debe llevarte a ejecutar, no solo a ordenar ideas.</p>
             </div>
-            <span className="rounded-full bg-surface-2 px-2.5 py-1 text-xs text-muted">{averageProgress}% total</span>
+            <span className="rounded-full bg-surface-elevated px-2.5 py-1 text-xs text-muted">{averageProgress}% total</span>
           </div>
-          <div className="rounded-xl border border-border bg-surface-2 p-4">
+          <div className="rounded-xl border border-border bg-surface-elevated p-4">
             <p className="text-sm font-semibold text-text">{nextNode?.title ?? 'Crea el primer nodo'}</p>
             <p className="mt-1 text-sm leading-6 text-muted">
               {nextNode?.description ?? 'Define el primer paso del camino y conectalo con una meta.'}
@@ -766,7 +766,7 @@ export function LearningRoadmapBoard({
           <button
             type="button"
             onClick={() => setShowHelp((v) => !v)}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-xs text-muted transition-colors hover:text-text"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-xs text-muted transition-colors hover:text-text"
           >
             <HelpCircle size={13} />
             {showHelp ? 'Ocultar ayuda' : '¿Cómo usar?'}
@@ -781,7 +781,7 @@ export function LearningRoadmapBoard({
               if (event.key === 'Enter') handleCreateNode()
             }}
             placeholder="¿Cuál es el siguiente paso?"
-            className="flex-1 rounded-xl border border-border bg-surface-2 px-4 py-3 text-base text-text outline-none transition-colors focus:border-accent-500 placeholder:text-muted"
+            className="flex-1 rounded-xl border border-border bg-surface-elevated px-4 py-3 text-base text-text outline-none transition-colors focus:border-accent-500 placeholder:text-muted"
           />
           <button
             type="button"
@@ -810,7 +810,7 @@ export function LearningRoadmapBoard({
                 onChange={(event) => setDraft((current) => ({ ...current, description: event.target.value }))}
                 placeholder="Descripcion opcional"
                 rows={3}
-                className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
+                className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
               />
               <div>
                 <p className="mb-2 text-xs text-muted">Tipo</p>
@@ -822,7 +822,7 @@ export function LearningRoadmapBoard({
                       'flex-1 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors',
                       draft.type === 'topic'
                         ? 'border-accent-500 bg-accent-600/10 text-text'
-                        : 'border-border bg-surface-2 text-muted hover:text-text',
+                        : 'border-border bg-surface-elevated text-muted hover:text-text',
                     ].join(' ')}
                   >
                     <BookOpen size={14} className="mx-auto mb-1" />
@@ -835,7 +835,7 @@ export function LearningRoadmapBoard({
                       'flex-1 rounded-xl border px-3 py-2.5 text-sm font-medium transition-colors',
                       draft.type === 'skill'
                         ? 'border-accent-500 bg-accent-600/10 text-text'
-                        : 'border-border bg-surface-2 text-muted hover:text-text',
+                        : 'border-border bg-surface-elevated text-muted hover:text-text',
                     ].join(' ')}
                   >
                     <Zap size={14} className="mx-auto mb-1" />
@@ -848,7 +848,7 @@ export function LearningRoadmapBoard({
                   value={draft.level}
                   onChange={(event) => setDraft((current) => ({ ...current, level: event.target.value }))}
                   placeholder="Nivel o sección. Ej: Fundamentos, Avanzado..."
-                  className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
+                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
                 />
               ) : null}
               {nodes.length > 0 ? (
@@ -867,7 +867,7 @@ export function LearningRoadmapBoard({
               ) : null}
             </div>
 
-            <div className="rounded-xl border border-border bg-surface-2 p-3">
+            <div className="rounded-xl border border-border bg-surface-elevated p-3">
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted">
                 Metas conectadas
               </p>
@@ -893,7 +893,7 @@ export function LearningRoadmapBoard({
       </section>
 
       {nodes.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-2 py-20 text-center">
+        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border bg-surface-elevated py-20 text-center">
           <MapIcon size={40} className="mb-4 text-muted opacity-40" />
           <p className="text-base font-medium text-text">Ningún paso todavía</p>
           <p className="mt-1 text-sm text-muted">Escribí el primer paso arriba y presioná Enter</p>
@@ -925,7 +925,7 @@ export function LearningRoadmapBoard({
                   <GripVertical size={14} />
                 </div>
 
-                <div className="rounded-2xl border border-border bg-surface-2 p-4 transition-all hover:border-border-bright hover:shadow-[var(--shadow-card)]">
+                <div className="rounded-2xl border border-border bg-surface-elevated p-4 transition-all hover:border-border-bright hover:shadow-[var(--shadow-card)]">
                   <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                     <div className="min-w-0 flex-1 space-y-3">
                       {isEditing && currentDraft ? (
@@ -975,7 +975,7 @@ export function LearningRoadmapBoard({
                             {availableGoals.map((goal) => (
                               <label
                                 key={goal.id}
-                                className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-text transition-colors hover:bg-surface-2"
+                                className="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-text transition-colors hover:bg-surface-elevated"
                               >
                                 <input
                                   type="checkbox"
@@ -1102,7 +1102,7 @@ export function LearningRoadmapBoard({
                                 {node.actions.map((action) => (
                                   <span
                                     key={action.id}
-                                    className="rounded-full bg-surface-2 px-2.5 py-1 text-xs text-text"
+                                    className="rounded-full bg-surface-elevated px-2.5 py-1 text-xs text-text"
                                   >
                                     {getActionLabel(action.entity_type)}
                                   </span>
@@ -1170,7 +1170,7 @@ export function LearningRoadmapBoard({
           })}
 
           {nodes.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-border bg-surface-2 px-5 py-12 text-center">
+            <div className="rounded-2xl border border-dashed border-border bg-surface-elevated px-5 py-12 text-center">
               <p className="text-sm font-medium text-text">Todavia no hay nodos</p>
               <p className="mt-1 text-sm text-muted">Agrega el primer paso del camino.</p>
             </div>

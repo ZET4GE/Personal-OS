@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useCallback, useMemo, useState } from 'react'
 import dagre from 'dagre'
@@ -343,7 +343,7 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
           {sections.map((section) => (
             <span
               key={section}
-              className="rounded-full border border-border bg-surface-2 px-2.5 py-1 text-xs font-medium text-muted"
+              className="rounded-full border border-border bg-surface-elevated px-2.5 py-1 text-xs font-medium text-muted"
             >
               {section}
             </span>
@@ -385,7 +385,7 @@ export function LearningRoadmapFlow({ nodes, roadmapType, onNodesChange }: Learn
       </div>
 
       {selectedNode ? (
-        <div className="border-t border-border bg-surface-2 px-5 py-4">
+        <div className="border-t border-border bg-surface-elevated px-5 py-4">
           <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div>
               <p className="text-sm font-semibold text-text">{selectedNode.title}</p>

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { AlertTriangle, Check, CheckCheck, Info, Trash2 } from 'lucide-react'
@@ -59,7 +59,7 @@ export function NotificationDropdown({
           {hasRead && (
             <button
               onClick={handleDeleteAllRead}
-              className="flex items-center gap-1 rounded px-2 py-1 text-xs text-text/40 transition-colors hover:bg-surface-2 hover:text-text/70"
+              className="flex items-center gap-1 rounded px-2 py-1 text-xs text-text/40 transition-colors hover:bg-surface-elevated hover:text-text/70"
               title="Borrar leidas"
             >
               <Trash2 size={13} />
@@ -73,10 +73,10 @@ export function NotificationDropdown({
           <div className="space-y-1">
             {[...Array(4)].map((_, index) => (
               <div key={index} className="flex gap-3 rounded-lg px-3 py-3">
-                <div className="h-8 w-8 shrink-0 animate-pulse rounded-full bg-surface-3" />
+                <div className="h-8 w-8 shrink-0 animate-pulse rounded-full bg-surface-hover" />
                 <div className="flex-1 space-y-2">
-                  <div className="h-3 w-3/4 animate-pulse rounded bg-surface-3" />
-                  <div className="h-2 w-1/2 animate-pulse rounded bg-surface-3" />
+                  <div className="h-3 w-3/4 animate-pulse rounded bg-surface-hover" />
+                  <div className="h-2 w-1/2 animate-pulse rounded bg-surface-hover" />
                 </div>
               </div>
             ))}
@@ -89,7 +89,7 @@ export function NotificationDropdown({
         ) : (
           <div className="space-y-2">
             {smartAlerts.length > 0 && (
-              <div className="rounded-xl border border-border bg-surface-2 p-2">
+              <div className="rounded-xl border border-border bg-surface-elevated p-2">
                 <p className="mb-1.5 px-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
                   Alertas inteligentes
                 </p>

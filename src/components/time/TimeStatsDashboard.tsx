@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import type { ReactNode } from 'react'
 import { ArrowRight, BarChart3, CheckCircle2, Clock3, Crosshair, FolderOpen, Gauge, TimerReset } from 'lucide-react'
 import { getTimeStats, type TimeStatsBreakdownItem, type TimeStatsDailyItem } from '@/services/time-stats'
@@ -92,7 +92,7 @@ function DailyChart({ items }: { items: TimeStatsDailyItem[] }) {
 
           return (
             <div key={item.date} className="flex flex-1 flex-col items-center gap-2">
-              <div className="flex h-32 w-full items-end rounded-full bg-surface-2 p-1">
+              <div className="flex h-32 w-full items-end rounded-full bg-surface-elevated p-1">
                 <div
                   className="w-full rounded-full bg-accent-600 transition-all"
                   style={{ height: `${height}%` }}
@@ -142,7 +142,7 @@ function BreakdownList({
                 <p className="min-w-0 truncate text-sm font-medium text-text">{item.title}</p>
                 <span className="shrink-0 text-xs font-semibold text-text">{formatDuration(item.totalSeconds)}</span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-surface-3">
+              <div className="h-2 overflow-hidden rounded-full bg-surface-hover">
                 <div
                   className="h-full rounded-full bg-accent-600"
                   style={{ width: `${Math.max(4, (item.totalSeconds / max) * 100)}%` }}

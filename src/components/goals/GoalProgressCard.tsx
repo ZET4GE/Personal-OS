@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import type { Goal } from '@/types/goals'
 import { GOAL_COLOR_STYLES } from '@/types/goals'
@@ -53,7 +53,7 @@ export function GoalProgressCard({
         </div>
       )}
 
-      <div className={`mt-1.5 ${compact ? 'h-1.5' : 'h-2'} rounded-full bg-surface-3 overflow-hidden`}>
+      <div className={`mt-1.5 ${compact ? 'h-1.5' : 'h-2'} rounded-full bg-surface-hover overflow-hidden`}>
         <div
           className={[
             'h-full rounded-full transition-all duration-700',

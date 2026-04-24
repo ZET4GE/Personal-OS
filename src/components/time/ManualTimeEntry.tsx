@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -105,7 +105,7 @@ export function ManualTimeEntry() {
                 value={date}
                 max={todayLocal()}
                 onChange={(e) => setDate(e.target.value)}
-                className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent-600"
+                className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-accent-600"
               />
             </div>
 
@@ -119,7 +119,7 @@ export function ManualTimeEntry() {
                   max={23}
                   value={hours}
                   onChange={(e) => setHours(Number(e.target.value))}
-                  className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2 text-center text-sm text-text outline-none focus:border-accent-600"
+                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-center text-sm text-text outline-none focus:border-accent-600"
                 />
                 <span className="text-xs text-muted">h</span>
                 <input
@@ -128,7 +128,7 @@ export function ManualTimeEntry() {
                   max={59}
                   value={minutes}
                   onChange={(e) => setMinutes(Number(e.target.value))}
-                  className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2 text-center text-sm text-text outline-none focus:border-accent-600"
+                  className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-center text-sm text-text outline-none focus:border-accent-600"
                 />
                 <span className="text-xs text-muted">m</span>
               </div>
@@ -175,7 +175,7 @@ export function ManualTimeEntry() {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="¿En qué trabajaste?"
               maxLength={200}
-              className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent-600"
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-accent-600"
             />
           </div>
 

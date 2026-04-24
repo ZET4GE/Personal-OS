@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useEffect, useRef, useTransition } from 'react'
 import { X, Loader2, StickyNote } from 'lucide-react'
@@ -80,7 +80,7 @@ export function QuickCapture() {
             {t('quickCapture')}
           </div>
           <div className="flex items-center gap-2">
-            <kbd className="rounded bg-surface-2 px-1.5 py-0.5 font-mono text-[10px] text-muted">
+            <kbd className="rounded bg-surface-elevated px-1.5 py-0.5 font-mono text-[10px] text-muted">
               Ctrl+Shift+N
             </kbd>
             <button

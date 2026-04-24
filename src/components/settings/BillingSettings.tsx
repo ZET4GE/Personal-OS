@@ -1,4 +1,4 @@
-import { Check, Lock, Zap } from 'lucide-react'
+﻿import { Check, Lock, Zap } from 'lucide-react'
 import {
   BILLING_PLAN_LABELS,
   BILLING_RESOURCE_LABELS,
@@ -67,7 +67,7 @@ export function BillingSettings({ status, usage }: BillingSettingsProps) {
             </p>
           </div>
 
-          <div className="rounded-lg border border-border bg-surface-2 px-4 py-3 text-sm text-muted">
+          <div className="rounded-lg border border-border bg-surface-elevated px-4 py-3 text-sm text-muted">
             {status.current_period_end
               ? `Renueva: ${new Date(status.current_period_end).toLocaleDateString('es-AR')}`
               : 'Sin ciclo de pago activo'}
@@ -87,7 +87,7 @@ export function BillingSettings({ status, usage }: BillingSettingsProps) {
           {usage.map((item) => {
             const percent = usagePercent(item)
             return (
-              <div key={item.resource} className="rounded-lg border border-border bg-surface-2 p-4">
+              <div key={item.resource} className="rounded-lg border border-border bg-surface-elevated p-4">
                 <div className="flex items-center justify-between gap-3">
                   <p className="text-sm font-medium text-text">
                     {BILLING_RESOURCE_LABELS[item.resource] ?? item.resource}
@@ -150,7 +150,7 @@ export function BillingSettings({ status, usage }: BillingSettingsProps) {
                 className={[
                   'mt-6 inline-flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition',
                   isCurrent
-                    ? 'bg-surface-2 text-muted'
+                    ? 'bg-surface-elevated text-muted'
                     : 'bg-accent-600/20 text-accent-300',
                 ].join(' ')}
               >

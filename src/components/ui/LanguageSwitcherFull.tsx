@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -47,7 +47,7 @@ export function LanguageSwitcherFull({ currentLocale }: Props) {
               'flex flex-1 items-center gap-3 rounded-lg border px-4 py-3 text-left transition-colors disabled:opacity-60',
               isActive
                 ? 'border-accent-500 bg-accent-500/5 text-text'
-                : 'border-border bg-surface hover:bg-surface-2 text-text/70',
+                : 'border-border bg-surface hover:bg-surface-elevated text-text/70',
             ].join(' ')}
           >
             <span className="text-xl">{LOCALE_FLAGS[locale]}</span>

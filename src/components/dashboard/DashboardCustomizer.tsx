@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useMemo, useState } from 'react'
 import {
@@ -91,7 +91,7 @@ function SortableWidget({
         ].join(' ')}
       >
         {editMode && (
-          <div className="mb-1.5 flex items-center justify-between rounded-xl bg-surface-2 px-2.5 py-1.5">
+          <div className="mb-1.5 flex items-center justify-between rounded-xl bg-surface-elevated px-2.5 py-1.5">
             <div className="flex min-w-0 items-center gap-1.5">
               <button
                 type="button"
@@ -153,7 +153,7 @@ function WidgetGhost({
         size === 'xl' ? 'w-[min(960px,85vw)]' : size === 'lg' ? 'w-[min(720px,80vw)]' : size === 'md' ? 'w-[min(480px,70vw)]' : 'w-[min(320px,60vw)]',
       ].join(' ')}
     >
-      <div className="rounded-xl bg-surface-2 px-3 py-2">
+      <div className="rounded-xl bg-surface-elevated px-3 py-2">
         <p className="text-xs font-semibold text-text">{title}</p>
         <p className="text-[11px] uppercase tracking-wide text-muted">{size}</p>
       </div>
@@ -329,7 +329,7 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
               <p className="text-sm font-semibold text-text">Widgets ocultos</p>
               <p className="text-xs text-muted">Puedes restaurarlos cuando quieras.</p>
             </div>
-            <span className="rounded-full bg-surface-2 px-2 py-1 text-xs text-muted">
+            <span className="rounded-full bg-surface-elevated px-2 py-1 text-xs text-muted">
               {hiddenWidgets.length}
             </span>
           </div>
@@ -339,7 +339,7 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
                 key={widget.id}
                 type="button"
                 onClick={() => handleShowWidget(widget.id)}
-                className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface-2 px-3 py-1.5 text-xs text-muted transition-all hover:border-border-bright hover:text-foreground hover:shadow-sm"
+                className="inline-flex items-center gap-2 rounded-xl border border-border bg-surface-elevated px-3 py-1.5 text-xs text-muted transition-all hover:border-border-bright hover:text-foreground hover:shadow-sm"
               >
                 <Eye size={14} />
                 {widget.title}

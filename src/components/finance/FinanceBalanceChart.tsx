@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useMemo } from 'react'
 import type { FinanceCurrency, FinanceTransaction } from '@/types/finance'
@@ -142,7 +142,7 @@ export function FinanceBalanceChart({ transactions, currency = 'ARS' }: FinanceB
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <h3 className="text-sm font-semibold text-text">Balance</h3>
-          <div className="flex rounded-lg border border-border bg-surface-2 p-0.5">
+          <div className="flex rounded-lg border border-border bg-surface-elevated p-0.5">
             {(Object.keys(PERIOD_LABELS) as Period[]).map((p) => (
               <button
                 key={p}

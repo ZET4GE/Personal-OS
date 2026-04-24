@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import { Check } from 'lucide-react'
@@ -87,7 +87,7 @@ export function ModulePreferencesForm({ initialOnboarding, goals }: ModulePrefer
         <select
           value={primaryGoalId}
           onChange={(event) => setPrimaryGoalId(event.target.value)}
-          className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-600"
+          className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-600"
         >
           <option value="">Usar primera meta activa</option>
           {goals.map((goal) => (
@@ -108,7 +108,7 @@ export function ModulePreferencesForm({ initialOnboarding, goals }: ModulePrefer
               'rounded-xl border px-3 py-3 text-left transition-colors',
               persona === option.id
                 ? 'border-accent-600 bg-accent-600/10'
-                : 'border-border bg-surface-2 hover:border-border-bright',
+                : 'border-border bg-surface-elevated hover:border-border-bright',
             ].join(' ')}
           >
             <p className="text-xs font-semibold text-text">{option.title}</p>
@@ -130,7 +130,7 @@ export function ModulePreferencesForm({ initialOnboarding, goals }: ModulePrefer
                 'flex items-center justify-between gap-3 rounded-xl border px-3 py-3 text-left transition-colors',
                 selected
                   ? 'border-accent-600 bg-accent-600/10'
-                  : 'border-border bg-surface-2 hover:border-border-bright',
+                  : 'border-border bg-surface-elevated hover:border-border-bright',
               ].join(' ')}
             >
               <span>

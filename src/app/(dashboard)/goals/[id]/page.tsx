@@ -1,4 +1,4 @@
-import { redirect, notFound } from 'next/navigation'
+﻿import { redirect, notFound } from 'next/navigation'
 import Link from 'next/link'
 import type { Metadata } from 'next'
 import { ChevronLeft, CalendarDays, Flag, GitBranch, Pencil } from 'lucide-react'
@@ -169,7 +169,7 @@ export default async function GoalDetailPage({
               <Link
                 key={roadmap.id}
                 href={`/roadmaps/${roadmap.id}`}
-                className="flex items-center justify-between rounded-xl border border-border bg-surface-2 px-4 py-3 transition-all hover:border-border-bright hover:bg-surface-hover"
+                className="flex items-center justify-between rounded-xl border border-border bg-surface-elevated px-4 py-3 transition-all hover:border-border-bright hover:bg-surface-hover"
               >
                 <span className="text-sm font-medium text-text">{roadmap.title}</span>
                 <span className="text-xs text-muted capitalize">

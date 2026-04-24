@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+﻿import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ChevronRight, Clock, Globe, Tag, BookOpen, Link2 } from 'lucide-react'
@@ -100,7 +100,7 @@ export default async function WikiNotePage({ params }: PageProps) {
                 <Link
                   key={tag}
                   href={`/${username}/wiki?tag=${encodeURIComponent(tag)}`}
-                  className="flex items-center gap-1 rounded-full bg-surface-2 px-2.5 py-1 text-[11px] text-muted transition-colors hover:bg-surface-3 hover:text-text"
+                  className="flex items-center gap-1 rounded-full bg-surface-elevated px-2.5 py-1 text-[11px] text-muted transition-colors hover:bg-surface-hover hover:text-text"
                 >
                   <Tag size={9} /> {tag}
                 </Link>
@@ -117,7 +117,7 @@ export default async function WikiNotePage({ params }: PageProps) {
 
       {/* Backlinks */}
       {backlinks && backlinks.length > 0 && (
-        <aside className="mt-12 rounded-xl border border-border bg-surface-2 p-5">
+        <aside className="mt-12 rounded-xl border border-border bg-surface-elevated p-5">
           <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold text-text">
             <Link2 size={14} />
             Páginas que enlazan esta ({backlinks.length})

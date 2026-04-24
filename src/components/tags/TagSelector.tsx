@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useMemo, useState } from 'react'
 import { Loader2, Plus, Tags, X } from 'lucide-react'
@@ -143,7 +143,7 @@ export function TagSelector({
           'inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs transition-colors',
           compact
             ? 'text-muted hover:bg-surface-hover hover:text-foreground'
-            : 'border border-border bg-surface-2 text-muted hover:border-border-bright hover:text-foreground',
+            : 'border border-border bg-surface-elevated text-muted hover:border-border-bright hover:text-foreground',
         ].join(' ')}
       >
         <Tags size={13} />
@@ -206,7 +206,7 @@ export function TagSelector({
                         ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600'
                         : isSelected
                         ? 'border-accent-600 bg-accent-600/10 text-accent-600'
-                        : 'border-border bg-surface-2 text-muted hover:border-border-bright hover:text-foreground',
+                        : 'border-border bg-surface-elevated text-muted hover:border-border-bright hover:text-foreground',
                     ].join(' ')}
                   >
                     {pendingTagId === tag.id && <Loader2 size={11} className="animate-spin" />}

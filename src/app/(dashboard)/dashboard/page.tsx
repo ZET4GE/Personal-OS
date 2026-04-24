@@ -1,4 +1,4 @@
-import { redirect } from 'next/navigation'
+﻿import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import type { ReactNode } from 'react'
 import type { Metadata } from 'next'
@@ -42,9 +42,9 @@ function WidgetSkeleton() {
   return (
     <div className="rounded-xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
       <div className="space-y-3">
-        <div className="h-4 w-32 animate-pulse rounded bg-surface-3" />
+        <div className="h-4 w-32 animate-pulse rounded bg-surface-hover" />
         {[1, 2, 3].map((i) => (
-          <div key={i} className="h-12 animate-pulse rounded-lg bg-surface-3" />
+          <div key={i} className="h-12 animate-pulse rounded-lg bg-surface-hover" />
         ))}
       </div>
     </div>
@@ -249,7 +249,7 @@ export default async function DashboardPage() {
             <h2 className="text-sm font-semibold text-text">Guia rapida</h2>
             <p className="text-xs text-muted">Usala solo si necesitas ordenar el sistema inicial.</p>
           </div>
-          <span className="rounded-full border border-border px-3 py-1 text-xs text-muted transition-colors group-open:bg-surface-2">
+          <span className="rounded-full border border-border px-3 py-1 text-xs text-muted transition-colors group-open:bg-surface-elevated">
             <span className="group-open:hidden">Mostrar</span>
             <span className="hidden group-open:inline">Ocultar</span>
           </span>
@@ -271,7 +271,7 @@ export default async function DashboardPage() {
             <h2 className="text-sm font-semibold text-text">Widgets adicionales</h2>
             <p className="text-xs text-muted">Informacion secundaria. Abrila solo cuando la necesites.</p>
           </div>
-          <span className="rounded-full border border-border px-3 py-1 text-xs text-muted transition-colors group-open:bg-surface-2">
+          <span className="rounded-full border border-border px-3 py-1 text-xs text-muted transition-colors group-open:bg-surface-elevated">
             <span className="group-open:hidden">Mostrar</span>
             <span className="hidden group-open:inline">Ocultar</span>
           </span>

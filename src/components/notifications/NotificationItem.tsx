@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import {
@@ -78,7 +78,7 @@ export function NotificationItem({ notification: n, onRead, onDelete, compact = 
       className={[
         'group relative flex gap-3 rounded-lg px-3 py-3 transition-colors',
         n.is_read
-          ? 'bg-transparent hover:bg-surface-2'
+          ? 'bg-transparent hover:bg-surface-elevated'
           : 'bg-accent-500/5 hover:bg-accent-500/10',
         border,
       ].filter(Boolean).join(' ')}
@@ -118,7 +118,7 @@ export function NotificationItem({ notification: n, onRead, onDelete, compact = 
       {/* delete button */}
       <button
         onClick={handleDelete}
-        className="absolute right-2 top-2 hidden rounded p-0.5 text-text/30 transition-colors hover:bg-surface-3 hover:text-text/70 group-hover:flex"
+        className="absolute right-2 top-2 hidden rounded p-0.5 text-text/30 transition-colors hover:bg-surface-hover hover:text-text/70 group-hover:flex"
         aria-label="Eliminar notificación"
       >
         <X size={14} />

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { ChevronRight, Crosshair } from 'lucide-react'
@@ -42,10 +42,10 @@ export function DashboardGoals({ initialGoals }: DashboardGoalsProps) {
       {loading ? (
         <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
           {[1, 2, 3].map((item) => (
-            <div key={item} className="rounded-xl bg-surface-2 p-4">
-              <div className="h-4 w-32 animate-pulse rounded bg-surface-3" />
-              <div className="mt-4 h-2 animate-pulse rounded-full bg-surface-3" />
-              <div className="mt-3 h-3 w-20 animate-pulse rounded bg-surface-3" />
+            <div key={item} className="rounded-xl bg-surface-elevated p-4">
+              <div className="h-4 w-32 animate-pulse rounded bg-surface-hover" />
+              <div className="mt-4 h-2 animate-pulse rounded-full bg-surface-hover" />
+              <div className="mt-3 h-3 w-20 animate-pulse rounded bg-surface-hover" />
             </div>
           ))}
         </div>
@@ -63,7 +63,7 @@ export function DashboardGoals({ initialGoals }: DashboardGoalsProps) {
               <Link
                 key={goal.id}
                 href={`/goals/${goal.id}`}
-                className="min-w-[260px] flex-1 rounded-xl border border-border bg-surface-2 p-4 transition-colors hover:border-border-bright hover:bg-surface-hover"
+                className="min-w-[260px] flex-1 rounded-xl border border-border bg-surface-elevated p-4 transition-colors hover:border-border-bright hover:bg-surface-hover"
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">

@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { StickyNote, Clock, Pin, Globe, ChevronRight } from 'lucide-react'
 import { getTranslations, getLocale } from 'next-intl/server'
 import { createClient } from '@/lib/supabase/server'
@@ -67,7 +67,7 @@ export async function RecentNotes({ userId }: Props) {
             <Link
               key={note.id}
               href={`/notes?id=${note.id}`}
-              className="group flex items-start gap-3 rounded-lg border border-transparent p-2.5 transition-colors hover:border-border hover:bg-surface-2"
+              className="group flex items-start gap-3 rounded-lg border border-transparent p-2.5 transition-colors hover:border-border hover:bg-surface-elevated"
             >
               <div className="flex-1 min-w-0">
                 <p className="truncate text-sm font-medium text-text group-hover:text-accent-600">

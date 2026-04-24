@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { HABIT_COLOR_STYLES, DAY_NAMES_SHORT } from '@/types/habits'
 import type { HabitWithLogs, HabitDay } from '@/types/habits'
@@ -71,7 +71,7 @@ function HabitHeatmap({ item }: { item: HabitWithLogs }) {
                   <div
                     key={di}
                     title={day.date}
-                    className="aspect-square rounded-sm bg-surface-2 opacity-30"
+                    className="aspect-square rounded-sm bg-surface-elevated opacity-30"
                   />
                 )
               }
@@ -88,7 +88,7 @@ function HabitHeatmap({ item }: { item: HabitWithLogs }) {
                 <div
                   key={di}
                   title={`${day.date} —`}
-                  className="aspect-square rounded-sm border border-border bg-surface-2"
+                  className="aspect-square rounded-sm border border-border bg-surface-elevated"
                 />
               )
             })}
@@ -103,11 +103,11 @@ function HabitHeatmap({ item }: { item: HabitWithLogs }) {
           Cumplido
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2.5 w-2.5 rounded-sm border border-border bg-surface-2" />
+          <span className="inline-block h-2.5 w-2.5 rounded-sm border border-border bg-surface-elevated" />
           Perdido
         </span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-surface-2 opacity-30" />
+          <span className="inline-block h-2.5 w-2.5 rounded-sm bg-surface-elevated opacity-30" />
           No aplica
         </span>
       </div>
@@ -140,7 +140,7 @@ export function HabitStatsView({ items }: HabitStatsViewProps) {
           <p className="text-xs text-muted">Promedio general</p>
           <p className="text-2xl font-bold text-text">{avg}%</p>
         </div>
-        <div className="h-2 w-40 overflow-hidden rounded-full bg-surface-2">
+        <div className="h-2 w-40 overflow-hidden rounded-full bg-surface-elevated">
           <div
             className="h-full rounded-full bg-accent-600 transition-all"
             style={{ width: `${avg}%` }}

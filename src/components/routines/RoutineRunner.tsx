@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition, useRef } from 'react'
 import { useRouter } from 'next/navigation'
@@ -232,7 +232,7 @@ export function RoutineRunner({ routine, items: initialItems, log, date }: Routi
             onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddItem() } }}
             placeholder="Agregar paso… (Enter para guardar)"
             disabled={isAddingItem}
-            className="flex-1 rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-text outline-none transition-colors focus:border-accent-600 disabled:opacity-50"
+            className="flex-1 rounded-xl border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none transition-colors focus:border-accent-600 disabled:opacity-50"
           />
           <button
             type="button"

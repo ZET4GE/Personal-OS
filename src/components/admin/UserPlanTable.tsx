@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import { toast } from 'sonner'
@@ -24,7 +24,7 @@ type Props = { users: UserRow[] }
 
 const PLAN_LABELS: Record<Plan, string> = { free: 'Free', pro: 'Pro', team: 'Team' }
 const PLAN_BADGE: Record<Plan, string> = {
-  free: 'bg-surface-2 text-muted',
+  free: 'bg-surface-elevated text-muted',
   pro:  'bg-amber-500/10 text-amber-500',
   team: 'bg-blue-500/10 text-blue-500',
 }
@@ -69,7 +69,7 @@ function PlanActions({ userId, currentPlan }: { userId: string; currentPlan: Pla
             'rounded-lg px-3 py-1 text-xs font-medium transition-colors',
             plan === currentPlan
               ? 'cursor-default opacity-40'
-              : 'text-muted hover:bg-surface-2 hover:text-text',
+              : 'text-muted hover:bg-surface-elevated hover:text-text',
             isPending && plan !== currentPlan ? 'cursor-wait opacity-50' : '',
           ].join(' ')}
         >
@@ -109,13 +109,13 @@ export function UserPlanTable({ users }: Props) {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="Buscar por email, nombre o username…"
-        className="w-full max-w-sm rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm text-text outline-none transition-colors focus:border-accent-600 placeholder:text-muted"
+        className="w-full max-w-sm rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none transition-colors focus:border-accent-600 placeholder:text-muted"
       />
 
       <div className="overflow-hidden rounded-xl border border-border bg-surface">
         <table className="w-full text-sm">
           <thead>
-            <tr className="border-b border-border bg-surface-2">
+            <tr className="border-b border-border bg-surface-elevated">
               <th className="px-5 py-3 text-left font-medium text-muted">Usuario</th>
               <th className="px-5 py-3 text-left font-medium text-muted">Plan</th>
               <th className="px-5 py-3 text-left font-medium text-muted hidden md:table-cell">Suscripción</th>
@@ -125,14 +125,14 @@ export function UserPlanTable({ users }: Props) {
           </thead>
           <tbody className="divide-y divide-border">
             {filtered.map((user) => (
-              <tr key={user.id} className="transition-colors hover:bg-surface-2/50">
+              <tr key={user.id} className="transition-colors hover:bg-surface-elevated/50">
                 <td className="px-5 py-3">
                   <div className="flex items-center gap-3 min-w-0">
                     {user.avatarUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={user.avatarUrl} alt="" className="h-7 w-7 rounded-full shrink-0 object-cover" />
                     ) : (
-                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-2 text-xs font-medium text-muted">
+                      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-surface-elevated text-xs font-medium text-muted">
                         {(user.fullName ?? user.email)[0].toUpperCase()}
                       </div>
                     )}

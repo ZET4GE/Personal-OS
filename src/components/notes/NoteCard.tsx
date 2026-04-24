@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useTransition } from 'react'
 import { Pin, Archive, Globe, Lock, Trash2, PinOff } from 'lucide-react'
@@ -118,13 +118,13 @@ export function NoteCard({ note, active, onClick }: Props) {
           {note.tags.slice(0, 3).map((tag) => (
             <span
               key={tag}
-              className="rounded-full bg-surface-2 px-1.5 py-0.5 text-[10px] text-muted"
+              className="rounded-full bg-surface-elevated px-1.5 py-0.5 text-[10px] text-muted"
             >
               {tag}
             </span>
           ))}
           {note.tags.length > 3 && (
-            <span className="rounded-full bg-surface-2 px-1.5 py-0.5 text-[10px] text-muted">
+            <span className="rounded-full bg-surface-elevated px-1.5 py-0.5 text-[10px] text-muted">
               +{note.tags.length - 3}
             </span>
           )}

@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useTransition } from 'react'
 import { CheckCheck } from 'lucide-react'
@@ -20,7 +20,7 @@ export function MarkAllReadButton() {
     <button
       onClick={handle}
       disabled={pending}
-      className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-text/70 transition-colors hover:bg-surface-2 disabled:opacity-50"
+      className="flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-sm font-medium text-text/70 transition-colors hover:bg-surface-elevated disabled:opacity-50"
     >
       <CheckCheck size={14} />
       Leer todo

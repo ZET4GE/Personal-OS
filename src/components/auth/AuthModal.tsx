@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useActionState } from 'react'
 import { X, ArrowLeft, Eye, EyeOff } from 'lucide-react'
@@ -27,7 +27,7 @@ function PasswordInput({
         autoComplete={autoComplete}
         required
         disabled={disabled}
-        className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2.5 pr-10 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors disabled:opacity-50"
+        className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 pr-10 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors disabled:opacity-50"
       />
       <button
         type="button"
@@ -50,7 +50,7 @@ function LoginForm({ onForgot }: { onForgot: () => void }) {
         <input
           name="email" type="email" placeholder="tu@email.com" autoComplete="email" required
           disabled={isPending}
-          className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors disabled:opacity-50"
+          className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors disabled:opacity-50"
         />
       </div>
       <div className="space-y-1">
@@ -89,7 +89,7 @@ function SignupForm() {
         <input
           name="fullName" type="text" placeholder="Tu nombre" autoComplete="name" required
           disabled={isPending}
-          className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors disabled:opacity-50"
+          className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors disabled:opacity-50"
         />
       </div>
       <div className="space-y-1">
@@ -97,7 +97,7 @@ function SignupForm() {
         <input
           name="email" type="email" placeholder="tu@email.com" autoComplete="email" required
           disabled={isPending}
-          className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors disabled:opacity-50"
+          className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors disabled:opacity-50"
         />
       </div>
       <div className="space-y-1">
@@ -144,7 +144,7 @@ function ForgotForm({ onBack }: { onBack: () => void }) {
           <input
             name="email" type="email" placeholder="tu@email.com" autoComplete="email" required
             disabled={isPending}
-            className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors disabled:opacity-50"
+            className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors disabled:opacity-50"
           />
         </div>
         {state?.error && <p className="text-xs text-red-500">{state.error}</p>}
@@ -229,7 +229,7 @@ export function AuthModal() {
           ) : (
             <div className="space-y-5">
               {/* Tabs */}
-              <div className="flex rounded-xl border border-border bg-surface-2 p-1">
+              <div className="flex rounded-xl border border-border bg-surface-elevated p-1">
                 {(['login', 'signup'] as const).map((m) => (
                   <button
                     key={m}

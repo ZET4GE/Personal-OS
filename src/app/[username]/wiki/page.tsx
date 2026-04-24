@@ -1,4 +1,4 @@
-import { notFound } from 'next/navigation'
+﻿import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ChevronRight, BookOpen, Tag, Clock } from 'lucide-react'
@@ -88,7 +88,7 @@ export default async function PublicWikiPage({ params, searchParams }: PageProps
             <Link
               key={t}
               href={`/${username}/wiki?tag=${encodeURIComponent(t)}`}
-              className="flex items-center gap-1 rounded-full bg-surface-2 px-2.5 py-1 text-xs text-muted transition-colors hover:bg-surface-3 hover:text-text"
+              className="flex items-center gap-1 rounded-full bg-surface-elevated px-2.5 py-1 text-xs text-muted transition-colors hover:bg-surface-hover hover:text-text"
             >
               <Tag size={10} /> {t}
             </Link>
@@ -128,7 +128,7 @@ export default async function PublicWikiPage({ params, searchParams }: PageProps
                 {note.tags.length > 0 && (
                   <div className="flex gap-1">
                     {note.tags.slice(0, 3).map((t) => (
-                      <span key={t} className="rounded-full bg-surface-2 px-2 py-0.5 text-[10px]">
+                      <span key={t} className="rounded-full bg-surface-elevated px-2 py-0.5 text-[10px]">
                         {t}
                       </span>
                     ))}

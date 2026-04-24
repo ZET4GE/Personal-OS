@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
@@ -172,7 +172,7 @@ export function SearchPageClient() {
               onChange={(event) => setQuery(event.target.value)}
               placeholder="Buscar en todo..."
               autoFocus
-              className="w-full rounded-xl border border-border bg-surface-2 py-2.5 pl-10 pr-3 text-sm text-text outline-none transition-colors focus:border-accent-600"
+              className="w-full rounded-xl border border-border bg-surface-elevated py-2.5 pl-10 pr-3 text-sm text-text outline-none transition-colors focus:border-accent-600"
             />
           </div>
           <div className="relative">
@@ -263,7 +263,7 @@ export function SearchPageClient() {
                       key={`${item.type}-${item.id}`}
                       type="button"
                       onClick={() => openResult(item)}
-                      className="w-full rounded-xl border border-border bg-surface-2 px-4 py-3 text-left transition-all hover:border-border-bright hover:bg-surface-hover active:scale-[0.99]"
+                      className="w-full rounded-xl border border-border bg-surface-elevated px-4 py-3 text-left transition-all hover:border-border-bright hover:bg-surface-hover active:scale-[0.99]"
                     >
                       <div className="flex flex-wrap items-start justify-between gap-2">
                         <p className="text-sm font-medium text-text">{item.title}</p>

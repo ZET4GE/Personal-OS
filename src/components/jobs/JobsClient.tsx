@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useOptimistic, useTransition, useRef } from 'react'
 import type { ComponentType } from 'react'
@@ -246,7 +246,7 @@ export function JobsClient({ jobs, stats }: JobsClientProps) {
           </div>
 
           <div className="grid gap-3 lg:grid-cols-2">
-            <div className="rounded-xl bg-surface-2 p-3">
+            <div className="rounded-xl bg-surface-elevated p-3">
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">Seguimientos</p>
               {overdueFollowups.length === 0 ? (
                 <p className="text-sm text-muted">No hay seguimientos vencidos.</p>
@@ -267,7 +267,7 @@ export function JobsClient({ jobs, stats }: JobsClientProps) {
               )}
             </div>
 
-            <div className="rounded-xl bg-surface-2 p-3">
+            <div className="rounded-xl bg-surface-elevated p-3">
               <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-muted">Entrevistas</p>
               {upcomingInterviews.length === 0 ? (
                 <p className="text-sm text-muted">No hay entrevistas pendientes.</p>

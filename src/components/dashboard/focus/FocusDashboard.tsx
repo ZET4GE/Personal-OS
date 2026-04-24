@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { ArrowRight, Clock, Crosshair, GitBranch, NotebookText, Search, Target, type LucideIcon } from 'lucide-react'
 import type { DashboardData } from '@/types/dashboard'
 import type { Goal } from '@/types/goals'
@@ -108,7 +108,7 @@ export function FocusDashboard({ activeGoal, dashboardData, enabledModules }: Fo
           <div className="rounded-2xl border border-border bg-surface/70 p-4">
             <p className="text-xs uppercase tracking-[0.18em] text-muted">Progreso</p>
             <p className="mt-2 text-3xl font-semibold text-text">{goalProgress}%</p>
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface-3">
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-surface-hover">
               <div className="h-full rounded-full bg-accent-600 transition-all" style={{ width: `${goalProgress}%` }} />
             </div>
           </div>
@@ -165,7 +165,7 @@ export function FocusDashboard({ activeGoal, dashboardData, enabledModules }: Fo
               const Icon = item.icon
 
               return (
-                <Link key={item.href} href={item.href} className="rounded-xl bg-surface-2 px-3 py-3 text-sm text-text transition-colors hover:bg-surface-hover">
+                <Link key={item.href} href={item.href} className="rounded-xl bg-surface-elevated px-3 py-3 text-sm text-text transition-colors hover:bg-surface-hover">
                   <Icon size={15} className={`mb-2 ${item.color}`} />
                   {item.label}
                 </Link>

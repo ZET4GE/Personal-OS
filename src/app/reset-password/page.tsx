@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
@@ -111,7 +111,7 @@ export default function ResetPasswordPage() {
                     required
                     minLength={8}
                     disabled={submitting}
-                    className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2.5 pr-10 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors disabled:opacity-50"
+                    className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 pr-10 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors disabled:opacity-50"
                   />
                   <button
                     type="button"

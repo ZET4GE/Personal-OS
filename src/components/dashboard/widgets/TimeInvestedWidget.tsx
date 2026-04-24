@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { ChevronRight, Clock3, FolderOpen, Crosshair } from 'lucide-react'
 import { getTimeStats } from '@/services/time-stats'
 
@@ -64,22 +64,22 @@ export async function TimeInvestedWidget({ userId }: TimeInvestedWidgetProps) {
       </div>
 
       <div className="grid grid-cols-3 gap-2">
-        <div className="rounded-xl bg-surface-2 px-3 py-3 text-center">
+        <div className="rounded-xl bg-surface-elevated px-3 py-3 text-center">
           <p className="text-[11px] uppercase tracking-[0.14em] text-muted">Hoy</p>
           <p className="mt-1 text-sm font-semibold text-text">{formatDuration(stats.todaySeconds)}</p>
         </div>
-        <div className="rounded-xl bg-surface-2 px-3 py-3 text-center">
+        <div className="rounded-xl bg-surface-elevated px-3 py-3 text-center">
           <p className="text-[11px] uppercase tracking-[0.14em] text-muted">Semana</p>
           <p className="mt-1 text-sm font-semibold text-text">{formatDuration(stats.weekSeconds)}</p>
         </div>
-        <div className="rounded-xl bg-surface-2 px-3 py-3 text-center">
+        <div className="rounded-xl bg-surface-elevated px-3 py-3 text-center">
           <p className="text-[11px] uppercase tracking-[0.14em] text-muted">Total</p>
           <p className="mt-1 text-sm font-semibold text-text">{formatDuration(stats.totalSeconds)}</p>
         </div>
       </div>
 
       {stats.totalSeconds > 0 ? (
-        <div className="rounded-xl bg-surface-2 px-3 py-3">
+        <div className="rounded-xl bg-surface-elevated px-3 py-3">
           <div className="mb-2 flex items-center justify-between text-xs">
             <span className="text-muted">{stats.sessionCount} sesiones</span>
             <span className="font-medium text-text">{formatPercent(stats.assignmentRate)} clasificado</span>
@@ -89,7 +89,7 @@ export async function TimeInvestedWidget({ userId }: TimeInvestedWidgetProps) {
           </p>
           <div className="flex h-10 items-end gap-1">
             {stats.daily.map((item) => (
-              <div key={item.date} className="flex flex-1 items-end rounded-full bg-surface-3">
+              <div key={item.date} className="flex flex-1 items-end rounded-full bg-surface-hover">
                 <div
                   className="w-full rounded-full bg-accent-600"
                   style={{ height: `${Math.max(8, (item.totalSeconds / maxDailySeconds) * 100)}%` }}
@@ -108,7 +108,7 @@ export async function TimeInvestedWidget({ userId }: TimeInvestedWidgetProps) {
         </div>
       ) : (
         <div className="space-y-2">
-          <div className="flex items-center gap-2 rounded-xl bg-surface-2 px-3 py-2.5">
+          <div className="flex items-center gap-2 rounded-xl bg-surface-elevated px-3 py-2.5">
             <FolderOpen size={14} className="text-accent-600" />
             <div className="min-w-0 flex-1">
               <p className="text-[11px] uppercase tracking-[0.14em] text-muted">Proyecto principal</p>
@@ -119,7 +119,7 @@ export async function TimeInvestedWidget({ userId }: TimeInvestedWidgetProps) {
             </span>
           </div>
 
-          <div className="flex items-center gap-2 rounded-xl bg-surface-2 px-3 py-2.5">
+          <div className="flex items-center gap-2 rounded-xl bg-surface-elevated px-3 py-2.5">
             <Crosshair size={14} className="text-accent-600" />
             <div className="min-w-0 flex-1">
               <p className="text-[11px] uppercase tracking-[0.14em] text-muted">Meta principal</p>

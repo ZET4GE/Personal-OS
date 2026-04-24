@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import type { ElementType } from 'react'
@@ -133,7 +133,7 @@ export function FolderTree({
               if (e.key === 'Escape') { setAdding(false); setNewName('') }
             }}
             placeholder={t('folderName')}
-            className="w-full rounded-lg border border-border bg-surface-2 px-2.5 py-1.5 text-sm outline-none focus:border-accent-600"
+            className="w-full rounded-lg border border-border bg-surface-elevated px-2.5 py-1.5 text-sm outline-none focus:border-accent-600"
           />
         ) : (
           <button

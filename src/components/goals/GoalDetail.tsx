@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useMemo, useState } from 'react'
 import { CheckCircle2, Circle, FileText, FolderOpen, ListChecks, Target, X } from 'lucide-react'
@@ -88,7 +88,7 @@ export function GoalDetail({ detail, progress }: GoalDetailProps) {
               <span>Progreso</span>
               <span>{Math.round(progress.progress * 100)}%</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-surface-2">
+            <div className="h-2 overflow-hidden rounded-full bg-surface-elevated">
               <div
                 className="h-full rounded-full bg-accent-600 transition-all"
                 style={{ width: `${Math.max(0, Math.min(100, progress.progress * 100))}%` }}
@@ -98,22 +98,22 @@ export function GoalDetail({ detail, progress }: GoalDetailProps) {
         </div>
 
         <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <div className="rounded-lg bg-surface-2 px-3 py-2">
+          <div className="rounded-lg bg-surface-elevated px-3 py-2">
             <p className="text-[11px] uppercase tracking-wide text-muted">Proyectos</p>
             <p className="mt-1 text-sm font-medium text-text">{Math.round(progress.projects_progress * 100)}%</p>
           </div>
-          <div className="rounded-lg bg-surface-2 px-3 py-2">
+          <div className="rounded-lg bg-surface-elevated px-3 py-2">
             <p className="text-[11px] uppercase tracking-wide text-muted">Habitos</p>
             <p className="mt-1 text-sm font-medium text-text">{Math.round(progress.habits_progress * 100)}%</p>
           </div>
-          <div className="rounded-lg bg-surface-2 px-3 py-2">
+          <div className="rounded-lg bg-surface-elevated px-3 py-2">
             <p className="text-[11px] uppercase tracking-wide text-muted">Rutinas</p>
             <p className="mt-1 text-sm font-medium text-text">{Math.round(progress.routines_progress * 100)}%</p>
           </div>
         </div>
 
         {(detail.goal.target_time ?? 0) > 0 || (detail.goal.current_time ?? 0) > 0 ? (
-          <div className="mt-4 rounded-xl border border-border bg-surface-2 p-4">
+          <div className="mt-4 rounded-xl border border-border bg-surface-elevated p-4">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-[11px] uppercase tracking-wide text-muted">Tiempo invertido</p>
@@ -166,7 +166,7 @@ export function GoalDetail({ detail, progress }: GoalDetailProps) {
           ) : (
             <div className="space-y-3">
               {projects.map((project) => (
-                <div key={project.id} className="rounded-lg bg-surface-2 px-3 py-3">
+                <div key={project.id} className="rounded-lg bg-surface-elevated px-3 py-3">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-medium text-text">{project.title}</p>
                     <div className="flex items-center gap-2">
@@ -222,7 +222,7 @@ export function GoalDetail({ detail, progress }: GoalDetailProps) {
           ) : (
             <div className="space-y-3">
               {habits.map((habit) => (
-                <div key={habit.id} className="flex items-center justify-between rounded-lg bg-surface-2 px-3 py-3">
+                <div key={habit.id} className="flex items-center justify-between rounded-lg bg-surface-elevated px-3 py-3">
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-text">{habit.name}</p>
                     {habit.description && (
@@ -278,7 +278,7 @@ export function GoalDetail({ detail, progress }: GoalDetailProps) {
           ) : (
             <div className="space-y-3">
               {routines.map((routine) => (
-                <div key={routine.id} className="flex items-center justify-between rounded-lg bg-surface-2 px-3 py-3">
+                <div key={routine.id} className="flex items-center justify-between rounded-lg bg-surface-elevated px-3 py-3">
                   <div className="min-w-0">
                     <p className="text-sm font-medium text-text">{routine.name}</p>
                     {routine.description && (
@@ -338,7 +338,7 @@ export function GoalDetail({ detail, progress }: GoalDetailProps) {
           ) : (
             <div className="space-y-3">
               {notes.map((note) => (
-                <div key={note.id} className="rounded-lg bg-surface-2 px-3 py-3">
+                <div key={note.id} className="rounded-lg bg-surface-elevated px-3 py-3">
                   <div className="flex items-center justify-between gap-3">
                     <p className="text-sm font-medium text-text">{note.title}</p>
                     <div className="flex items-center gap-2">

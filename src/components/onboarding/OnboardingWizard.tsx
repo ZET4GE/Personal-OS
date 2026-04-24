@@ -152,7 +152,7 @@ export function OnboardingWizard() {
                     'rounded-2xl border px-4 py-5 text-left transition-all',
                     persona === option.id
                       ? 'border-accent-600 bg-accent-600/10 shadow-sm'
-                      : 'border-border bg-surface-2 hover:border-border-bright',
+                      : 'border-border bg-surface-elevated hover:border-border-bright',
                   ].join(' ')}
                 >
                   <p className="text-sm font-semibold text-text">{option.title}</p>
@@ -173,14 +173,14 @@ export function OnboardingWizard() {
               value={goalTitle}
               onChange={(e) => setGoalTitle(e.target.value)}
               placeholder={currentPersona.goalPlaceholder}
-              className="w-full rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm outline-none transition-colors focus:border-accent-600"
+              className="w-full rounded-2xl border border-border bg-surface-elevated px-4 py-3 text-sm outline-none transition-colors focus:border-accent-600"
             />
             <textarea
               value={goalDescription}
               onChange={(e) => setGoalDescription(e.target.value)}
               placeholder="Describe en una linea que quieres lograr y por que importa."
               rows={4}
-              className="w-full resize-none rounded-2xl border border-border bg-surface-2 px-4 py-3 text-sm outline-none transition-colors focus:border-accent-600"
+              className="w-full resize-none rounded-2xl border border-border bg-surface-elevated px-4 py-3 text-sm outline-none transition-colors focus:border-accent-600"
             />
           </div>
         )}
@@ -205,7 +205,7 @@ export function OnboardingWizard() {
                       'flex min-h-24 items-start justify-between gap-3 rounded-2xl border px-4 py-3 text-left transition-all',
                       selected
                         ? 'border-accent-600 bg-accent-600/10'
-                        : 'border-border bg-surface-2 hover:border-border-bright',
+                        : 'border-border bg-surface-elevated hover:border-border-bright',
                     ].join(' ')}
                   >
                     <span>
@@ -233,7 +233,7 @@ export function OnboardingWizard() {
                         'flex items-center justify-between rounded-2xl border px-4 py-3 text-left transition-all',
                         selected
                           ? 'border-accent-600 bg-accent-600/10'
-                          : 'border-border bg-surface-2 hover:border-border-bright',
+                          : 'border-border bg-surface-elevated hover:border-border-bright',
                       ].join(' ')}
                     >
                       <span className="text-sm font-medium text-text">{widget.label}</span>

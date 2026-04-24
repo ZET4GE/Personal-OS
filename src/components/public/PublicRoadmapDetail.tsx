@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { CheckCircle2, CircleDashed, Clock3, Route, Target } from 'lucide-react'
 import type { LearningNodeStatus, LearningRoadmapDetail } from '@/types/roadmaps'
 
@@ -78,7 +78,7 @@ export function PublicRoadmapDetail({ detail, username, displayName }: PublicRoa
             <h2 className="text-base font-semibold text-text">Camino</h2>
             <p className="text-sm text-muted">Nodos publicados y metas visibles asociadas.</p>
           </div>
-          <span className="rounded-full bg-surface-2 px-3 py-1 text-xs text-muted">
+          <span className="rounded-full bg-surface-elevated px-3 py-1 text-xs text-muted">
             {detail.nodes.length} nodos
           </span>
         </div>

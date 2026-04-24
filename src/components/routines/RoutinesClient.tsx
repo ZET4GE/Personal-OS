@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useOptimistic, useTransition, useRef, useState } from 'react'
 import { Plus } from 'lucide-react'
@@ -93,7 +93,7 @@ export function RoutinesClient({ routines, stats, date }: RoutinesClientProps) {
   return (
     <>
       <div className="mb-6 flex items-center justify-between gap-3">
-        <div className="flex rounded-lg border border-border bg-surface-2 p-0.5">
+        <div className="flex rounded-lg border border-border bg-surface-elevated p-0.5">
           {(['today', 'stats'] as const).map((v) => (
             <button
               key={v}

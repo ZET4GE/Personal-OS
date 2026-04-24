@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { Tag } from 'lucide-react'
 import { useTranslations } from 'next-intl'
@@ -27,7 +27,7 @@ export function TagCloud({ tags, selectedTag, onSelect }: Props) {
             className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-xs transition-colors ${
               selectedTag === tag
                 ? 'bg-accent-600 text-white'
-                : 'bg-surface-2 text-muted hover:bg-surface-3 hover:text-text'
+                : 'bg-surface-elevated text-muted hover:bg-surface-hover hover:text-text'
             }`}
           >
             <Tag size={10} />

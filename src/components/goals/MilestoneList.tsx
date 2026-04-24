@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import { Plus } from 'lucide-react'
@@ -76,7 +76,7 @@ export function MilestoneList({ goalId, milestones }: MilestoneListProps) {
             onKeyDown={(e) => e.key === 'Escape' && setAdding(false)}
             placeholder="Nuevo hito..."
             disabled={isPending}
-            className="flex-1 rounded-lg border border-border bg-surface-2 px-3 py-1.5 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none"
+            className="flex-1 rounded-lg border border-border bg-surface-elevated px-3 py-1.5 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none"
           />
           <button
             type="submit"

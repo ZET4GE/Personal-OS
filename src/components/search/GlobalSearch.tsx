@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { createPortal } from 'react-dom'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -170,7 +170,7 @@ export function GlobalSearch() {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setFocused(true)}
           placeholder="Buscar en todo..."
-          className="w-full rounded-xl border border-border bg-surface-2 py-2 pl-9 pr-16 text-sm text-text outline-none transition-colors focus:border-accent-600"
+          className="w-full rounded-xl border border-border bg-surface-elevated py-2 pl-9 pr-16 text-sm text-text outline-none transition-colors focus:border-accent-600"
         />
         {!focused && (
           <kbd className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 hidden rounded border border-border bg-surface px-1.5 py-0.5 text-[10px] text-muted sm:flex items-center gap-0.5">

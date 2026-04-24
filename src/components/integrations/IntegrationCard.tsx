@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useTransition } from 'react'
 import { useTranslations } from 'next-intl'
@@ -65,7 +65,7 @@ export function IntegrationCard({ provider, integration, description }: Props) {
         <span className={`flex shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
           connected
             ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-            : 'bg-surface-2 text-muted'
+            : 'bg-surface-elevated text-muted'
         }`}>
           {connected
             ? <><CheckCircle2 size={12} /> {t('connected')}</>
@@ -76,7 +76,7 @@ export function IntegrationCard({ provider, integration, description }: Props) {
 
       {/* Connected info */}
       {connected && integration && (
-        <div className="rounded-lg border border-border bg-surface-2 px-3 py-2 text-xs text-muted space-y-0.5">
+        <div className="rounded-lg border border-border bg-surface-elevated px-3 py-2 text-xs text-muted space-y-0.5">
           {integration.provider_email && (
             <p>{integration.provider_email}</p>
           )}

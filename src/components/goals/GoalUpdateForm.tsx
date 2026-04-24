@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import { GOAL_MOODS, MOOD_META } from '@/types/goals'
@@ -53,7 +53,7 @@ export function GoalUpdateForm({ goalId }: GoalUpdateFormProps) {
                 'flex items-center gap-1 rounded-lg px-2 py-1 text-xs transition-colors',
                 mood === m
                   ? 'bg-accent-600/10 text-accent-600 ring-1 ring-accent-600/30'
-                  : 'bg-surface-2 text-muted hover:bg-surface-hover hover:text-foreground',
+                  : 'bg-surface-elevated text-muted hover:bg-surface-hover hover:text-foreground',
               ].join(' ')}
             >
               <span>{meta.emoji}</span>
@@ -70,7 +70,7 @@ export function GoalUpdateForm({ goalId }: GoalUpdateFormProps) {
         placeholder="¿Cómo va tu progreso? Anotá una actualización..."
         rows={3}
         disabled={isPending}
-        className="w-full resize-none rounded-xl border border-border bg-surface-2 px-4 py-3 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors"
+        className="w-full resize-none rounded-xl border border-border bg-surface-elevated px-4 py-3 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors"
       />
 
       {error && <p className="text-xs text-red-500">{error}</p>}

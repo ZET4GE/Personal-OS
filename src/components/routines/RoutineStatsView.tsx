@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import type { RoutineStats, RoutineStatDay } from '@/services/routines'
 
@@ -65,7 +65,7 @@ function RoutineHeatmap({ stat }: { stat: RoutineStats }) {
                     'aspect-square rounded-sm transition-colors',
                     day.completed
                       ? 'bg-accent-600 dark:bg-accent-500 opacity-85'
-                      : 'border border-border bg-surface-2',
+                      : 'border border-border bg-surface-elevated',
                   ].join(' ')}
                 />
               )
@@ -100,7 +100,7 @@ export function RoutineStatsView({ stats }: RoutineStatsViewProps) {
           <p className="text-xs text-muted">Promedio general</p>
           <p className="text-2xl font-bold text-text">{avg}%</p>
         </div>
-        <div className="h-2 w-40 overflow-hidden rounded-full bg-surface-2">
+        <div className="h-2 w-40 overflow-hidden rounded-full bg-surface-elevated">
           <div
             className="h-full rounded-full bg-accent-600 transition-all"
             style={{ width: `${avg}%` }}

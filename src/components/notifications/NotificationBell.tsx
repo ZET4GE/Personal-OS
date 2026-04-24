@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -64,7 +64,7 @@ export function NotificationBell() {
       <button
         onClick={toggle}
         aria-label={`Notificaciones${unreadCount + smartAlerts.length > 0 ? ` (${unreadCount + smartAlerts.length})` : ''}`}
-        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-text/60 transition-colors hover:bg-surface-2 hover:text-text"
+        className="relative flex h-9 w-9 items-center justify-center rounded-lg text-text/60 transition-colors hover:bg-surface-elevated hover:text-text"
       >
         <Bell size={18} />
 

@@ -1,4 +1,4 @@
-import Link from 'next/link'
+﻿import Link from 'next/link'
 import { ArrowRight, Check, Clock3, Crosshair, GitBranch, ListTodo, Settings } from 'lucide-react'
 
 interface GettingStartedGuideProps {
@@ -108,7 +108,7 @@ export function GettingStartedGuide({
             <p className="text-sm font-semibold text-text">{completed}/{ITEMS.length}</p>
             <p className="text-xs text-muted">configurado</p>
           </div>
-          <div className="h-2 w-28 overflow-hidden rounded-full bg-surface-3">
+          <div className="h-2 w-28 overflow-hidden rounded-full bg-surface-hover">
             <div
               className="h-full rounded-full bg-accent-500"
               style={{ width: `${(completed / ITEMS.length) * 100}%` }}
@@ -151,8 +151,8 @@ export function GettingStartedGuide({
                   done
                     ? 'border-emerald-500/20 bg-emerald-500/10'
                     : item.key === nextItem.key
-                      ? 'border-accent-500/30 bg-surface-2'
-                      : 'border-border bg-surface-2 hover:border-border-bright',
+                      ? 'border-accent-500/30 bg-surface-elevated'
+                      : 'border-border bg-surface-elevated hover:border-border-bright',
                 ].join(' ')}
               >
                 <div className="flex items-center justify-between gap-2">

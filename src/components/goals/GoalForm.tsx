@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import { useState, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
@@ -97,7 +97,7 @@ export function GoalForm({ goal }: GoalFormProps) {
           <div className="relative group">
             <button
               type="button"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-2 text-lg transition-colors hover:border-border-bright"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-border bg-surface-elevated text-lg transition-colors hover:border-border-bright"
             >
               {icon || '🎯'}
             </button>
@@ -119,7 +119,7 @@ export function GoalForm({ goal }: GoalFormProps) {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Mi objetivo principal..."
             required
-            className="flex-1 rounded-lg border border-border bg-surface-2 px-4 py-2.5 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors"
+            className="flex-1 rounded-lg border border-border bg-surface-elevated px-4 py-2.5 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors"
           />
         </div>
       </div>
@@ -132,7 +132,7 @@ export function GoalForm({ goal }: GoalFormProps) {
           onChange={(e) => setDescription(e.target.value)}
           rows={3}
           placeholder="¿Por qué es importante esta meta para vos?"
-          className="w-full resize-none rounded-lg border border-border bg-surface-2 px-4 py-2.5 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors"
+          className="w-full resize-none rounded-lg border border-border bg-surface-elevated px-4 py-2.5 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors"
         />
       </div>
 
@@ -151,7 +151,7 @@ export function GoalForm({ goal }: GoalFormProps) {
                   'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-colors border',
                   category === cat
                     ? 'border-accent-600 bg-accent-600/10 text-accent-600'
-                    : 'border-border bg-surface-2 text-muted hover:border-border-bright hover:text-foreground',
+                    : 'border-border bg-surface-elevated text-muted hover:border-border-bright hover:text-foreground',
                 ].join(' ')}
               >
                 <span>{meta.icon}</span>
@@ -176,7 +176,7 @@ export function GoalForm({ goal }: GoalFormProps) {
                   'flex-1 rounded-lg border px-2 py-1.5 text-xs font-medium capitalize transition-colors',
                   priority === p
                     ? 'border-accent-600 bg-accent-600/10 text-accent-600'
-                    : 'border-border bg-surface-2 text-muted hover:border-border-bright',
+                    : 'border-border bg-surface-elevated text-muted hover:border-border-bright',
                 ].join(' ')}
               >
                 {p === 'low' ? 'Baja' : p === 'medium' ? 'Media' : 'Alta'}
@@ -217,7 +217,7 @@ export function GoalForm({ goal }: GoalFormProps) {
             type="date"
             value={targetDate}
             onChange={(e) => setTargetDate(e.target.value)}
-            className="w-full rounded-lg border border-border bg-surface-2 px-3 py-2.5 text-sm text-text focus:border-accent-600 focus:outline-none transition-colors"
+            className="w-full rounded-lg border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text focus:border-accent-600 focus:outline-none transition-colors"
           />
         </div>
         <div className="flex items-end pb-1">
@@ -266,7 +266,7 @@ export function GoalForm({ goal }: GoalFormProps) {
                 onChange={(e) => setNewMilestone(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addMilestone() } }}
                 placeholder="Agregar hito..."
-                className="flex-1 rounded-lg border border-border bg-surface-2 px-3 py-2 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors"
+                className="flex-1 rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text placeholder:text-muted focus:border-accent-600 focus:outline-none transition-colors"
               />
               <button
                 type="button"

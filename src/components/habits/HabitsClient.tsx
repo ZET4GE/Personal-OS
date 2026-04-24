@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { useOptimistic, useRef, useState, useTransition } from 'react'
@@ -95,7 +95,7 @@ export function HabitsClient({ items, date }: HabitsClientProps) {
     <div className="space-y-6">
       {/* View toggle */}
       <div className="flex items-center justify-between gap-3">
-        <div className="flex rounded-lg border border-border bg-surface-2 p-0.5">
+        <div className="flex rounded-lg border border-border bg-surface-elevated p-0.5">
           {(['today', 'stats'] as const).map((v) => (
             <button
               key={v}

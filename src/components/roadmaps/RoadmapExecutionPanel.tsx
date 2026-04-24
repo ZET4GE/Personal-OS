@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import { AlertTriangle, CheckCircle2, Clock, ListTodo, PlayCircle, Repeat, Target } from 'lucide-react'
@@ -75,7 +75,7 @@ export function RoadmapExecutionPanel({
               <span className="rounded-full bg-cyan-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-400">
                 Ejecucion
               </span>
-              <span className="rounded-full bg-surface-2 px-2.5 py-1 text-[11px] text-muted">
+              <span className="rounded-full bg-surface-elevated px-2.5 py-1 text-[11px] text-muted">
                 {roadmap.type === 'goal_based' ? 'Guiado por meta' : roadmap.type === 'structured' ? 'Plan guiado' : 'Mapa libre'}
               </span>
             </div>
@@ -85,7 +85,7 @@ export function RoadmapExecutionPanel({
             </p>
           </div>
 
-          <div className="w-full max-w-xs rounded-xl border border-border bg-surface-2 p-4">
+          <div className="w-full max-w-xs rounded-xl border border-border bg-surface-elevated p-4">
             <div className="flex items-end justify-between">
               <div>
                 <p className="text-xs uppercase tracking-[0.18em] text-muted">
@@ -102,7 +102,7 @@ export function RoadmapExecutionPanel({
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-4">
-          <div className="rounded-xl border border-border bg-surface-2 p-3">
+          <div className="rounded-xl border border-border bg-surface-elevated p-3">
             <p className="text-lg font-semibold text-text">{getStatusCount(nodes, 'pending')}</p>
             <p className="text-xs text-muted">Pendientes</p>
           </div>
@@ -120,7 +120,7 @@ export function RoadmapExecutionPanel({
           </div>
         </div>
 
-        <div className="mt-5 rounded-xl border border-border bg-surface-2 p-4">
+        <div className="mt-5 rounded-xl border border-border bg-surface-elevated p-4">
           <div className="mb-2 flex items-center gap-2">
             {nextNode?.status === 'blocked' ? <AlertTriangle size={15} className="text-red-400" /> : <PlayCircle size={15} className="text-cyan-400" />}
             <p className="text-sm font-semibold text-text">Siguiente paso</p>
@@ -141,7 +141,7 @@ export function RoadmapExecutionPanel({
                 'rounded-full border px-3 py-1.5 text-xs transition-colors',
                 activeFilter === filter.value
                   ? 'border-cyan-500/60 bg-cyan-500/10 text-cyan-200'
-                  : 'border-border bg-surface-2 text-muted hover:text-text',
+                  : 'border-border bg-surface-elevated text-muted hover:text-text',
               ].join(' ')}
             >
               {filter.label} · {filter.count}
@@ -168,7 +168,7 @@ export function RoadmapExecutionPanel({
                 <Link
                   key={action.id}
                   href={getActionHref(action)}
-                  className="flex items-center gap-3 rounded-xl border border-border bg-surface-2 px-3 py-3 transition-colors hover:border-border-bright"
+                  className="flex items-center gap-3 rounded-xl border border-border bg-surface-elevated px-3 py-3 transition-colors hover:border-border-bright"
                 >
                   <Icon size={15} className="text-cyan-400" />
                   <div className="min-w-0">
@@ -180,7 +180,7 @@ export function RoadmapExecutionPanel({
             })}
           </div>
         ) : (
-          <div className="rounded-xl border border-dashed border-border bg-surface-2 px-4 py-8 text-center">
+          <div className="rounded-xl border border-dashed border-border bg-surface-elevated px-4 py-8 text-center">
             <CheckCircle2 size={22} className="mx-auto text-muted" />
             <p className="mt-2 text-sm font-medium text-text">Sin acciones para hoy</p>
             <p className="mt-1 text-xs leading-5 text-muted">Crea un habito, rutina o sub-meta desde el nodo actual.</p>

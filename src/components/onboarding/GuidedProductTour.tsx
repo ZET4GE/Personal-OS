@@ -1,4 +1,4 @@
-'use client'
+﻿'use client'
 
 import Link from 'next/link'
 import type { CSSProperties } from 'react'
@@ -233,7 +233,7 @@ export function GuidedProductTour({ defaultOpen }: GuidedProductTourProps) {
         </div>
 
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
-          <div className="h-1 overflow-hidden rounded-full bg-surface-2">
+          <div className="h-1 overflow-hidden rounded-full bg-surface-elevated">
             <div
               className="h-full rounded-full bg-accent-500 transition-all"
               style={{ width: `${((step + 1) / STEPS.length) * 100}%` }}
