@@ -18,7 +18,7 @@ import {
   useSortable,
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
-import { Edit3, EyeOff, Eye, Move, RotateCcw, Scaling, Save } from 'lucide-react'
+import { Check, Edit3, EyeOff, Eye, Loader2, Move, RotateCcw } from 'lucide-react'
 import { useDashboardConfig } from '@/hooks/useDashboardConfig'
 import type { DashboardWidgetLayout, DashboardWidgetSize } from '@/types/dashboard-config'
 
@@ -42,12 +42,7 @@ const SIZE_CLASS: Record<DashboardWidgetSize, string> = {
   xl: 'xl:col-span-4',
 }
 
-function cycleSize(size: DashboardWidgetSize): DashboardWidgetSize {
-  if (size === 'sm') return 'md'
-  if (size === 'md') return 'lg'
-  if (size === 'lg') return 'xl'
-  return 'sm'
-}
+const ALL_SIZES: DashboardWidgetSize[] = ['sm', 'md', 'lg', 'xl']
 
 function SortableWidget({
   widget,
@@ -61,7 +56,7 @@ function SortableWidget({
   layout: DashboardWidgetLayout
   editMode: boolean
   onToggleVisible: (id: string) => void
-  onResize: (id: string) => void
+  onResize: (id: string, size: DashboardWidgetSize) => void
   children: React.ReactNode
 }) {
   const {
@@ -97,35 +92,43 @@ function SortableWidget({
       >
         {editMode && (
           <div className="mb-1.5 flex items-center justify-between rounded-xl bg-surface-2 px-2.5 py-1.5">
-            <div className="min-w-0">
-              <p className="truncate text-xs font-semibold text-text">{widget.title}</p>
-              <p className="text-[10px] uppercase tracking-wide text-muted">{layout.size}</p>
-            </div>
-            <div className="flex items-center gap-1">
+            <div className="flex min-w-0 items-center gap-1.5">
               <button
                 type="button"
                 {...attributes}
                 {...listeners}
-                className="cursor-grab rounded-lg p-1.5 text-muted transition-colors hover:bg-surface-hover hover:text-foreground active:cursor-grabbing"
+                className="cursor-grab rounded-lg p-1 text-muted transition-colors hover:bg-surface-hover hover:text-foreground active:cursor-grabbing"
                 title="Mover"
               >
-                <Move size={14} />
+                <Move size={13} />
               </button>
-              <button
-                type="button"
-                onClick={() => onResize(widget.id)}
-                className="rounded-lg p-1.5 text-muted transition-colors hover:bg-surface-hover hover:text-foreground"
-                title="Cambiar tamaÃ±o"
-              >
-                <Scaling size={14} />
-              </button>
+              <p className="truncate text-xs font-semibold text-text">{widget.title}</p>
+            </div>
+            <div className="flex items-center gap-1">
+              <div className="flex items-center rounded-lg border border-border bg-surface p-0.5">
+                {ALL_SIZES.map((s) => (
+                  <button
+                    key={s}
+                    type="button"
+                    onClick={() => onResize(widget.id, s)}
+                    className={[
+                      'rounded px-1.5 py-0.5 text-[10px] font-semibold uppercase transition-colors',
+                      layout.size === s
+                        ? 'bg-accent-600 text-white'
+                        : 'text-muted hover:text-foreground',
+                    ].join(' ')}
+                  >
+                    {s}
+                  </button>
+                ))}
+              </div>
               <button
                 type="button"
                 onClick={() => onToggleVisible(widget.id)}
-                className="rounded-lg p-1.5 text-muted transition-colors hover:bg-surface-hover hover:text-red-500"
+                className="rounded-lg p-1 text-muted transition-colors hover:bg-surface-hover hover:text-red-500"
                 title="Ocultar"
               >
-                <EyeOff size={14} />
+                <EyeOff size={13} />
               </button>
             </div>
           </div>
@@ -172,7 +175,7 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
       })),
     [widgets],
   )
-  const { layout, loading, error, setLayout } = useDashboardConfig(defaultLayout)
+  const { layout, loading, saving, error, setLayout } = useDashboardConfig(defaultLayout)
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 2 } }))
   const layoutMap = useMemo(() => new Map(layout.map((item) => [item.id, item])), [layout])
   const orderedVisibleWidgets = useMemo(
@@ -244,12 +247,10 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
     )
   }
 
-  function handleResize(id: string) {
+  function handleResize(id: string, size: DashboardWidgetSize) {
     setLayout((current) =>
       current.map((item) =>
-        item.id === id
-          ? { ...item, size: cycleSize(item.size) }
-          : item,
+        item.id === id ? { ...item, size } : item,
       ),
     )
   }
@@ -274,36 +275,47 @@ export function DashboardCustomizer({ widgets }: DashboardCustomizerProps) {
         <div>
           <h2 className="text-sm font-semibold text-text">Dashboard</h2>
           <p className="text-xs text-muted">
-            {editMode ? 'Modo edición activo' : 'Vista personalizada'}
+            {editMode ? 'Arrastrá, redimensioná u ocultá widgets' : 'Vista personalizada'}
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setEditMode((current) => !current)}
-          className={[
-            'inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-all',
-            editMode
-              ? 'border-accent-600 bg-accent-600/10 text-accent-600 scale-[1.02]'
-              : 'border-border bg-surface text-muted hover:border-border-bright hover:text-foreground',
-          ].join(' ')}
-        >
-          {editMode ? <Save size={15} /> : <Edit3 size={15} />}
-          {editMode ? 'Guardar dashboard' : 'Editar dashboard'}
-        </button>
+        <div className="flex items-center gap-2">
+          {saving && (
+            <span className="flex items-center gap-1 text-xs text-muted">
+              <Loader2 size={11} className="animate-spin" />
+              Guardando…
+            </span>
+          )}
+          {!saving && !loading && !editMode && (
+            <span className="flex items-center gap-1 text-xs text-muted">
+              <Check size={11} />
+              Guardado
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => setEditMode((current) => !current)}
+            className={[
+              'inline-flex items-center gap-2 rounded-xl border px-3 py-2 text-sm font-medium transition-all',
+              editMode
+                ? 'border-accent-600 bg-accent-600/10 text-accent-600 scale-[1.02]'
+                : 'border-border bg-surface text-muted hover:border-border-bright hover:text-foreground',
+            ].join(' ')}
+          >
+            {editMode ? <Check size={15} /> : <Edit3 size={15} />}
+            {editMode ? 'Listo' : 'Editar'}
+          </button>
+        </div>
       </div>
 
       {editMode && (
-        <div className="flex items-center justify-between rounded-2xl border border-border bg-surface p-3 shadow-[var(--shadow-card)]">
-          <p className="text-xs text-muted">
-            Tip: usa el boton de tamaño para pasar por sm, md, lg y xl. El grid rellena huecos automaticamente.
-          </p>
+        <div className="flex items-center justify-end">
           <button
             type="button"
             onClick={handleResetCompactLayout}
-            className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-border bg-surface-2 px-3 py-1.5 text-xs text-muted transition-colors hover:text-text"
+            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs text-muted transition-colors hover:text-text"
           >
-            <RotateCcw size={13} />
-            Layout compacto
+            <RotateCcw size={12} />
+            Restablecer layout
           </button>
         </div>
       )}

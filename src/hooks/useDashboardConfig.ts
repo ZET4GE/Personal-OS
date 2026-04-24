@@ -7,6 +7,7 @@ import type { DashboardWidgetLayout } from '@/types/dashboard-config'
 interface UseDashboardConfigResult {
   layout: DashboardWidgetLayout[]
   loading: boolean
+  saving: boolean
   error: string | null
   setLayout: React.Dispatch<React.SetStateAction<DashboardWidgetLayout[]>>
 }
@@ -36,6 +37,7 @@ export function useDashboardConfig(
 ): UseDashboardConfigResult {
   const [layout, setLayout] = useState<DashboardWidgetLayout[]>(defaultLayout)
   const [loading, setLoading] = useState(true)
+  const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const defaultKey = useMemo(() => JSON.stringify(defaultLayout), [defaultLayout])
 
@@ -89,6 +91,7 @@ export function useDashboardConfig(
   useEffect(() => {
     if (loading) return
 
+    setSaving(true)
     const timer = window.setTimeout(async () => {
       const supabase = createClient()
       const {
@@ -96,7 +99,7 @@ export function useDashboardConfig(
         error: userError,
       } = await supabase.auth.getUser()
 
-      if (userError || !user) return
+      if (userError || !user) { setSaving(false); return }
 
       await supabase
         .from('user_dashboard_config')
@@ -108,6 +111,7 @@ export function useDashboardConfig(
           },
           { onConflict: 'user_id' },
         )
+      setSaving(false)
     }, 350)
 
     return () => {
@@ -115,5 +119,5 @@ export function useDashboardConfig(
     }
   }, [layout, loading])
 
-  return { layout, loading, error, setLayout }
+  return { layout, loading, saving, error, setLayout }
 }

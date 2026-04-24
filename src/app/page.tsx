@@ -8,6 +8,7 @@ import { Hero }           from '@/components/landing/Hero'
 import { SocialProof }    from '@/components/landing/SocialProof'
 import { FeaturesGrid }   from '@/components/landing/FeaturesGrid'
 import { ProfilePreview } from '@/components/landing/ProfilePreview'
+import { DemoSection }    from '@/components/landing/DemoSection'
 import { ProfileSearch }  from '@/components/landing/ProfileSearch'
 import { PricingCard }    from '@/components/landing/PricingCard'
 import { Footer }         from '@/components/landing/Footer'
@@ -63,7 +64,10 @@ export default async function HomePage({
         {/* 2. Social proof strip */}
         <SocialProof />
 
-        {/* 3. Features grid */}
+        {/* 3. Product demo */}
+        <DemoSection />
+
+        {/* 4. Features grid */}
         <FeaturesGrid />
 
         {/* 4. Public profile preview */}
