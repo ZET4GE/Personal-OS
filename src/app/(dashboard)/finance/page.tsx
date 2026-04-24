@@ -127,7 +127,7 @@ function FilterTab({
         'rounded-full px-3 py-1 text-xs font-medium transition-colors',
         active
           ? 'bg-accent-600 text-white'
-          : 'bg-surface-2 text-muted hover:bg-surface-hover hover:text-foreground',
+          : 'bg-surface-elevated text-muted hover:bg-surface-hover hover:text-foreground',
       ].join(' ')}
     >
       {label}

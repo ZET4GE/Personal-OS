@@ -1,15 +1,16 @@
 'use client'
 
-import { useOptimistic, useRef, useTransition } from 'react'
+import { useState, useOptimistic, useRef, useTransition } from 'react'
 import type { ComponentType } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { BarChart3, PiggyBank, Plus, ReceiptText, SlidersHorizontal, Target, Trash2, TrendingDown, TrendingUp, WalletCards } from 'lucide-react'
+import { BarChart3, PiggyBank, Plus, ReceiptText, Search, SlidersHorizontal, Target, Trash2, TrendingDown, TrendingUp, WalletCards } from 'lucide-react'
 import { toast } from 'sonner'
 import {
   createFinanceCategoryAction,
   createFinanceTransactionAction,
   deleteFinanceBudgetAction,
+  deleteFinanceCategoryAction,
   deleteFinanceTransactionAction,
   updateFinanceTransactionAction,
   upsertFinanceBudgetAction,
@@ -82,6 +83,7 @@ export function FinanceClient({
 }: FinanceClientProps) {
   const [optimisticTransactions, dispatch] = useOptimistic(transactions, reducer)
   const [, startTransition] = useTransition()
+  const [searchQuery, setSearchQuery] = useState('')
   const formRef = useRef<FinanceFormHandle>(null)
   const router = useRouter()
 
@@ -173,6 +175,17 @@ export function FinanceClient({
     })
   }
 
+  function handleDeleteCategory(formData: FormData) {
+    startTransition(async () => {
+      const result = await deleteFinanceCategoryAction(formData)
+      if (result.error) toast.error(result.error)
+      else {
+        toast.success('Categoria eliminada')
+        router.refresh()
+      }
+    })
+  }
+
   function handleUpsertBudget(formData: FormData) {
     startTransition(async () => {
       const result = await upsertFinanceBudgetAction(formData)
@@ -195,6 +208,16 @@ export function FinanceClient({
     })
   }
 
+  const q = searchQuery.trim().toLowerCase()
+  const visibleTransactions = q
+    ? optimisticTransactions.filter(
+        (t) =>
+          t.description?.toLowerCase().includes(q) ||
+          t.category?.toLowerCase().includes(q) ||
+          String(t.amount).includes(q),
+      )
+    : optimisticTransactions
+
   const categoryOptions = Array.from(new Set([
     ...categories.map((category) => category.name),
     ...optimisticTransactions
@@ -204,7 +227,7 @@ export function FinanceClient({
 
   return (
     <>
-      <section className="flex flex-col gap-3 rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)] lg:flex-row lg:items-center lg:justify-between">
+      <section className="app-card flex flex-col gap-3 rounded-2xl p-4 shadow-[var(--shadow-card)] lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-accent-400">Finance Pro</p>
           <h2 className="mt-1 text-xl font-semibold text-text">Control de dinero personal</h2>
@@ -267,12 +290,12 @@ export function FinanceClient({
         />
       </section>
 
-      <section className="rounded-2xl border border-border bg-surface p-4">
+      <section className="app-card rounded-2xl p-4">
         <div className="mb-3 flex items-center gap-2">
           <Target size={15} className="text-accent-500" />
           <h3 className="text-sm font-semibold text-text">Categorias reutilizables</h3>
         </div>
-        <form action={handleCreateCategory} className="grid gap-2 md:grid-cols-[1fr_160px_120px_auto]">
+        <form action={handleCreateCategory} className="mb-3 grid gap-2 md:grid-cols-[1fr_160px_120px_auto]">
           <input name="name" type="text" placeholder="Ej: Alquiler, comida, sueldo" className={inputCls} />
           <select name="type" defaultValue="" className={inputCls}>
             <option value="">Ambas</option>
@@ -281,39 +304,67 @@ export function FinanceClient({
             ))}
           </select>
           <input name="color" type="text" placeholder="#2563eb" className={inputCls} />
-          <button type="submit" className="rounded-lg bg-surface-2 px-4 py-2 text-sm font-medium text-text hover:bg-surface-hover">
+          <button type="submit" className="rounded-lg bg-surface-elevated px-4 py-2 text-sm font-medium text-text hover:bg-surface-hover">
             Crear
           </button>
         </form>
+        {categories.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {categories.map((cat) => (
+              <div key={cat.id} className="flex items-center gap-1 rounded-full border border-border bg-surface-elevated px-3 py-1 text-xs font-medium text-text">
+                {cat.color && (
+                  <span className="h-2 w-2 rounded-full" style={{ background: cat.color }} />
+                )}
+                <span>{cat.name}</span>
+                <form action={handleDeleteCategory} className="contents">
+                  <input type="hidden" name="id" value={cat.id} />
+                  <button type="submit" className="ml-1 rounded text-muted hover:text-red-400">
+                    <Trash2 size={11} />
+                  </button>
+                </form>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted">
-          {optimisticTransactions.length} {optimisticTransactions.length === 1 ? 'movimiento' : 'movimientos'}
+      <div className="flex items-center gap-3">
+        <div className="relative flex-1">
+          <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Buscar por descripción, categoría o monto…"
+            className={`${inputCls} pl-9`}
+          />
+        </div>
+        <p className="shrink-0 text-sm text-muted">
+          {visibleTransactions.length} {visibleTransactions.length === 1 ? 'movimiento' : 'movimientos'}
         </p>
         <button
           type="button"
           onClick={openCreate}
-          className="inline-flex items-center gap-2 rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+          className="inline-flex shrink-0 items-center gap-2 rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
         >
           <Plus size={16} />
           Agregar
         </button>
       </div>
 
-      {optimisticTransactions.length === 0 ? (
+      {visibleTransactions.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface py-20 text-center">
           <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-surface-hover">
             <ReceiptText size={24} className="text-muted" />
           </span>
-          <p className="font-medium">Sin movimientos todavia</p>
+          <p className="font-medium">{q ? 'Sin resultados' : 'Sin movimientos todavia'}</p>
           <p className="mt-1 max-w-xs text-sm text-muted">
-            Registra ingresos y gastos personales para entender tu balance real.
+            {q ? `Ningún movimiento coincide con "${searchQuery}".` : 'Registra ingresos y gastos personales para entender tu balance real.'}
           </p>
         </div>
       ) : (
         <div className="space-y-3">
-          {optimisticTransactions.map((transaction) => (
+          {visibleTransactions.map((transaction) => (
             <FinanceTransactionCard
               key={transaction.id}
               transaction={transaction}
@@ -343,7 +394,7 @@ function SavingsCard({ summary }: { summary: FinanceSummary[] }) {
   const currency = primary?.currency ?? 'ARS'
 
   return (
-    <article className="rounded-xl border border-border bg-surface p-4">
+    <article className="app-card rounded-2xl p-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted">Ahorro del mes</p>
         <PiggyBank size={16} className={rate >= 0 ? 'text-emerald-400' : 'text-red-400'} />
@@ -366,7 +417,7 @@ function FinanceFilters({
   categoryOptions: string[]
 }) {
   return (
-    <form action="/finance" method="get" className="rounded-xl border border-border bg-surface p-4 lg:col-span-3">
+    <form action="/finance" method="get" className="app-card rounded-2xl p-4 lg:col-span-3">
       <div className="mb-3 flex items-center gap-2">
         <SlidersHorizontal size={15} className="text-accent-500" />
         <h3 className="text-sm font-semibold text-text">Filtros</h3>
@@ -406,29 +457,49 @@ function FinanceFilters({
 }
 
 function CategoryBreakdown({ items }: { items: FinanceCategorySummary[] }) {
-  const expenses = items.filter((item) => item.type === 'expense')
-  const max = Math.max(...expenses.map((item) => item.total), 1)
+  const [activeType, setActiveType] = useState<'expense' | 'income'>('expense')
+  const filtered = items.filter((item) => item.type === activeType)
+  const max = Math.max(...filtered.map((item) => item.total), 1)
+  const barColor = activeType === 'expense' ? 'bg-red-400' : 'bg-emerald-400'
 
   return (
-    <article className="rounded-2xl border border-border bg-surface p-4">
-      <div className="mb-4 flex items-center gap-2">
-        <BarChart3 size={15} className="text-accent-500" />
-        <h3 className="text-sm font-semibold text-text">Gastos por categoria</h3>
+    <article className="app-card rounded-2xl p-4">
+      <div className="mb-4 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <BarChart3 size={15} className="text-accent-500" />
+          <h3 className="text-sm font-semibold text-text">Por categoria</h3>
+        </div>
+        <div className="flex rounded-lg border border-border p-0.5 text-xs font-medium">
+          <button
+            type="button"
+            onClick={() => setActiveType('expense')}
+            className={['rounded px-2.5 py-1 transition-colors', activeType === 'expense' ? 'bg-red-500/10 text-red-400' : 'text-muted hover:text-text'].join(' ')}
+          >
+            Gastos
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveType('income')}
+            className={['rounded px-2.5 py-1 transition-colors', activeType === 'income' ? 'bg-emerald-500/10 text-emerald-400' : 'text-muted hover:text-text'].join(' ')}
+          >
+            Ingresos
+          </button>
+        </div>
       </div>
-      {expenses.length === 0 ? (
+      {filtered.length === 0 ? (
         <div className="rounded-xl border border-dashed border-border py-10 text-center">
-          <p className="text-sm text-muted">Sin gastos para graficar.</p>
+          <p className="text-sm text-muted">Sin {activeType === 'expense' ? 'gastos' : 'ingresos'} para graficar.</p>
         </div>
       ) : (
         <div className="space-y-3">
-          {expenses.slice(0, 8).map((item) => (
+          {filtered.slice(0, 8).map((item) => (
             <div key={`${item.category}-${item.currency}`}>
               <div className="mb-1 flex items-center justify-between gap-3">
                 <p className="truncate text-sm font-medium text-text">{item.category}</p>
                 <span className="text-xs font-semibold text-text">{formatCurrency(item.total, item.currency)}</span>
               </div>
-              <div className="h-2 overflow-hidden rounded-full bg-surface-3">
-                <div className="h-full rounded-full bg-red-400" style={{ width: `${Math.max(4, (item.total / max) * 100)}%` }} />
+              <div className="h-2 overflow-hidden rounded-full bg-surface-hover">
+                <div className={`h-full rounded-full ${barColor}`} style={{ width: `${Math.max(4, (item.total / max) * 100)}%` }} />
               </div>
               <p className="mt-1 text-[11px] text-muted">{item.transaction_count} movimientos</p>
             </div>
@@ -453,7 +524,7 @@ function BudgetPanel({
   onDelete: (formData: FormData) => void
 }) {
   return (
-    <article className="rounded-2xl border border-border bg-surface p-4">
+    <article className="app-card rounded-2xl p-4">
       <div className="mb-4 flex items-center gap-2">
         <PiggyBank size={15} className="text-accent-500" />
         <h3 className="text-sm font-semibold text-text">Presupuestos del mes</h3>
@@ -473,7 +544,7 @@ function BudgetPanel({
           ))}
         </select>
         <input name="amount" type="number" min="1" step="0.01" placeholder="Monto" className={inputCls} />
-        <button type="submit" className="rounded-lg bg-surface-2 px-3 py-2 text-sm font-medium text-text hover:bg-surface-hover">
+        <button type="submit" className="rounded-lg bg-surface-elevated px-3 py-2 text-sm font-medium text-text hover:bg-surface-hover">
           Guardar
         </button>
       </form>
@@ -489,7 +560,7 @@ function BudgetPanel({
             const isOver = budget.remaining_amount < 0
 
             return (
-              <div key={budget.id} className="rounded-xl bg-surface-2 p-3">
+              <div key={budget.id} className="rounded-xl bg-surface-elevated p-3">
                 <div className="mb-2 flex items-start justify-between gap-3">
                   <div>
                     <p className="text-sm font-semibold text-text">{budget.category}</p>
@@ -504,7 +575,7 @@ function BudgetPanel({
                     </button>
                   </form>
                 </div>
-                <div className="h-2 overflow-hidden rounded-full bg-surface-3">
+                <div className="h-2 overflow-hidden rounded-full bg-surface-hover">
                   <div
                     className={['h-full rounded-full', isOver ? 'bg-red-400' : 'bg-accent-500'].join(' ')}
                     style={{ width: `${usage}%` }}
@@ -545,7 +616,7 @@ function SummaryCard({
         : 'text-accent-400'
 
   return (
-    <article className="rounded-xl border border-border bg-surface p-4">
+    <article className="app-card rounded-2xl p-4">
       <div className="flex items-center justify-between gap-3">
         <p className="text-xs font-medium uppercase tracking-[0.16em] text-muted">{title}</p>
         <Icon size={16} className={color} />

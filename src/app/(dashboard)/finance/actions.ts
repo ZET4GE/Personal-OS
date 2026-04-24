@@ -12,6 +12,7 @@ import {
   createFinanceCategory,
   createFinanceTransaction,
   deleteFinanceBudget,
+  deleteFinanceCategory,
   deleteFinanceTransaction,
   updateFinanceTransaction,
   upsertFinanceBudget,
@@ -99,6 +100,19 @@ export async function upsertFinanceBudgetAction(formData: FormData): Promise<Fin
 
   revalidatePath('/finance')
   return { budget: result.data! }
+}
+
+export async function deleteFinanceCategoryAction(formData: FormData): Promise<FinanceActionResult> {
+  const { supabase, user } = await getAuthedClient()
+
+  const id = formData.get('id')
+  if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
+
+  const result = await deleteFinanceCategory(supabase, user.id, id)
+  if (result.error) return { error: result.error }
+
+  revalidatePath('/finance')
+  return { ok: true }
 }
 
 export async function deleteFinanceBudgetAction(formData: FormData): Promise<FinanceActionResult> {

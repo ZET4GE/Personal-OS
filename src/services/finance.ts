@@ -132,6 +132,21 @@ export async function createFinanceCategory(
   return ok(data as FinanceCategory)
 }
 
+export async function deleteFinanceCategory(
+  supabase: SupabaseClient,
+  userId: string,
+  id: string,
+): Promise<Result<true>> {
+  const { error } = await supabase
+    .from('finance_categories')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', userId)
+
+  if (error) return err(error.message)
+  return ok(true)
+}
+
 export async function getFinanceSummary(
   supabase: SupabaseClient,
   userId: string,
