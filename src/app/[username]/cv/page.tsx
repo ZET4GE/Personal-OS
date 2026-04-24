@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { BookOpen, Calendar, Clock, FolderGit2, MapPin, GitBranch, ExternalLink, Briefcase, GraduationCap, Phone, Star, Zap, ChevronRight } from 'lucide-react'
+import { BookOpen, Calendar, Clock, FolderGit2, Flag, MapPin, GitBranch, ExternalLink, Briefcase, GraduationCap, Phone, Star, Zap, ChevronRight } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getProfileByUsername } from '@/services/profiles'
 import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects } from '@/services/cv'
@@ -49,6 +49,15 @@ function formatMonthYear(dateStr: string): string {
   return new Intl.DateTimeFormat('es-ES', { year: 'numeric', month: 'short' }).format(
     new Date(dateStr + 'T00:00:00'),
   )
+}
+
+function calcAge(birthDateStr: string): number {
+  const today = new Date()
+  const birth = new Date(birthDateStr + 'T00:00:00')
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+  return age
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -379,19 +388,28 @@ export default async function PublicCVPage({ params }: PageProps) {
                 <MapPin size={13} /> {profile.location}
               </span>
             )}
+            {profile.nationality && (
+              <span className="flex items-center gap-1.5">
+                <Flag size={13} /> {profile.nationality}
+              </span>
+            )}
             {profile.phone && (
               <span className="flex items-center gap-1.5">
                 <Phone size={13} /> {profile.phone}
               </span>
             )}
+            {profile.birth_date && (
+              <span className="flex items-center gap-1.5">
+                <Calendar size={13} />
+                {new Date(profile.birth_date + 'T00:00:00').toLocaleDateString('es-ES', {
+                  day: '2-digit', month: '2-digit', year: 'numeric',
+                })}
+                {' '}· {calcAge(profile.birth_date)} años
+              </span>
+            )}
             {profile.availability && (
               <span className="flex items-center gap-1.5">
                 <Clock size={13} /> {CV_AVAILABILITY_LABELS[profile.availability]}
-              </span>
-            )}
-            {profile.birth_date && (
-              <span className="flex items-center gap-1.5">
-                <Calendar size={13} /> {profile.birth_date}
               </span>
             )}
             {profile.website && (

@@ -1,7 +1,8 @@
 import { Document, Page, Text, View, Link, StyleSheet } from '@react-pdf/renderer'
 import type { Profile } from '@/types/profile'
+import { CV_AVAILABILITY_LABELS } from '@/types/profile'
 import type { CVCourse, CVLanguage, CVProject, Education, Skill, SkillCategory, WorkExperience } from '@/types/cv'
-import { SKILL_CATEGORIES, SKILL_CATEGORY_LABELS_BY_LANGUAGE, SKILL_LEVEL_LABELS_BY_LANGUAGE } from '@/types/cv'
+import { SKILL_CATEGORY_LABELS_BY_LANGUAGE } from '@/types/cv'
 
 export interface CVDocumentATSProps {
   profile: Profile
@@ -103,7 +104,7 @@ const LABELS = {
   es: {
     summary: 'Perfil',
     experience: 'Experiencia',
-    education: 'Educacion',
+    education: 'Educación',
     skills: 'Skills',
     topSkills: 'Top skills',
     courses: 'Cursos',
@@ -139,6 +140,21 @@ function formatMonthYear(dateStr: string, language: CVLanguage): string {
     year: 'numeric',
     month: 'short',
   }).format(new Date(dateStr + 'T00:00:00'))
+}
+
+function fmtBirthDate(dateStr: string): string {
+  return new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(
+    new Date(dateStr + 'T00:00:00'),
+  )
+}
+
+function calcAge(birthDateStr: string): number {
+  const today = new Date()
+  const birth = new Date(birthDateStr + 'T00:00:00')
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+  return age
 }
 
 function expRange(exp: WorkExperience, language: CVLanguage): string {
@@ -183,12 +199,17 @@ function TextBlock({ value }: { value: string | null }) {
   )
 }
 
-function Contact({ profile, labels }: { profile: Profile; labels: typeof LABELS[CVLanguage] }) {
+function Contact({ profile, language }: { profile: Profile; language: CVLanguage }) {
+  const ageLabel = language === 'en' ? 'y/o' : 'años'
   const contactItems = [
     profile.location,
+    profile.nationality,
     profile.phone,
-    profile.birth_date ? `${labels.birth}: ${profile.birth_date}` : null,
-  ].filter(Boolean)
+    profile.birth_date
+      ? `${fmtBirthDate(profile.birth_date)} · ${calcAge(profile.birth_date)} ${ageLabel}`
+      : null,
+    profile.availability ? CV_AVAILABILITY_LABELS[profile.availability] : null,
+  ].filter(Boolean) as string[]
 
   return (
     <View style={styles.contact}>
@@ -205,41 +226,40 @@ function SkillsSection({ skills, language }: { skills: Skill[]; language: CVLang
 
   const labels = LABELS[language]
   const categoryLabels = SKILL_CATEGORY_LABELS_BY_LANGUAGE[language]
-  const levelLabels = SKILL_LEVEL_LABELS_BY_LANGUAGE[language]
-  const topSkills = skills.filter((skill) => skill.is_top)
-  const grouped = SKILL_CATEGORIES.reduce<Record<SkillCategory, Skill[]>>((acc, category) => {
-    acc[category] = skills.filter((skill) => skill.category === category)
-    return acc
-  }, {} as Record<SkillCategory, Skill[]>)
+  const topSkills = skills.filter((s) => s.is_top)
+
+  const groupMap = new Map<string, { label: string; skills: Skill[] }>()
+  for (const skill of skills) {
+    const key = `${skill.category}::${skill.subcategory ?? ''}`
+    if (!groupMap.has(key)) {
+      const catLabel = categoryLabels[skill.category as SkillCategory] ?? skill.category
+      const label    = skill.subcategory ? `${catLabel} – ${skill.subcategory}` : catLabel
+      groupMap.set(key, { label, skills: [] })
+    }
+    groupMap.get(key)!.skills.push(skill)
+  }
 
   return (
     <Section title={labels.skills}>
       {topSkills.length > 0 ? (
         <View style={styles.skillCategory}>
-          <Text style={styles.itemTitle}>{labels.topSkills}: {topSkills.map((skill) => skill.name).join(', ')}</Text>
+          <Text style={styles.itemTitle}>{labels.topSkills}: {topSkills.map((s) => s.name).join(', ')}</Text>
         </View>
       ) : null}
 
-      {SKILL_CATEGORIES.map((category) => {
-        const items = grouped[category]
-        if (items.length === 0) return null
-
-        return (
-          <View key={category} style={styles.skillCategory}>
-            <Text style={styles.itemTitle}>{categoryLabels[category]}</Text>
-            {items.map((skill) => {
-              const level = skill.level ? ` (${levelLabels[skill.level]})` : ''
-              const keywords = skill.keywords?.length ? ` - ${skill.keywords.join(', ')}` : ''
-              return (
-                <Text key={skill.id} style={styles.skillLine}>
-                  {skill.name}{level}{keywords}
-                  {skill.evidence ? ` - ${labels.evidence}: ${skill.evidence}` : ''}
-                </Text>
-              )
-            })}
-          </View>
-        )
-      })}
+      {[...groupMap.values()].map(({ label, skills: items }) => (
+        <View key={label} style={styles.skillCategory}>
+          <Text style={styles.itemTitle}>{label}</Text>
+          {items.map((skill) => {
+            const keywords = skill.keywords?.length ? ` (${skill.keywords.join(', ')})` : ''
+            return (
+              <Text key={skill.id} style={styles.skillLine}>
+                {skill.name}{keywords}
+              </Text>
+            )
+          })}
+        </View>
+      ))}
     </Section>
   )
 }
@@ -267,7 +287,7 @@ export function CVDocumentATS({
         <View style={styles.header}>
           <Text style={styles.name}>{displayName}</Text>
           {profile.headline ? <Text style={styles.headline}>{profile.headline}</Text> : null}
-          <Contact profile={profile} labels={labels} />
+          <Contact profile={profile} language={language} />
         </View>
 
         {profile.bio ? (

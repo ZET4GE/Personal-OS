@@ -57,6 +57,7 @@ export const UpdateProfileSchema = z.object({
   avatar_url:   optionalUrl(),
   phone:        optionalText(50),
   birth_date:   optionalDate,
+  nationality:  optionalText(80),
   availability: z
     .enum(CV_AVAILABILITY_OPTIONS)
     .or(z.literal(''))

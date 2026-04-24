@@ -260,8 +260,8 @@ export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileS
 
         {/* ─── Sección: Links ─────────────────────────── */}
         <Section title="Datos para CV">
-          <div className="grid gap-4 sm:grid-cols-3">
-            <Field label="Telefono" htmlFor="phone">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Teléfono" htmlFor="phone">
               <input id="phone" name="phone" type="tel"
                 defaultValue={current?.phone ?? ''}
                 placeholder="+54 9 ..."
@@ -271,6 +271,13 @@ export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileS
             <Field label="Fecha de nacimiento" htmlFor="birth_date">
               <input id="birth_date" name="birth_date" type="date"
                 defaultValue={current?.birth_date?.slice(0, 10) ?? ''}
+                className={inputCls} />
+            </Field>
+
+            <Field label="Nacionalidad" htmlFor="nationality">
+              <input id="nationality" name="nationality" type="text"
+                defaultValue={current?.nationality ?? ''}
+                placeholder="Argentina, Chile..."
                 className={inputCls} />
             </Field>
 

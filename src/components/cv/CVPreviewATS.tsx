@@ -1,6 +1,7 @@
 'use client'
 
 import type { Profile } from '@/types/profile'
+import { CV_AVAILABILITY_LABELS } from '@/types/profile'
 import type { CVCourse, CVProject, Education, Skill, SkillCategory, WorkExperience } from '@/types/cv'
 import { SKILL_CATEGORY_LABELS } from '@/types/cv'
 
@@ -18,6 +19,15 @@ function formatMonthYear(dateStr: string): string {
     year: 'numeric',
     month: 'short',
   }).format(new Date(dateStr + 'T00:00:00'))
+}
+
+function calcAge(birthDateStr: string): number {
+  const today = new Date()
+  const birth = new Date(birthDateStr + 'T00:00:00')
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+  return age
 }
 
 function expRange(exp: WorkExperience): string {
@@ -120,11 +130,18 @@ export function CVPreviewATS({
 }: CVPreviewATSProps) {
   const displayName = profile.full_name ?? `@${profile.username}`
 
+  const birthEntry = profile.birth_date
+    ? `${new Date(profile.birth_date + 'T00:00:00').toLocaleDateString('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' })} (${calcAge(profile.birth_date)} años)`
+    : null
+
   const contactItems = [
     profile.location,
+    profile.nationality,
     profile.phone,
+    birthEntry,
+    profile.availability ? CV_AVAILABILITY_LABELS[profile.availability] : null,
     profile.website ? profile.website.replace(/^https?:\/\//, '') : null,
-    profile.github_url  ? `github.com/${profile.github_url.split('/').pop()}` : null,
+    profile.github_url   ? `github.com/${profile.github_url.split('/').pop()}` : null,
     profile.linkedin_url ? 'LinkedIn' : null,
   ].filter(Boolean) as string[]
 

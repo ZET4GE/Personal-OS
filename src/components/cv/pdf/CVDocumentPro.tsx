@@ -59,6 +59,21 @@ function fmt(dateStr: string, language: CVLanguage = 'es'): string {
   }).format(new Date(dateStr + 'T00:00:00'))
 }
 
+function calcAge(birthDateStr: string): number {
+  const today = new Date()
+  const birth = new Date(birthDateStr + 'T00:00:00')
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+  return age
+}
+
+function fmtBirthDate(dateStr: string): string {
+  return new Intl.DateTimeFormat('es-ES', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+  }).format(new Date(dateStr + 'T00:00:00'))
+}
+
 function expDateRange(exp: WorkExperience, language: CVLanguage): string {
   const start = fmt(exp.start_date, language)
   const end   = exp.is_current ? LABELS[language].present : exp.end_date ? fmt(exp.end_date, language) : ''
@@ -98,12 +113,15 @@ function ContactSection({ profile, language }: { profile: Profile; language: CVL
   return (
     <SidebarSection title={LABELS[language].contact}>
       {profile.location    && <Text style={styles.sidebarText}>{profile.location}</Text>}
+      {profile.nationality && <Text style={styles.sidebarText}>{profile.nationality}</Text>}
       {profile.phone       && <Text style={styles.sidebarText}>{profile.phone}</Text>}
+      {profile.birth_date  && (
+        <Text style={styles.sidebarText}>
+          {fmtBirthDate(profile.birth_date)} · {calcAge(profile.birth_date)} {language === 'en' ? 'y/o' : 'años'}
+        </Text>
+      )}
       {profile.availability && (
         <Text style={styles.sidebarText}>{CV_AVAILABILITY_LABELS[profile.availability]}</Text>
-      )}
-      {profile.birth_date  && (
-        <Text style={styles.sidebarText}>{LABELS[language].birth}: {profile.birth_date}</Text>
       )}
       {profile.website     && (
         <Link src={profile.website} style={styles.sidebarLink}>

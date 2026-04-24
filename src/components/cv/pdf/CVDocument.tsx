@@ -1,6 +1,6 @@
 import { Document, Page, Text, View, Link } from '@react-pdf/renderer'
 import { styles } from './PDFStyles'
-import { SKILL_CATEGORIES, SKILL_CATEGORY_LABELS, SKILL_LEVEL_LABELS } from '@/types/cv'
+import { SKILL_CATEGORY_LABELS } from '@/types/cv'
 import type { WorkExperience, Education, Skill, SkillCategory, CVCourse, CVProject } from '@/types/cv'
 import { CV_AVAILABILITY_LABELS } from '@/types/profile'
 import type { Profile } from '@/types/profile'
@@ -26,6 +26,21 @@ function fmt(dateStr: string): string {
   return new Intl.DateTimeFormat('es-ES', { year: 'numeric', month: 'short' }).format(
     new Date(dateStr + 'T00:00:00'),
   )
+}
+
+function fmtBirthDate(dateStr: string): string {
+  return new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(
+    new Date(dateStr + 'T00:00:00'),
+  )
+}
+
+function calcAge(birthDateStr: string): number {
+  const today = new Date()
+  const birth = new Date(birthDateStr + 'T00:00:00')
+  let age = today.getFullYear() - birth.getFullYear()
+  const m = today.getMonth() - birth.getMonth()
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
+  return age
 }
 
 function expDateRange(exp: WorkExperience): string {
@@ -174,32 +189,42 @@ function ProjectsSection({ items }: { items: CVProject[] }) {
 function SkillsSection({ items }: { items: Skill[] }) {
   if (items.length === 0) return null
 
-  const grouped = SKILL_CATEGORIES.reduce<Record<SkillCategory, Skill[]>>(
-    (acc, cat) => { acc[cat] = items.filter((s) => s.category === cat); return acc },
-    {} as Record<SkillCategory, Skill[]>,
-  )
+  const topSkills = items.filter((s) => s.is_top)
 
-  const populated = SKILL_CATEGORIES.filter((cat) => grouped[cat].length > 0)
-  if (populated.length === 0) return null
+  const groupMap = new Map<string, { label: string; skills: Skill[] }>()
+  for (const skill of items) {
+    const key = `${skill.category}::${skill.subcategory ?? ''}`
+    if (!groupMap.has(key)) {
+      const catLabel = SKILL_CATEGORY_LABELS[skill.category as SkillCategory] ?? skill.category
+      const label    = skill.subcategory ? `${catLabel} · ${skill.subcategory}` : catLabel
+      groupMap.set(key, { label, skills: [] })
+    }
+    groupMap.get(key)!.skills.push(skill)
+  }
 
   return (
     <View style={styles.section}>
       <SectionTitle>Skills</SectionTitle>
+      {topSkills.length > 0 && (
+        <View style={styles.skillCategory}>
+          <Text style={styles.skillCategoryLabel}>Destacadas</Text>
+          <View style={styles.skillBadgesRow}>
+            {topSkills.map((s) => (
+              <View key={s.id} style={styles.skillBadge}>
+                <Text>★ {s.name}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
       <View style={styles.skillsGrid}>
-        {populated.map((cat) => (
-          <View key={cat} style={styles.skillCategory}>
-            <Text style={styles.skillCategoryLabel}>{SKILL_CATEGORY_LABELS[cat]}</Text>
+        {[...groupMap.values()].map(({ label, skills }) => (
+          <View key={label} style={styles.skillCategory}>
+            <Text style={styles.skillCategoryLabel}>{label}</Text>
             <View style={styles.skillBadgesRow}>
-              {grouped[cat].map((skill) => (
+              {skills.map((skill) => (
                 <View key={skill.id} style={styles.skillBadge}>
-                  <Text>
-                    {skill.name}
-                    {skill.level ? (
-                      <Text style={styles.skillBadgeLevel}>
-                        {' '}· {SKILL_LEVEL_LABELS[skill.level]}
-                      </Text>
-                    ) : null}
-                  </Text>
+                  <Text>{skill.name}</Text>
                 </View>
               ))}
             </View>
@@ -245,14 +270,17 @@ export function CVDocument({ profile, experience, education, skills, courses, pr
             {profile.location ? (
               <Text style={styles.contactItem}>{profile.location}</Text>
             ) : null}
+            {profile.nationality ? (
+              <Text style={styles.contactItem}>{profile.nationality}</Text>
+            ) : null}
             {profile.phone ? (
               <Text style={styles.contactItem}>{profile.phone}</Text>
             ) : null}
+            {profile.birth_date ? (
+              <Text style={styles.contactItem}>{fmtBirthDate(profile.birth_date)} · {calcAge(profile.birth_date)} años</Text>
+            ) : null}
             {profile.availability ? (
               <Text style={styles.contactItem}>{CV_AVAILABILITY_LABELS[profile.availability]}</Text>
-            ) : null}
-            {profile.birth_date ? (
-              <Text style={styles.contactItem}>Nac. {profile.birth_date}</Text>
             ) : null}
             {profile.website ? (
               <Link src={profile.website} style={styles.contactItem}>
