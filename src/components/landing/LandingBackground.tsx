@@ -10,36 +10,25 @@ export function LandingBackground() {
   const glowRef  = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    let rafId = 0
-    let targetX = 0.72
-    let targetY = 0.18
+    let rafId    = 0
+    let running  = false
+    let targetX  = 0.72
+    let targetY  = 0.18
     let currentX = 0.72
     let currentY = 0.18
     let scrollY  = 0
+    let prevScrollY = 0
 
-    const LERP = 0.06  // smoothing factor — lower = slower/smoother
+    const LERP      = 0.06
+    const THRESHOLD = 0.0008
 
     function lerp(a: number, b: number, t: number) { return a + (b - a) * t }
-
-    const onPointer = (e: PointerEvent) => {
-      targetX = e.clientX / window.innerWidth
-      targetY = e.clientY / window.innerHeight
-    }
-
-    const onTouch = (e: TouchEvent) => {
-      const t = e.touches[0]
-      if (!t) return
-      targetX = t.clientX / window.innerWidth
-      targetY = t.clientY / window.innerHeight
-    }
-
-    const onScroll = () => { scrollY = window.scrollY }
 
     function tick() {
       currentX = lerp(currentX, targetX, LERP)
       currentY = lerp(currentY, targetY, LERP)
 
-      const dx = (currentX - 0.5)   // -0.5 → 0.5
+      const dx = (currentX - 0.5)
       const dy = (currentY - 0.5)
 
       const node = wrapRef.current
@@ -48,7 +37,6 @@ export function LandingBackground() {
         node.style.setProperty('--py', `${(currentY * 100).toFixed(2)}%`)
       }
 
-      // Parallax: each orb drifts at a different rate relative to mouse + scroll
       if (orbARef.current) {
         const sx = (dx *  55).toFixed(2)
         const sy = (dy *  38 - scrollY * 0.14).toFixed(2)
@@ -64,21 +52,58 @@ export function LandingBackground() {
         const sy = (dy *  20 - scrollY * 0.06).toFixed(2)
         orbCRef.current.style.transform = `translate(${sx}px, ${sy}px)`
       }
-
-      // Mouse-follow glow
       if (glowRef.current) {
         const sx = (dx * 70).toFixed(2)
         const sy = (dy * 50).toFixed(2)
         glowRef.current.style.transform = `translate(calc(-50% + ${sx}px), calc(-50% + ${sy}px))`
       }
 
+      // Stop loop when fully converged and scroll settled — restarts on next input
+      const converged =
+        Math.abs(currentX - targetX) < THRESHOLD &&
+        Math.abs(currentY - targetY) < THRESHOLD &&
+        Math.abs(scrollY - prevScrollY) < 0.5
+
+      prevScrollY = scrollY
+
+      if (converged) {
+        running = false
+        return
+      }
+
       rafId = requestAnimationFrame(tick)
+    }
+
+    function startRaf() {
+      if (!running) {
+        running = true
+        rafId = requestAnimationFrame(tick)
+      }
+    }
+
+    const onPointer = (e: PointerEvent) => {
+      targetX = e.clientX / window.innerWidth
+      targetY = e.clientY / window.innerHeight
+      startRaf()
+    }
+
+    const onTouch = (e: TouchEvent) => {
+      const t = e.touches[0]
+      if (!t) return
+      targetX = t.clientX / window.innerWidth
+      targetY = t.clientY / window.innerHeight
+      startRaf()
+    }
+
+    const onScroll = () => {
+      scrollY = window.scrollY
+      startRaf()
     }
 
     window.addEventListener('pointermove', onPointer, { passive: true })
     window.addEventListener('touchmove',   onTouch,   { passive: true })
     window.addEventListener('scroll',      onScroll,  { passive: true })
-    rafId = requestAnimationFrame(tick)
+    startRaf()
 
     return () => {
       cancelAnimationFrame(rafId)
@@ -107,25 +132,25 @@ export function LandingBackground() {
       {/* Orb A — top-left, accent blue */}
       <div
         ref={orbARef}
-        className="landing-orb landing-orb-a absolute left-[6%] top-[6%] h-[28rem] w-[28rem] rounded-full bg-accent-400/5 blur-3xl dark:bg-accent-400/12 will-change-transform"
+        className="landing-orb landing-orb-a absolute left-[6%] top-[6%] h-[28rem] w-[28rem] rounded-full bg-accent-400/5 blur-2xl dark:bg-accent-400/12 will-change-transform"
       />
 
       {/* Orb B — top-right, violet */}
       <div
         ref={orbBRef}
-        className="landing-orb landing-orb-b absolute right-[8%] top-[16%] h-[22rem] w-[22rem] rounded-full bg-violet-500/5 blur-3xl dark:bg-violet-500/13 will-change-transform"
+        className="landing-orb landing-orb-b absolute right-[8%] top-[16%] h-[22rem] w-[22rem] rounded-full bg-violet-500/5 blur-2xl dark:bg-violet-500/13 will-change-transform"
       />
 
       {/* Orb C — bottom-center, cyan */}
       <div
         ref={orbCRef}
-        className="landing-orb landing-orb-c absolute bottom-[6%] left-[28%] h-[24rem] w-[24rem] rounded-full bg-cyan-500/4 blur-3xl dark:bg-cyan-500/10 will-change-transform"
+        className="landing-orb landing-orb-c absolute bottom-[6%] left-[28%] h-[24rem] w-[24rem] rounded-full bg-cyan-500/4 blur-2xl dark:bg-cyan-500/10 will-change-transform"
       />
 
       {/* Soft mouse-following glow — top-center */}
       <div
         ref={glowRef}
-        className="absolute left-1/2 top-[28%] h-[36rem] w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/14 blur-3xl dark:bg-accent-400/5 will-change-transform"
+        className="absolute left-1/2 top-[28%] h-[36rem] w-[36rem] -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/14 blur-2xl dark:bg-accent-400/5 will-change-transform"
       />
     </div>
   )

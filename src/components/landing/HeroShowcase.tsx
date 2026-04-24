@@ -36,22 +36,32 @@ const FLOATING_NOTES = [
 ]
 
 export function HeroShowcase() {
-  const frameRef = useRef<HTMLDivElement | null>(null)
+  const frameRef  = useRef<HTMLDivElement | null>(null)
+  const rafPending = useRef(false)
 
   function handleMove(event: React.MouseEvent<HTMLDivElement>) {
-    const node = frameRef.current
-    if (!node) return
+    if (rafPending.current) return
+    rafPending.current = true
 
-    const rect = node.getBoundingClientRect()
-    const x = (event.clientX - rect.left) / rect.width
-    const y = (event.clientY - rect.top) / rect.height
-    const rotateY = (x - 0.5) * 10
-    const rotateX = (0.5 - y) * 10
+    const clientX = event.clientX
+    const clientY = event.clientY
 
-    node.style.setProperty('--hero-rotate-x', `${rotateX.toFixed(2)}deg`)
-    node.style.setProperty('--hero-rotate-y', `${rotateY.toFixed(2)}deg`)
-    node.style.setProperty('--hero-shine-x', `${(x * 100).toFixed(1)}%`)
-    node.style.setProperty('--hero-shine-y', `${(y * 100).toFixed(1)}%`)
+    requestAnimationFrame(() => {
+      rafPending.current = false
+      const node = frameRef.current
+      if (!node) return
+
+      const rect = node.getBoundingClientRect()
+      const x = (clientX - rect.left) / rect.width
+      const y = (clientY - rect.top) / rect.height
+      const rotateY = (x - 0.5) * 10
+      const rotateX = (0.5 - y) * 10
+
+      node.style.setProperty('--hero-rotate-x', `${rotateX.toFixed(2)}deg`)
+      node.style.setProperty('--hero-rotate-y', `${rotateY.toFixed(2)}deg`)
+      node.style.setProperty('--hero-shine-x', `${(x * 100).toFixed(1)}%`)
+      node.style.setProperty('--hero-shine-y', `${(y * 100).toFixed(1)}%`)
+    })
   }
 
   function resetMove() {
