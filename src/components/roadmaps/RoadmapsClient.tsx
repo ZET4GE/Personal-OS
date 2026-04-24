@@ -4,17 +4,23 @@ import Link from 'next/link'
 import { useState } from 'react'
 import type { ElementType } from 'react'
 import { useRouter } from 'next/navigation'
-import { BookOpen, BriefcaseBusiness, GitBranch, Globe2, Lock, Pencil, Plus, Save, Sparkles, Target, Trash2, X } from 'lucide-react'
+import { BookOpen, BriefcaseBusiness, GitBranch, Globe2, Lock, Pencil, Plus, Save, Sparkles, Target, Trash2, X, Zap } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { TagSelector } from '@/components/tags/TagSelector'
+import type { BillingPlan } from '@/types/billing'
 import type { Goal } from '@/types/goals'
 import type { LearningNodeType, LearningRoadmap, LearningRoadmapTemplate, LearningRoadmapType } from '@/types/roadmaps'
+import type { RoadmapNodeSummary } from '@/services/learning-roadmaps'
 
 interface RoadmapsClientProps {
   roadmaps: LearningRoadmap[]
   availableGoals: Goal[]
+  nodeSummary: RoadmapNodeSummary
+  plan: BillingPlan
 }
+
+const FREE_ROADMAP_LIMIT = 1
 
 interface TemplateNode {
   title: string
@@ -137,7 +143,7 @@ function getRoadmapTypeHelp(type: LearningRoadmapType) {
   }
 }
 
-export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: RoadmapsClientProps) {
+export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals, nodeSummary, plan }: RoadmapsClientProps) {
   const [roadmaps, setRoadmaps] = useState(initialRoadmaps)
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
@@ -153,6 +159,7 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
   const router = useRouter()
   const supabase = createClient()
   const selectedTypeHelp = getRoadmapTypeHelp(type)
+  const isAtLimit = plan === 'free' && roadmaps.length >= FREE_ROADMAP_LIMIT
 
   async function getCurrentUserId() {
     const {
@@ -401,7 +408,7 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
 
   return (
     <div className="space-y-6">
-      <section className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
+      <section className="app-card rounded-2xl p-5 shadow-[var(--shadow-card)]">
         <div className="mb-5 flex flex-col gap-2">
           <div className="flex items-center gap-2">
             <Target size={17} className="text-cyan-400" />
@@ -414,7 +421,7 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
 
         <div className="mb-5 grid gap-3 lg:grid-cols-5">
           {['Meta', 'Roadmap', 'Sub-metas', 'Habitos', 'Rutina'].map((item, index) => (
-            <div key={item} className="rounded-xl border border-border bg-surface-2 px-3 py-3">
+            <div key={item} className="rounded-xl border border-border bg-surface-elevated px-3 py-3">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
                 Paso {index + 1}
               </p>
@@ -423,32 +430,49 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
           ))}
         </div>
 
-        <div className="grid gap-3 lg:grid-cols-[1fr_1fr_auto]">
-          <input
-            value={title}
-            onChange={(event) => setTitle(event.target.value)}
-            placeholder="Ej: Conseguir 3 clientes freelance"
-            className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
-          />
-          <input
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            placeholder="Resultado esperado y contexto"
-            className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
-          />
-          <button
-            type="button"
-            onClick={handleCreateRoadmap}
-            disabled={isSaving || !title.trim()}
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-600 px-4 py-2.5 text-sm font-medium text-white transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <Plus size={14} />
-            {isSaving ? 'Creando...' : 'Crear roadmap'}
-          </button>
-        </div>
+        {isAtLimit ? (
+          <div className="flex items-center gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3">
+            <Zap size={16} className="shrink-0 text-amber-400" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold text-amber-200">Límite del plan Free</p>
+              <p className="text-xs text-amber-200/70">El plan Free permite 1 roadmap. Actualizá a Pro para crear ilimitados.</p>
+            </div>
+            <a
+              href="/settings?tab=billing"
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-semibold text-black transition-opacity hover:opacity-90"
+            >
+              <Zap size={12} />
+              Ir a Pro
+            </a>
+          </div>
+        ) : (
+          <div className="grid gap-3 lg:grid-cols-[1fr_1fr_auto]">
+            <input
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder="Ej: Conseguir 3 clientes freelance"
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
+            />
+            <input
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder="Resultado esperado y contexto"
+              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
+            />
+            <button
+              type="button"
+              onClick={handleCreateRoadmap}
+              disabled={isSaving || !title.trim()}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-600 px-4 py-2.5 text-sm font-medium text-white transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Plus size={14} />
+              {isSaving ? 'Creando...' : 'Crear roadmap'}
+            </button>
+          </div>
+        )}
 
         <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_2fr]">
-          <div className="rounded-xl border border-border bg-surface-2 p-3">
+          <div className="rounded-xl border border-border bg-surface-elevated p-3">
             <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted">Meta principal</p>
             <select
               value={primaryGoalId}
@@ -483,7 +507,7 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
                     'rounded-xl border px-4 py-3 text-left transition-all hover:scale-[1.01]',
                     isSelected
                       ? 'border-cyan-500/60 bg-cyan-500/10 text-cyan-100'
-                      : 'border-border bg-surface-2 text-muted hover:text-text',
+                      : 'border-border bg-surface-elevated text-muted hover:text-text',
                   ].join(' ')}
                 >
                   <p className="text-sm font-semibold">{item.label}</p>
@@ -516,7 +540,7 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
                     'rounded-xl border p-3 text-left transition-all hover:scale-[1.01]',
                     isSelected
                       ? 'border-accent-500/60 bg-accent-500/10 text-text'
-                      : 'border-border bg-surface-2 text-muted hover:text-text',
+                      : 'border-border bg-surface-elevated text-muted hover:text-text',
                   ].join(' ')}
                 >
                   <Icon size={15} className="mb-2 text-cyan-400" />
@@ -538,11 +562,13 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
         <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {roadmaps.map((roadmap) => {
             const primaryGoal = availableGoals.find((goal) => goal.id === roadmap.primary_goal_id)
+            const ns = nodeSummary[roadmap.id] ?? { total: 0, completed: 0 }
+            const progressPct = ns.total > 0 ? Math.round((ns.completed / ns.total) * 100) : 0
 
             return (
               <div
                 key={roadmap.id}
-                className="group rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5 hover:border-border-bright"
+                className="app-card group rounded-2xl p-5 shadow-[var(--shadow-card)] transition-all hover:-translate-y-0.5"
               >
                 <div className="mb-3 flex items-center justify-between gap-2">
                   <div className="flex flex-wrap items-center gap-2">
@@ -556,7 +582,7 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
                       </span>
                     )}
                   </div>
-                  <span className="shrink-0 rounded-full bg-surface-2 px-2 py-1 text-[11px] font-medium text-muted">
+                  <span className="shrink-0 rounded-full bg-surface-elevated px-2 py-1 text-[11px] font-medium text-muted">
                     {getRoadmapTemplateLabel(roadmap.template)}
                   </span>
                 </div>
@@ -566,13 +592,13 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
                     <input
                       value={editTitle}
                       onChange={(event) => setEditTitle(event.target.value)}
-                      className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent-500"
+                      className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-accent-500"
                     />
                     <textarea
                       value={editDescription}
                       onChange={(event) => setEditDescription(event.target.value)}
                       rows={3}
-                      className="w-full rounded-xl border border-border bg-surface-2 px-3 py-2 text-sm text-text outline-none focus:border-accent-500"
+                      className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-accent-500"
                     />
                     <select
                       value={editType}
@@ -622,11 +648,27 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals }: Ro
                       <p className="mt-2 line-clamp-3 text-sm leading-6 text-muted">
                         {roadmap.description || 'Sin descripcion'}
                       </p>
-                      <div className="mt-4 rounded-xl border border-border bg-surface-2 px-3 py-2">
+                      <div className="mt-4 rounded-xl border border-border bg-surface-elevated px-3 py-2">
                         <p className="text-[11px] uppercase tracking-[0.18em] text-muted">Meta principal</p>
                         <p className="mt-1 truncate text-sm text-text">{primaryGoal?.title ?? 'Sin meta asignada'}</p>
                       </div>
                     </Link>
+
+                    {ns.total > 0 && (
+                      <div className="mt-4">
+                        <div className="mb-1 flex items-center justify-between text-[11px] text-muted">
+                          <span>{ns.completed} / {ns.total} etapas</span>
+                          <span className={progressPct === 100 ? 'font-semibold text-emerald-400' : ''}>{progressPct}%</span>
+                        </div>
+                        <div className="h-1.5 overflow-hidden rounded-full bg-surface-hover">
+                          <div
+                            className={['h-full rounded-full transition-all', progressPct === 100 ? 'bg-emerald-400' : 'bg-accent-500'].join(' ')}
+                            style={{ width: `${Math.max(4, progressPct)}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
                     <div className="mt-4 flex flex-wrap gap-2">
                       <TagSelector entityId={roadmap.id} entityType="roadmap" compact align="left" />
                       <button

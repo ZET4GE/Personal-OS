@@ -144,6 +144,32 @@ export async function getLearningRoadmaps(
   return ok((data ?? []) as LearningRoadmap[])
 }
 
+export type RoadmapNodeSummary = Record<string, { total: number; completed: number }>
+
+export async function getLearningRoadmapNodeSummary(
+  supabase: SupabaseClient,
+  roadmapIds: string[],
+): Promise<Result<RoadmapNodeSummary>> {
+  if (roadmapIds.length === 0) return ok({})
+
+  const { data, error } = await supabase
+    .from('learning_nodes')
+    .select('roadmap_id, status')
+    .in('roadmap_id', roadmapIds)
+
+  if (error) return err(error.message)
+
+  const summary: RoadmapNodeSummary = {}
+  for (const row of (data ?? []) as { roadmap_id: string; status: string }[]) {
+    const current = summary[row.roadmap_id] ?? { total: 0, completed: 0 }
+    current.total++
+    if (row.status === 'completed') current.completed++
+    summary[row.roadmap_id] = current
+  }
+
+  return ok(summary)
+}
+
 export async function getRoadmapsByGoalId(
   supabase: SupabaseClient,
   userId: string,
