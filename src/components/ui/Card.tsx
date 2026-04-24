@@ -3,8 +3,8 @@ import type { HTMLAttributes } from 'react'
 type Variant = 'default' | 'elevated' | 'ghost'
 
 const VARIANT_CLS: Record<Variant, string> = {
-  default:  'border border-border bg-surface shadow-[var(--shadow-card)]',
-  elevated: 'border border-border bg-surface shadow-[var(--shadow-card-hover)]',
+  default:  'app-card',
+  elevated: 'app-card border-slate-200/75 bg-white/80 dark:border-white/10 dark:bg-surface/80 shadow-[0_20px_56px_-28px_rgba(15,23,42,0.18),0_2px_6px_rgba(15,23,42,0.07)]',
   ghost:    'bg-transparent',
 }
 
@@ -23,11 +23,9 @@ export function Card({
   return (
     <div
       className={[
-        'rounded-xl transition-all duration-200',
+        'rounded-2xl transition-all duration-200',
         VARIANT_CLS[variant],
-        hoverable
-          ? 'hover:-translate-y-0.5 hover:shadow-[var(--shadow-card-hover)] hover:border-border-bright cursor-pointer'
-          : '',
+        hoverable ? 'app-card-hover cursor-pointer' : '',
         className,
       ].join(' ')}
       {...rest}

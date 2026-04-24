@@ -33,12 +33,11 @@ export function DashboardShell({
   const [collapsed, setCollapsed] = useState(false)
 
   return (
-    <div className="relative flex min-h-screen">
-      {/* Subtle ambient glow — top-right corner */}
-      <div
-        aria-hidden
-        className="pointer-events-none fixed right-0 top-0 -z-10 h-[500px] w-[500px] rounded-full bg-accent-600/[0.04] blur-3xl dark:bg-accent-600/[0.07]"
-      />
+    <div className="app-shell relative flex min-h-screen">
+      {/* Ambient glows */}
+      <div aria-hidden className="pointer-events-none fixed right-0 top-0 -z-10 h-[600px] w-[600px] rounded-full bg-accent-500/[0.06] blur-3xl dark:bg-accent-500/[0.10]" />
+      <div aria-hidden className="pointer-events-none fixed -bottom-20 -left-20 -z-10 h-[500px] w-[500px] rounded-full bg-violet-500/[0.04] blur-3xl dark:bg-violet-500/[0.07]" />
+      <div aria-hidden className="pointer-events-none fixed bottom-1/3 right-1/4 -z-10 h-[360px] w-[360px] rounded-full bg-cyan-500/[0.03] blur-3xl dark:bg-cyan-500/[0.05]" />
 
       <Sidebar collapsed={collapsed} enabledModules={enabledModules} isAdmin={isAdmin} />
 
