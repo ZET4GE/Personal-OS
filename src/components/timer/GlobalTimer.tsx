@@ -108,7 +108,7 @@ export function GlobalTimer() {
         </span>
 
         <div className="min-w-[84px]">
-          <p className="text-[11px] uppercase tracking-[0.16em] text-muted">Timer</p>
+          <p className="text-[11px] uppercase tracking-[0.16em] text-muted">Reloj</p>
           <p className="font-mono text-sm font-semibold text-text">{compactTime}</p>
         </div>
 
@@ -141,7 +141,7 @@ export function GlobalTimer() {
           onClick={handleReset}
           disabled={isRunning || elapsedTime === 0}
         >
-          Reset
+          Reiniciar
         </Button>
       </div>
 

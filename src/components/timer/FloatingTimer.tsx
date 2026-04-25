@@ -1,7 +1,7 @@
 'use client'
 
 import { createPortal } from 'react-dom'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import {
   Clock3,
   EyeOff,
@@ -62,6 +62,7 @@ function playCompletionSound() {
 export function FloatingTimer() {
   const {
     isRunning,
+    startTime,
     elapsedTime,
     mode,
     minimized,
@@ -106,32 +107,58 @@ export function FloatingTimer() {
   }, [elapsedTime, formattedTime, isRunning])
   const mounted = typeof document !== 'undefined'
 
+  const loadTargets = useCallback(async () => {
+    setLoadingTargets(true)
+    const result = await getTimerTargets()
+    setLoadingTargets(false)
+
+    if (result.error) {
+      toast.error(result.error || 'Algo falló')
+      return false
+    }
+
+    setProjects(result.data?.projects ?? [])
+    setGoals(result.data?.goals ?? [])
+    return true
+  }, [])
+
   useEffect(() => {
     if (!dragState) return
 
     const activeDrag = dragState
 
-    function handleMove(event: MouseEvent) {
+    function applyPosition(clientX: number, clientY: number) {
       const panelRect = panelRef.current?.getBoundingClientRect()
       const panelWidth = panelRect?.width ?? (minimized ? 148 : 292)
       const panelHeight = panelRect?.height ?? (minimized ? 58 : 286)
 
       setPosition({
-        x: clamp(event.clientX - activeDrag.offsetX, 8, window.innerWidth - panelWidth - 22),
-        y: clamp(event.clientY - activeDrag.offsetY, 64, window.innerHeight - panelHeight - 8),
+        x: clamp(clientX - activeDrag.offsetX, 8, window.innerWidth - panelWidth - 22),
+        y: clamp(clientY - activeDrag.offsetY, 64, window.innerHeight - panelHeight - 8),
       })
     }
 
-    function handleUp() {
-      setDragState(null)
+    function handleMove(event: MouseEvent) {
+      applyPosition(event.clientX, event.clientY)
     }
+
+    function handleTouchMove(event: TouchEvent) {
+      event.preventDefault()
+      applyPosition(event.touches[0].clientX, event.touches[0].clientY)
+    }
+
+    function handleUp() { setDragState(null) }
 
     window.addEventListener('mousemove', handleMove)
     window.addEventListener('mouseup', handleUp)
+    window.addEventListener('touchmove', handleTouchMove, { passive: false })
+    window.addEventListener('touchend', handleUp)
 
     return () => {
       window.removeEventListener('mousemove', handleMove)
       window.removeEventListener('mouseup', handleUp)
+      window.removeEventListener('touchmove', handleTouchMove)
+      window.removeEventListener('touchend', handleUp)
     }
   }, [dragState, minimized, setPosition])
 
@@ -141,10 +168,19 @@ export function FloatingTimer() {
     lastFinishedRef.current = finishedAt
     setHidden(false)
     setMinimized(false)
-    toast.success('Tiempo terminado')
     playCompletionSound()
+
+    if (isCountdown && startTime) {
+      toast.success('¡Temporizador terminado!')
+      setTrackingSnapshot({ startTime, elapsedTime })
+      void loadTargets()
+      setSaveModalOpen(true)
+    } else {
+      toast.success('Tiempo terminado')
+    }
+
     clearFinished()
-  }, [clearFinished, finishedAt, setHidden, setMinimized])
+  }, [clearFinished, elapsedTime, finishedAt, isCountdown, loadTargets, setHidden, setMinimized, startTime])
 
   function openPanel() {
     setHidden(false)
@@ -190,32 +226,20 @@ export function FloatingTimer() {
     setMinimized(false)
   }
 
-  function handleDragStart(event: React.MouseEvent<HTMLDivElement>) {
+  function handleDragStart(event: React.MouseEvent<HTMLDivElement> | React.TouchEvent<HTMLDivElement>) {
     const target = event.target as HTMLElement
     if (target.closest('button, input, select, textarea, label')) return
 
     const panelRect = panelRef.current?.getBoundingClientRect()
     if (!panelRect) return
 
+    const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX
+    const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY
+
     setDragState({
-      offsetX: event.clientX - panelRect.left,
-      offsetY: event.clientY - panelRect.top,
+      offsetX: clientX - panelRect.left,
+      offsetY: clientY - panelRect.top,
     })
-  }
-
-  async function loadTargets() {
-    setLoadingTargets(true)
-    const result = await getTimerTargets()
-    setLoadingTargets(false)
-
-    if (result.error) {
-      toast.error(result.error || 'Algo falló')
-      return false
-    }
-
-    setProjects(result.data?.projects ?? [])
-    setGoals(result.data?.goals ?? [])
-    return true
   }
 
   async function handleStop() {
@@ -309,6 +333,7 @@ export function FloatingTimer() {
           {minimized ? (
             <div
               onMouseDown={handleDragStart}
+              onTouchStart={handleDragStart}
               className="flex cursor-grab items-center gap-2 rounded-2xl px-3 py-2.5"
             >
               <button
@@ -321,7 +346,7 @@ export function FloatingTimer() {
               <div className="min-w-0 flex-1">
                 <p className="font-mono text-sm font-semibold text-text">{formattedTime}</p>
                 <p className="text-[10px] uppercase tracking-[0.14em] text-muted">
-                  {isCountdown ? 'Countdown' : 'Tracking'}
+                  {isCountdown ? 'Regresivo' : 'Seguimiento'}
                 </p>
               </div>
               <button
@@ -336,6 +361,7 @@ export function FloatingTimer() {
             <div className="animate-scale-in p-3.5">
               <div
                 onMouseDown={handleDragStart}
+                onTouchStart={handleDragStart}
                 className={[
                   'mb-3 flex items-center justify-between gap-3 rounded-xl px-1 py-1',
                   dragState ? 'cursor-grabbing' : 'cursor-grab',
@@ -346,7 +372,7 @@ export function FloatingTimer() {
                     {isCountdown ? <TimerReset size={16} /> : <Clock3 size={16} />}
                   </span>
                   <div>
-                    <p className="text-xs uppercase tracking-[0.16em] text-muted">Time system</p>
+                    <p className="text-xs uppercase tracking-[0.16em] text-muted">Sistema de tiempo</p>
                     <p className="text-sm font-semibold text-text">
                       {isCountdown ? 'Temporizador' : 'Time tracking'}
                     </p>
@@ -384,7 +410,7 @@ export function FloatingTimer() {
                     isRunning ? 'cursor-not-allowed opacity-60' : '',
                   ].join(' ')}
                 >
-                  Tracking
+                  Seguimiento
                 </button>
                 <button
                   type="button"
@@ -398,7 +424,7 @@ export function FloatingTimer() {
                     isRunning ? 'cursor-not-allowed opacity-60' : '',
                   ].join(' ')}
                 >
-                  Countdown
+                  Regresivo
                 </button>
               </div>
 
@@ -473,7 +499,7 @@ export function FloatingTimer() {
                   onClick={handleReset}
                   disabled={isRunning || elapsedTime === 0}
                 >
-                  Reset
+                  Reiniciar
                 </Button>
               </div>
             </div>
