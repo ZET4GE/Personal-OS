@@ -5,6 +5,7 @@ import type { TimerState } from '@/types/time-entries'
 
 const TIMER_STORAGE_KEY = 'winf:floating-timer:v2'
 const LEGACY_TIMER_STORAGE_KEY = 'personal-os:floating-timer:v2'
+const IDLE_THRESHOLD = 30 * 60 * 1000 // 30 min — beyond this we don't trust startTime
 
 function getDefaultPosition() {
   if (typeof window === 'undefined') {
@@ -43,25 +44,35 @@ function getStoredTimerState(): TimerState {
   if (!raw) return baseState
 
   try {
-    const parsed = JSON.parse(raw) as Partial<TimerState>
+    const parsed = JSON.parse(raw) as Partial<TimerState> & { savedAt?: number }
     const countdownMinutes = Math.max(1, parsed.countdownMinutes ?? baseState.countdownMinutes)
     const countdownDuration = parsed.countdownDuration ?? countdownMinutes * 60 * 1000
     const startTime = parsed.startTime ?? null
     const elapsedTime = parsed.elapsedTime ?? 0
     const mode = parsed.mode === 'countdown' ? 'countdown' : 'tracking'
     const finishedAt = parsed.finishedAt ?? null
+    const savedAt = parsed.savedAt ?? null
 
     let normalizedElapsed = elapsedTime
     let normalizedRunning = parsed.isRunning ?? false
     let normalizedFinishedAt = finishedAt
 
     if (normalizedRunning && startTime) {
-      normalizedElapsed = Date.now() - startTime
-
-      if (mode === 'countdown' && normalizedElapsed >= countdownDuration) {
-        normalizedElapsed = countdownDuration
+      // If the state is stale (app was closed too long), stop the timer and
+      // keep the elapsed value from when it was last saved instead of
+      // recalculating from startTime — which would produce 17h+ readings.
+      const stale = savedAt !== null && Date.now() - savedAt > IDLE_THRESHOLD
+      if (stale) {
         normalizedRunning = false
-        normalizedFinishedAt = finishedAt ?? Date.now()
+        // normalizedElapsed stays as the stored elapsedTime
+      } else {
+        normalizedElapsed = Date.now() - startTime
+
+        if (mode === 'countdown' && normalizedElapsed >= countdownDuration) {
+          normalizedElapsed = countdownDuration
+          normalizedRunning = false
+          normalizedFinishedAt = finishedAt ?? Date.now()
+        }
       }
     }
 
@@ -99,7 +110,7 @@ export function useTimer() {
 
   useEffect(() => {
     if (typeof window === 'undefined') return
-    window.localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(timer))
+    window.localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify({ ...timer, savedAt: Date.now() }))
     window.localStorage.removeItem(LEGACY_TIMER_STORAGE_KEY)
   }, [timer])
 

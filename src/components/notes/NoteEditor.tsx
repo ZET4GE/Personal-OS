@@ -64,6 +64,7 @@ export function NoteEditor({ note }: Props) {
   const [tagInput, setTagInput] = useState(note.tags.join(', '))
   const [showTags, setShowTags] = useState(note.tags.length > 0)
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const tagsRef = useRef<string[]>(note.tags)
   const [, start] = useTransition()
 
   // Reset when note changes
@@ -71,6 +72,7 @@ export function NoteEditor({ note }: Props) {
     setTitle(note.title)
     setContent(note.content)
     setTagInput(note.tags.join(', '))
+    tagsRef.current = note.tags
     setShowTags(note.tags.length > 0)
     setSaved(true)
   }, [note.id, note.title, note.content, note.tags])
@@ -80,7 +82,7 @@ export function NoteEditor({ note }: Props) {
     setSaved(false)
     debounceRef.current = setTimeout(async () => {
       setSaving(true)
-      await autoSaveNoteAction(note.id, t, c)
+      await autoSaveNoteAction(note.id, t, c, tagsRef.current)
       setSaving(false)
       setSaved(true)
     }, 1000)
@@ -253,7 +255,12 @@ export function NoteEditor({ note }: Props) {
         <div className="border-b border-border px-4 py-2 space-y-2">
           <input
             value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
+            onChange={(e) => {
+              const v = e.target.value
+              setTagInput(v)
+              tagsRef.current = v.split(',').map((s) => s.trim()).filter(Boolean)
+              triggerSave(title, content)
+            }}
             placeholder={t('tagsPlaceholder')}
             className="w-full bg-transparent text-xs text-muted placeholder:text-muted/40 outline-none"
           />

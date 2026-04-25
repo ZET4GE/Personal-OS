@@ -195,12 +195,13 @@ export async function autoSaveNoteAction(
   id: string,
   title: string,
   content: string,
+  tags: string[] = [],
 ): Promise<{ ok?: true; error?: string }> {
   const { supabase, user } = await getAuthed()
 
   const { error } = await supabase
     .from('notes')
-    .update({ title, content })
+    .update({ title, content, tags })
     .eq('id', id)
     .eq('user_id', user.id)
 
