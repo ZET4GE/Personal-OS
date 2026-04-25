@@ -24,18 +24,34 @@ const GAP = 14
 const STEPS = [
   {
     target: '[data-tour="nav-goals"]',
-    title: 'Empeza por Metas',
+    title: 'Empezá por Metas',
     description:
-      'Este es el centro de WINF. Aca creas o elegis la meta activa que ordena todo lo demas.',
+      'Este es el centro de WINF. Acá creás o elegís la meta activa que ordena todo lo demás.',
     actionLabel: 'Abrir metas',
     actionHref: '/goals',
   },
   {
+    target: '[data-tour="goals-new-btn"]',
+    title: 'Creá tu primera meta',
+    description:
+      'Tocá "+ Nueva meta" para definir qué querés lograr. Una sola meta activa es suficiente para empezar.',
+    actionLabel: 'Crear meta',
+    actionHref: '/goals/new',
+  },
+  {
     target: '[data-tour="nav-roadmaps"]',
-    title: 'Converti la meta en camino',
+    title: 'Convertí la meta en camino',
     description:
       'Roadmaps sirve para partir una meta grande en pasos. No es otra app: es el mapa para avanzar.',
     actionLabel: 'Abrir roadmaps',
+    actionHref: '/roadmaps',
+  },
+  {
+    target: '[data-tour="roadmaps-create"]',
+    title: 'Creá tu primer roadmap',
+    description:
+      'Escribí el nombre del roadmap y elegí un tipo. En el paso 2 elegís la plantilla y la meta que va a guiarlo.',
+    actionLabel: 'Ir a roadmaps',
     actionHref: '/roadmaps',
   },
   {

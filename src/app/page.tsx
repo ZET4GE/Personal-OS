@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 import { Navbar }         from '@/components/landing/Navbar'
 import { LandingBackground } from '@/components/landing/LandingBackground'
 import { Hero }           from '@/components/landing/Hero'
+import { HowItWorks }     from '@/components/landing/HowItWorks'
 import { SocialProof }    from '@/components/landing/SocialProof'
 import { FeaturesGrid }   from '@/components/landing/FeaturesGrid'
 import { ProfilePreview } from '@/components/landing/ProfilePreview'
@@ -61,7 +62,10 @@ export default async function HomePage({
         {/* 1. Hero */}
         <Hero />
 
-        {/* 2. Social proof strip */}
+        {/* 2. Cómo funciona */}
+        <HowItWorks />
+
+        {/* 3. Social proof strip */}
         <SocialProof />
 
         {/* 3. Product demo */}

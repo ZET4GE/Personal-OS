@@ -74,6 +74,7 @@ export default async function GoalsPage({
         </div>
         <Link
           href="/goals/new"
+          data-tour="goals-new-btn"
           className="flex items-center gap-2 rounded-lg bg-accent-600 px-4 py-2.5 text-sm font-medium text-white shadow-sm shadow-accent-600/20 transition-all hover:bg-accent-700 hover:shadow-md hover:-translate-y-0.5"
         >
           <Plus size={15} />

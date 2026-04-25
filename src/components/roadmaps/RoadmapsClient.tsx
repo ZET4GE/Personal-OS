@@ -425,7 +425,7 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals, node
 
             {step === 1 ? (
               <div className="space-y-4">
-                <div className="grid gap-3 sm:grid-cols-2">
+                <div className="grid gap-3 sm:grid-cols-2" data-tour="roadmaps-create">
                   <input
                     value={title}
                     onChange={(event) => setTitle(event.target.value)}
