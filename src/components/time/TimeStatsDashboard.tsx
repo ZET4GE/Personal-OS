@@ -39,7 +39,7 @@ function MetricCard({
   helper?: string
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)]">
+    <div className="app-card p-4">
       <p className="text-xs uppercase tracking-[0.16em] text-muted">{label}</p>
       <p className="mt-2 text-2xl font-semibold tracking-tight text-text">{value}</p>
       {helper ? <p className="mt-1 text-xs text-muted">{helper}</p> : null}
@@ -59,7 +59,7 @@ function InsightCard({
   helper: string
 }) {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-4 shadow-[var(--shadow-card)]">
+    <div className="app-card p-4">
       <div className="flex items-start gap-3">
         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-accent-600/10 text-accent-500">
           {icon}
@@ -78,7 +78,7 @@ function DailyChart({ items }: { items: TimeStatsDailyItem[] }) {
   const max = Math.max(...items.map((item) => item.totalSeconds), 1)
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
+    <div className="app-card p-5">
       <div className="mb-5 flex items-center justify-between">
         <div>
           <h2 className="text-sm font-semibold text-text">Semana productiva</h2>
@@ -122,7 +122,7 @@ function BreakdownList({
   const max = Math.max(...items.map((item) => item.totalSeconds), 1)
 
   return (
-    <div className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
+    <div className="app-card p-5">
       <div className="mb-4 flex items-center gap-2">
         <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent-600/10 text-accent-500">
           {icon}
@@ -175,7 +175,7 @@ export async function TimeStatsDashboard({ userId }: TimeStatsDashboardProps) {
     <div className="space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-sm text-muted">Time Tracking Pro</p>
+          <p className="text-sm text-muted">Seguimiento de tiempo</p>
           <h1 className="text-2xl font-semibold tracking-tight text-text">Productividad real</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-muted">
             Revisa donde se fue tu tiempo, que metas recibieron avance y que sesiones quedaron sin asignar.
@@ -246,7 +246,7 @@ export async function TimeStatsDashboard({ userId }: TimeStatsDashboardProps) {
         </div>
       </div>
 
-      <section className="rounded-2xl border border-border bg-surface p-5 shadow-[var(--shadow-card)]">
+      <section className="app-card p-5">
         <div className="mb-4 flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-accent-600/10 text-accent-500">
             <TimerReset size={16} />

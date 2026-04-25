@@ -40,7 +40,7 @@ export function AnalyticsCard({ label, value, sub, icon: Icon, change, accent }:
             'flex h-8 w-8 items-center justify-center rounded-lg',
             accent
               ? 'bg-accent-600 text-white'
-              : 'bg-slate-100 text-slate-500 dark:bg-slate-800',
+              : 'bg-surface-elevated text-muted',
           ].join(' ')}
         >
           <Icon size={15} />

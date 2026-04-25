@@ -39,7 +39,7 @@ function RangeTab({ days, active, label }: { days: DateRange; active: boolean; l
         'rounded-full px-3 py-1 text-xs font-medium transition-colors',
         active
           ? 'bg-accent-600 text-white'
-          : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700',
+          : 'bg-surface-elevated text-muted hover:bg-surface-hover',
       ].join(' ')}
     >
       {label}
@@ -124,7 +124,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
         <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted">
           Visitas por día
         </h3>
-        <div className="rounded-xl border border-border bg-surface p-4">
+        <div className="app-card p-4">
           {totalViews === 0 ? (
             <p className="py-10 text-center text-sm text-muted">
               Aún no hay visitas registradas.
@@ -142,7 +142,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
           <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted">
             Por sección
           </h3>
-          <div className="rounded-xl border border-border bg-surface p-5 space-y-4">
+          <div className="app-card p-5 space-y-4">
             {(
               [
                 { type: 'profile' as const, icon: Users },
@@ -154,7 +154,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
               const pct   = totalViews > 0 ? Math.round((count / totalViews) * 100) : 0
               return (
                 <div key={type} className="flex items-center gap-3">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-slate-100 dark:bg-slate-800">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-surface-elevated">
                     <Icon size={14} className="text-muted" />
                   </span>
                   <div className="flex-1">
@@ -162,7 +162,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
                       <span className="font-medium">{PAGE_TYPE_LABELS[type]}</span>
                       <span className="text-muted">{count.toLocaleString()} ({pct}%)</span>
                     </div>
-                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+                    <div className="h-1.5 w-full overflow-hidden rounded-full bg-surface-elevated">
                       <div
                         className="h-full rounded-full bg-accent-600 transition-all"
                         style={{ width: `${pct}%` }}
@@ -184,7 +184,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
           <h3 className="mb-4 text-xs font-semibold uppercase tracking-widest text-muted">
             Top proyectos
           </h3>
-          <div className="rounded-xl border border-border bg-surface p-5">
+          <div className="app-card p-5">
             <TopProjectsTable projects={topProjects} username={username} />
           </div>
         </section>
