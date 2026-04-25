@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import type { ElementType } from 'react'
 import { useRouter } from 'next/navigation'
-import { BookOpen, BriefcaseBusiness, GitBranch, Globe2, Lock, Pencil, Plus, Save, Sparkles, Target, Trash2, X, Zap } from 'lucide-react'
+import { ArrowRight, BookOpen, BriefcaseBusiness, ChevronLeft, GitBranch, Globe2, Lock, Pencil, Plus, Save, Sparkles, Target, Trash2, X, Zap } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { TagSelector } from '@/components/tags/TagSelector'
@@ -122,26 +122,6 @@ function getRoadmapTemplateLabel(template: LearningRoadmapTemplate | null | unde
   return ROADMAP_TEMPLATES.find((item) => item.value === template)?.label ?? 'En blanco'
 }
 
-function getRoadmapTypeHelp(type: LearningRoadmapType) {
-  if (type === 'goal_based') {
-    return {
-      title: 'Modo recomendado para WINF',
-      body: 'Requiere una meta principal. Cada nodo puede crear sub-metas, habitos, rutinas o proyectos para alimentar progreso.',
-    }
-  }
-
-  if (type === 'structured') {
-    return {
-      title: 'Modo para aprendizaje guiado',
-      body: 'Ordena nodos por niveles. Las conexiones indican que un paso depende de otro, pero no exige una meta principal.',
-    }
-  }
-
-  return {
-    title: 'Modo flexible',
-    body: 'No impone orden. Ideal para pensar, mover nodos libremente y conectar ideas manualmente en el canvas.',
-  }
-}
 
 export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals, nodeSummary, plan }: RoadmapsClientProps) {
   const [roadmaps, setRoadmaps] = useState(initialRoadmaps)
@@ -156,9 +136,9 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals, node
   const [editType, setEditType] = useState<LearningRoadmapType>('free')
   const [editPrimaryGoalId, setEditPrimaryGoalId] = useState('')
   const [isSaving, setIsSaving] = useState(false)
+  const [step, setStep] = useState<1 | 2>(1)
   const router = useRouter()
   const supabase = createClient()
-  const selectedTypeHelp = getRoadmapTypeHelp(type)
   const isAtLimit = plan === 'free' && roadmaps.length >= FREE_ROADMAP_LIMIT
 
   async function getCurrentUserId() {
@@ -283,6 +263,7 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals, node
     setTemplate('skill')
     setPrimaryGoalId('')
     setIsSaving(false)
+    setStep(1)
     toast.success('Roadmap creado')
     router.push(`/roadmaps/${newRoadmap.id}`)
     router.refresh()
@@ -409,25 +390,9 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals, node
   return (
     <div className="space-y-6">
       <section className="app-card rounded-2xl p-5 shadow-[var(--shadow-card)]">
-        <div className="mb-5 flex flex-col gap-2">
-          <div className="flex items-center gap-2">
-            <Target size={17} className="text-cyan-400" />
-            <h1 className="text-xl font-semibold text-text">Roadmaps guiados por metas</h1>
-          </div>
-          <p className="max-w-3xl text-sm leading-6 text-muted">
-            Crea un camino accionable: meta principal, plantilla inicial, nodos, habitos, rutinas y tiempo invertido.
-          </p>
-        </div>
-
-        <div className="mb-5 grid gap-3 lg:grid-cols-5">
-          {['Meta', 'Roadmap', 'Sub-metas', 'Habitos', 'Rutina'].map((item, index) => (
-            <div key={item} className="rounded-xl border border-border bg-surface-elevated px-3 py-3">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
-                Paso {index + 1}
-              </p>
-              <p className="mt-1 text-sm font-semibold text-text">{item}</p>
-            </div>
-          ))}
+        <div className="mb-5 flex items-center gap-2">
+          <Target size={17} className="text-cyan-400" />
+          <h1 className="text-xl font-semibold text-text">Nuevo roadmap</h1>
         </div>
 
         {isAtLimit ? (
@@ -446,111 +411,151 @@ export function RoadmapsClient({ roadmaps: initialRoadmaps, availableGoals, node
             </a>
           </div>
         ) : (
-          <div className="grid gap-3 lg:grid-cols-[1fr_1fr_auto]">
-            <input
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder="Ej: Conseguir 3 clientes freelance"
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
-            />
-            <input
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder="Resultado esperado y contexto"
-              className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
-            />
-            <button
-              type="button"
-              onClick={handleCreateRoadmap}
-              disabled={isSaving || !title.trim()}
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent-600 px-4 py-2.5 text-sm font-medium text-white transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              <Plus size={14} />
-              {isSaving ? 'Creando...' : 'Crear roadmap'}
-            </button>
+          <div className="space-y-5">
+            {/* Indicador de paso */}
+            <div className="flex items-center gap-2 text-xs">
+              <span className={step === 1 ? 'font-semibold text-accent-400' : 'text-muted'}>
+                1. Nombre y tipo
+              </span>
+              <span className="text-muted">→</span>
+              <span className={step === 2 ? 'font-semibold text-accent-400' : 'text-muted'}>
+                2. Template y meta
+              </span>
+            </div>
+
+            {step === 1 ? (
+              <div className="space-y-4">
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <input
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
+                    placeholder="Nombre del roadmap"
+                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
+                  />
+                  <input
+                    value={description}
+                    onChange={(event) => setDescription(event.target.value)}
+                    placeholder="Descripción (opcional)"
+                    className="w-full rounded-xl border border-border bg-surface-elevated px-3 py-2.5 text-sm text-text outline-none transition-colors focus:border-accent-500"
+                  />
+                </div>
+
+                <div className="grid gap-2 md:grid-cols-3">
+                  {ROADMAP_TYPES.map((item) => {
+                    const isSelected = type === item.value
+                    return (
+                      <button
+                        key={item.value}
+                        type="button"
+                        onClick={() => setType(item.value)}
+                        className={[
+                          'rounded-xl border px-4 py-3 text-left transition-all hover:scale-[1.01]',
+                          isSelected
+                            ? 'border-cyan-500/60 bg-cyan-500/10 text-cyan-100'
+                            : 'border-border bg-surface-elevated text-muted hover:text-text',
+                        ].join(' ')}
+                      >
+                        <p className="text-sm font-semibold">{item.label}</p>
+                        <p className="mt-1 text-xs leading-5 opacity-80">{item.desc}</p>
+                      </button>
+                    )
+                  })}
+                </div>
+
+                <div className="flex justify-end">
+                  <button
+                    type="button"
+                    onClick={() => setStep(2)}
+                    disabled={!title.trim()}
+                    className="inline-flex items-center gap-2 rounded-xl bg-accent-600 px-4 py-2.5 text-sm font-medium text-white transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    Siguiente <ArrowRight size={14} />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {/* Resumen paso 1 */}
+                <div className="flex items-center gap-3 rounded-xl border border-border bg-surface-elevated px-4 py-3">
+                  <div className="flex-1 min-w-0">
+                    <p className="truncate text-sm font-semibold text-text">{title}</p>
+                    {description && <p className="mt-0.5 truncate text-xs text-muted">{description}</p>}
+                  </div>
+                  <span className="shrink-0 rounded-full bg-cyan-500/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-400">
+                    {ROADMAP_TYPES.find((t) => t.value === type)?.label}
+                  </span>
+                </div>
+
+                {/* Template */}
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted">Template inicial</p>
+                  <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-5">
+                    {ROADMAP_TEMPLATES.map((item) => {
+                      const Icon = item.icon
+                      const isSelected = template === item.value
+                      return (
+                        <button
+                          key={item.value}
+                          type="button"
+                          onClick={() => setTemplate(item.value)}
+                          className={[
+                            'rounded-xl border p-3 text-left transition-all hover:scale-[1.01]',
+                            isSelected
+                              ? 'border-accent-500/60 bg-accent-500/10 text-text'
+                              : 'border-border bg-surface-elevated text-muted hover:text-text',
+                          ].join(' ')}
+                        >
+                          <Icon size={15} className="mb-2 text-cyan-400" />
+                          <p className="text-sm font-semibold">{item.label}</p>
+                          <p className="mt-1 text-xs leading-5 opacity-75">{item.desc}</p>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+
+                {/* Meta principal */}
+                <div>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted">
+                    Meta principal{type === 'goal_based' ? ' (requerida)' : ' (opcional)'}
+                  </p>
+                  <select
+                    value={primaryGoalId}
+                    onChange={(event) => setPrimaryGoalId(event.target.value)}
+                    className={[
+                      'w-full rounded-xl border bg-zinc-950 px-3 py-2.5 text-sm text-text outline-none focus:border-accent-500 [&>option]:bg-zinc-950',
+                      type === 'goal_based' && !primaryGoalId ? 'border-amber-500/60' : 'border-border',
+                    ].join(' ')}
+                  >
+                    <option value="">Sin meta principal</option>
+                    {availableGoals.map((goal) => (
+                      <option key={goal.id} value={goal.id}>{goal.title}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setStep(1)}
+                    className="inline-flex items-center gap-1.5 rounded-xl border border-border px-4 py-2.5 text-sm font-medium text-muted transition-colors hover:text-text"
+                  >
+                    <ChevronLeft size={14} /> Atrás
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleCreateRoadmap}
+                    disabled={isSaving || !title.trim()}
+                    className="inline-flex items-center gap-2 rounded-xl bg-accent-600 px-4 py-2.5 text-sm font-medium text-white transition-all hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    <Plus size={14} />
+                    {isSaving ? 'Creando...' : 'Crear roadmap'}
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
-
-        <div className="mt-4 grid gap-3 lg:grid-cols-[1fr_2fr]">
-          <div className="rounded-xl border border-border bg-surface-elevated p-3">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted">Meta principal</p>
-            <select
-              value={primaryGoalId}
-              onChange={(event) => setPrimaryGoalId(event.target.value)}
-              className={[
-                'w-full rounded-xl border bg-zinc-950 px-3 py-2.5 text-sm text-text outline-none focus:border-accent-500 [&>option]:bg-zinc-950',
-                type === 'goal_based' && !primaryGoalId ? 'border-amber-500/60' : 'border-border',
-              ].join(' ')}
-            >
-              <option value="">Sin meta principal</option>
-              {availableGoals.map((goal) => (
-                <option key={goal.id} value={goal.id}>{goal.title}</option>
-              ))}
-            </select>
-            <p className="mt-2 text-xs leading-5 text-muted">
-              {type === 'goal_based'
-                ? 'Obligatorio: este modo necesita una meta para tener direccion y progreso real.'
-                : 'Opcional: elegi una meta si queres conectar este camino con un objetivo.'}
-            </p>
-          </div>
-
-          <div className="grid gap-2 md:grid-cols-3">
-            {ROADMAP_TYPES.map((item) => {
-              const isSelected = type === item.value
-
-              return (
-                <button
-                  key={item.value}
-                  type="button"
-                  onClick={() => setType(item.value)}
-                  className={[
-                    'rounded-xl border px-4 py-3 text-left transition-all hover:scale-[1.01]',
-                    isSelected
-                      ? 'border-cyan-500/60 bg-cyan-500/10 text-cyan-100'
-                      : 'border-border bg-surface-elevated text-muted hover:text-text',
-                  ].join(' ')}
-                >
-                  <p className="text-sm font-semibold">{item.label}</p>
-                  <p className="mt-1 text-xs leading-5 opacity-80">{item.desc}</p>
-                  <p className="mt-2 text-[11px] leading-4 opacity-60">{item.example}</p>
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        <div className="mt-3 rounded-xl border border-cyan-500/20 bg-cyan-500/10 px-4 py-3">
-          <p className="text-sm font-semibold text-cyan-100">{selectedTypeHelp.title}</p>
-          <p className="mt-1 text-sm leading-6 text-cyan-100/70">{selectedTypeHelp.body}</p>
-        </div>
-
-        <div className="mt-4">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-muted">Template inicial</p>
-          <div className="grid gap-2 md:grid-cols-5">
-            {ROADMAP_TEMPLATES.map((item) => {
-              const Icon = item.icon
-              const isSelected = template === item.value
-
-              return (
-                <button
-                  key={item.value}
-                  type="button"
-                  onClick={() => setTemplate(item.value)}
-                  className={[
-                    'rounded-xl border p-3 text-left transition-all hover:scale-[1.01]',
-                    isSelected
-                      ? 'border-accent-500/60 bg-accent-500/10 text-text'
-                      : 'border-border bg-surface-elevated text-muted hover:text-text',
-                  ].join(' ')}
-                >
-                  <Icon size={15} className="mb-2 text-cyan-400" />
-                  <p className="text-sm font-semibold">{item.label}</p>
-                  <p className="mt-1 text-xs leading-5 opacity-75">{item.desc}</p>
-                </button>
-              )
-            })}
-          </div>
-        </div>
       </section>
 
       {roadmaps.length === 0 ? (
