@@ -1,8 +1,7 @@
 import { Document, Page, Text, View, Link } from '@react-pdf/renderer'
 import { styles } from './PDFStyles'
-import { SKILL_CATEGORY_LABELS } from '@/types/cv'
+import { SKILL_CATEGORY_LABELS, SKILL_LEVEL_QUALITATIVE_LABELS } from '@/types/cv'
 import type { WorkExperience, Education, Skill, SkillCategory, CVCourse, CVProject } from '@/types/cv'
-import { CV_AVAILABILITY_LABELS } from '@/types/profile'
 import type { Profile } from '@/types/profile'
 
 // ─────────────────────────────────────────────────────────────
@@ -28,20 +27,6 @@ function fmt(dateStr: string): string {
   )
 }
 
-function fmtBirthDate(dateStr: string): string {
-  return new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(
-    new Date(dateStr + 'T00:00:00'),
-  )
-}
-
-function calcAge(birthDateStr: string): number {
-  const today = new Date()
-  const birth = new Date(birthDateStr + 'T00:00:00')
-  let age = today.getFullYear() - birth.getFullYear()
-  const m = today.getMonth() - birth.getMonth()
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
-  return age
-}
 
 function expDateRange(exp: WorkExperience): string {
   const start = fmt(exp.start_date)
@@ -276,11 +261,8 @@ export function CVDocument({ profile, experience, education, skills, courses, pr
             {profile.phone ? (
               <Text style={styles.contactItem}>{profile.phone}</Text>
             ) : null}
-            {profile.birth_date ? (
-              <Text style={styles.contactItem}>{fmtBirthDate(profile.birth_date)} · {calcAge(profile.birth_date)} años</Text>
-            ) : null}
-            {profile.availability ? (
-              <Text style={styles.contactItem}>{CV_AVAILABILITY_LABELS[profile.availability]}</Text>
+            {false ? (
+              <Text style={styles.contactItem} />
             ) : null}
             {profile.website ? (
               <Link src={profile.website} style={styles.contactItem}>

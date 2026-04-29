@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────────
-// Skill categories & levels
+// Skill categories & qualitative levels
 // ─────────────────────────────────────────────────────────────
 
 export const SKILL_CATEGORIES = ['technical', 'soft', 'language', 'tool'] as const
@@ -25,24 +25,13 @@ export const SKILL_CATEGORY_LABELS_BY_LANGUAGE: Record<CVLanguage, Record<SkillC
   },
 }
 
-export const SKILL_LEVELS = ['beginner', 'intermediate', 'advanced', 'expert'] as const
-export type SkillLevel = (typeof SKILL_LEVELS)[number]
+export const SKILL_LEVELS_QUALITATIVE = ['solid', 'operative', 'learning'] as const
+export type SkillLevelQualitative = (typeof SKILL_LEVELS_QUALITATIVE)[number]
 
-export const SKILL_LEVEL_LABELS: Record<SkillLevel, string> = {
-  beginner:     'Principiante',
-  intermediate: 'Intermedio',
-  advanced:     'Avanzado',
-  expert:       'Experto',
-}
-
-export const SKILL_LEVEL_LABELS_BY_LANGUAGE: Record<CVLanguage, Record<SkillLevel, string>> = {
-  es: SKILL_LEVEL_LABELS,
-  en: {
-    beginner:     'Beginner',
-    intermediate: 'Intermediate',
-    advanced:     'Advanced',
-    expert:       'Expert',
-  },
+export const SKILL_LEVEL_QUALITATIVE_LABELS: Record<SkillLevelQualitative, string> = {
+  solid:     'Sólido',
+  operative: 'Operativo',
+  learning:  'En aprendizaje',
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -55,7 +44,7 @@ export interface WorkExperience {
   company:     string
   role:        string
   description: string | null
-  start_date:  string   // ISO date string (YYYY-MM-DD)
+  start_date:  string
   end_date:    string | null
   is_current:  boolean
   location:    string | null
@@ -77,30 +66,31 @@ export interface Education {
 }
 
 export interface Skill {
-  id:          string
-  user_id:     string
-  name:        string
-  category:    SkillCategory
-  subcategory: string | null
-  level:       SkillLevel | null
-  level_pct:   number | null
-  is_top:      boolean
-  evidence:    string | null
+  id:           string
+  user_id:      string
+  name:         string
+  category:     SkillCategory
+  subcategory:  string | null
+  skill_level:  SkillLevelQualitative | null
+  is_top:       boolean
+  evidence:     string | null
   evidence_url: string | null
-  keywords:    string[]
-  order_index: number
+  keywords:     string[]
+  order_index:  number
 }
 
 export interface CVCourse {
-  id:             string
-  user_id:        string
-  title:          string
-  provider:       string | null
-  credential_url: string | null
-  completed_at:   string | null
-  description:    string | null
-  order_index:    number
-  created_at:     string
+  id:                       string
+  user_id:                  string
+  title:                    string
+  provider:                 string | null
+  credential_url:           string | null
+  completed_at:             string | null
+  description:              string | null
+  is_in_progress:           boolean
+  expected_completion_date: string | null
+  order_index:              number
+  created_at:               string
 }
 
 export interface CVProject {
@@ -116,24 +106,34 @@ export interface CVProject {
   created_at:  string
 }
 
+export interface CVHighlight {
+  id:          string
+  user_id:     string
+  icon:        string | null
+  title:       string
+  body:        string | null
+  order_index: number
+  created_at:  string
+}
+
 export interface DynamicCVExperience {
-  id: string
-  title: string
-  description: string | null
+  id:           string
+  title:        string
+  description:  string | null
   completed_at: string | null
 }
 
 export interface DynamicCVProject {
-  id: string
-  title: string
-  description: string | null
+  id:           string
+  title:        string
+  description:  string | null
   is_completed: boolean
 }
 
 export interface DynamicCV {
   experience: DynamicCVExperience[]
-  projects: DynamicCVProject[]
-  skills: Skill[]
+  projects:   DynamicCVProject[]
+  skills:     Skill[]
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -163,4 +163,9 @@ export type CVCourseActionResult =
 export type CVProjectActionResult =
   | { error: string; item?: never }
   | { item: CVProject; error?: never }
+  | { ok: true; error?: never }
+
+export type CVHighlightActionResult =
+  | { error: string; item?: never }
+  | { item: CVHighlight; error?: never }
   | { ok: true; error?: never }

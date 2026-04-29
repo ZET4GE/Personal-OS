@@ -1,13 +1,18 @@
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { BookOpen, Calendar, Clock, FolderGit2, Flag, MapPin, GitBranch, ExternalLink, Briefcase, GraduationCap, Phone, Star, Zap, ChevronRight } from 'lucide-react'
+import {
+  BookOpen, FolderGit2, Flag, MapPin, GitBranch, ExternalLink,
+  Briefcase, GraduationCap, Phone, Star, Zap, ChevronRight,
+  Car, Plane, User, Sparkles, Clock,
+} from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getProfileByUsername } from '@/services/profiles'
-import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects } from '@/services/cv'
-import { SKILL_CATEGORY_LABELS } from '@/types/cv'
-import type { WorkExperience, Education, Skill, SkillCategory, CVCourse, CVProject } from '@/types/cv'
-import { CV_AVAILABILITY_LABELS } from '@/types/profile'
+import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects, getCVHighlights } from '@/services/cv'
+import { SKILL_CATEGORY_LABELS, SKILL_LEVEL_QUALITATIVE_LABELS } from '@/types/cv'
+import { WORK_TYPE_LABELS } from '@/types/profile'
+import type { WorkExperience, Education, Skill, SkillCategory, CVCourse, CVProject, CVHighlight, SkillLevelQualitative } from '@/types/cv'
+import type { Profile } from '@/types/profile'
 import { CVDownloadSection } from '@/components/cv/pdf/CVDownloadSection'
 import { TrackingPixel } from '@/components/analytics/TrackingPixel'
 
@@ -36,6 +41,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     openGraph: {
       title: `CV · ${displayName}`,
       description: profile.bio ?? undefined,
+      images: profile.avatar_url ? [{ url: profile.avatar_url }] : [],
       type: 'profile',
     },
   }
@@ -51,17 +57,8 @@ function formatMonthYear(dateStr: string): string {
   )
 }
 
-function calcAge(birthDateStr: string): number {
-  const today = new Date()
-  const birth = new Date(birthDateStr + 'T00:00:00')
-  let age = today.getFullYear() - birth.getFullYear()
-  const m = today.getMonth() - birth.getMonth()
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
-  return age
-}
-
 // ─────────────────────────────────────────────────────────────
-// Sub-components
+// Shared UI
 // ─────────────────────────────────────────────────────────────
 
 function SectionTitle({ icon: Icon, label }: { icon: React.FC<{ size?: number; className?: string }>; label: string }) {
@@ -70,6 +67,52 @@ function SectionTitle({ icon: Icon, label }: { icon: React.FC<{ size?: number; c
       <Icon size={16} className="text-muted" />
       <h2 className="text-xs font-semibold uppercase tracking-widest text-muted">{label}</h2>
     </div>
+  )
+}
+
+function SkillLevelBadge({ level }: { level: SkillLevelQualitative | null }) {
+  if (!level) return null
+  const styles: Record<SkillLevelQualitative, string> = {
+    solid:     'bg-accent-500/10 text-accent-600 dark:text-accent-400',
+    operative: 'bg-amber-500/10 text-amber-600 dark:text-amber-400',
+    learning:  'bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300',
+  }
+  return (
+    <span className={`rounded-full px-2 py-0.5 text-[10px] font-medium ${styles[level]}`}>
+      {SKILL_LEVEL_QUALITATIVE_LABELS[level]}
+    </span>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────
+// Sections
+// ─────────────────────────────────────────────────────────────
+
+function AboutSection({ about }: { about: string | null }) {
+  if (!about) return null
+  return (
+    <section>
+      <SectionTitle icon={User} label="Sobre mí" />
+      <p className="leading-relaxed text-muted whitespace-pre-line">{about}</p>
+    </section>
+  )
+}
+
+function HighlightsSection({ items }: { items: CVHighlight[] }) {
+  if (items.length === 0) return null
+  return (
+    <section>
+      <SectionTitle icon={Sparkles} label="Destacados" />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
+        {items.map((h) => (
+          <div key={h.id} className="rounded-xl border border-border bg-surface p-4">
+            {h.icon && <p className="mb-2 text-2xl">{h.icon}</p>}
+            <p className="font-semibold text-sm">{h.title}</p>
+            {h.body && <p className="mt-1 text-xs text-muted leading-relaxed">{h.body}</p>}
+          </div>
+        ))}
+      </div>
+    </section>
   )
 }
 
@@ -171,7 +214,6 @@ function SkillsSection({ items }: { items: Skill[] }) {
     <section>
       <SectionTitle icon={Zap} label="Skills" />
 
-      {/* Top skills strip */}
       {topSkills.length > 0 && (
         <div className="mb-6 flex flex-wrap gap-2">
           {topSkills.map((s) => (
@@ -194,25 +236,11 @@ function SkillsSection({ items }: { items: Skill[] }) {
             </p>
             <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
               {skills.map((skill) => (
-                <div key={skill.id} className="flex items-center gap-3">
+                <div key={skill.id} className="flex items-center justify-between gap-3">
                   <span className="min-w-0 flex-1 truncate text-sm font-medium text-text">
                     {skill.name}
                   </span>
-                  {skill.level_pct != null ? (
-                    <div className="flex w-28 shrink-0 items-center gap-2">
-                      <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-border">
-                        <div
-                          className="h-full rounded-full bg-accent-500"
-                          style={{ width: `${skill.level_pct}%` }}
-                        />
-                      </div>
-                      <span className="w-7 text-right text-[10px] tabular-nums text-muted">
-                        {skill.level_pct}%
-                      </span>
-                    </div>
-                  ) : (
-                    <div className="w-28 shrink-0" />
-                  )}
+                  <SkillLevelBadge level={skill.skill_level} />
                 </div>
               ))}
             </div>
@@ -270,6 +298,40 @@ function ProjectsSection({ items }: { items: CVProject[] }) {
   )
 }
 
+function OngoingCoursesSection({ items }: { items: CVCourse[] }) {
+  if (items.length === 0) return null
+  return (
+    <section>
+      <SectionTitle icon={Clock} label="Estudios en curso" />
+      <div className="space-y-3">
+        {items.map((course) => (
+          <div key={course.id} className="rounded-xl border border-border bg-surface p-4">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold">{course.title}</p>
+                  <span className="rounded-full bg-accent-500/10 px-2 py-0.5 text-[10px] font-medium text-accent-600 dark:text-accent-400">
+                    En curso
+                  </span>
+                </div>
+                {course.provider && <p className="text-sm text-muted">{course.provider}</p>}
+              </div>
+              {course.expected_completion_date && (
+                <span className="text-xs text-muted">
+                  Fin estimado: {formatMonthYear(course.expected_completion_date)}
+                </span>
+              )}
+            </div>
+            {course.description && (
+              <p className="mt-2 text-sm leading-relaxed text-muted">{course.description}</p>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+  )
+}
+
 function CoursesSection({ items }: { items: CVCourse[] }) {
   if (items.length === 0) return null
   return (
@@ -307,6 +369,40 @@ function CoursesSection({ items }: { items: CVCourse[] }) {
   )
 }
 
+function DisponibilidadSection({ profile }: { profile: Profile }) {
+  const workTypes    = profile.work_types ?? []
+  const hasAny = workTypes.length > 0 || profile.location_detail || profile.open_to_travel || profile.has_vehicle
+  if (!hasAny) return null
+
+  return (
+    <section>
+      <SectionTitle icon={Briefcase} label="Disponibilidad" />
+      <div className="flex flex-wrap gap-2">
+        {workTypes.map((type) => (
+          <span key={type} className="rounded-full border border-border bg-surface px-3 py-1 text-sm">
+            {(WORK_TYPE_LABELS as Record<string, string>)[type] ?? type}
+          </span>
+        ))}
+        {profile.location_detail && (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1 text-sm">
+            <MapPin size={12} className="shrink-0" /> {profile.location_detail}
+          </span>
+        )}
+        {profile.open_to_travel && (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1 text-sm">
+            <Plane size={12} className="shrink-0" /> Abierto a viajes
+          </span>
+        )}
+        {profile.has_vehicle && (
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-3 py-1 text-sm">
+            <Car size={12} className="shrink-0" /> Vehículo propio
+          </span>
+        )}
+      </div>
+    </section>
+  )
+}
+
 // ─────────────────────────────────────────────────────────────
 // Page
 // ─────────────────────────────────────────────────────────────
@@ -320,23 +416,29 @@ export default async function PublicCVPage({ params }: PageProps) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const [expResult, eduResult, skillsResult, coursesResult, projectsResult] = await Promise.all([
+  const [expResult, eduResult, skillsResult, coursesResult, projectsResult, highlightsResult] = await Promise.all([
     getWorkExperience(supabase, profile.id),
     getEducation(supabase, profile.id),
     getSkills(supabase, profile.id),
     getCVCourses(supabase, profile.id),
     getCVProjects(supabase, profile.id),
+    getCVHighlights(supabase, profile.id),
   ])
 
-  const experience = expResult.data    ?? []
-  const education  = eduResult.data    ?? []
-  const skills     = skillsResult.data ?? []
-  const courses    = coursesResult.data ?? []
-  const projects   = projectsResult.data ?? []
+  const experience  = expResult.data       ?? []
+  const education   = eduResult.data       ?? []
+  const skills      = skillsResult.data    ?? []
+  const allCourses  = coursesResult.data   ?? []
+  const projects    = projectsResult.data  ?? []
+  const highlights  = highlightsResult.data ?? []
+
+  const ongoingCourses   = allCourses.filter((c) => c.is_in_progress)
+  const completedCourses = allCourses.filter((c) => !c.is_in_progress)
+
   const displayName = profile.full_name ?? `@${username}`
 
   const isEmpty = experience.length === 0 && education.length === 0 && skills.length === 0 &&
-                  courses.length === 0 && projects.length === 0
+                  allCourses.length === 0 && projects.length === 0
 
   return (
     <main className="public-body mx-auto max-w-3xl px-4 py-12 sm:px-6">
@@ -357,7 +459,7 @@ export default async function PublicCVPage({ params }: PageProps) {
           experience={experience}
           education={education}
           skills={skills}
-          courses={courses}
+          courses={allCourses}
           projects={projects}
         />
       </div>
@@ -398,20 +500,6 @@ export default async function PublicCVPage({ params }: PageProps) {
                 <Phone size={13} /> {profile.phone}
               </span>
             )}
-            {profile.birth_date && (
-              <span className="flex items-center gap-1.5">
-                <Calendar size={13} />
-                {new Date(profile.birth_date + 'T00:00:00').toLocaleDateString('es-ES', {
-                  day: '2-digit', month: '2-digit', year: 'numeric',
-                })}
-                {' '}· {calcAge(profile.birth_date)} años
-              </span>
-            )}
-            {profile.availability && (
-              <span className="flex items-center gap-1.5">
-                <Clock size={13} /> {CV_AVAILABILITY_LABELS[profile.availability]}
-              </span>
-            )}
             {profile.website && (
               <a href={profile.website} target="_blank" rel="noopener noreferrer"
                  className="flex items-center gap-1.5 transition-colors hover:text-foreground">
@@ -440,11 +528,15 @@ export default async function PublicCVPage({ params }: PageProps) {
         <p className="text-center text-muted">Este CV está vacío por el momento.</p>
       ) : (
         <div className="space-y-10">
-          <ExperienceSection items={experience} />
-          <EducationSection  items={education}  />
-          <SkillsSection     items={skills}     />
-          <ProjectsSection   items={projects}   />
-          <CoursesSection    items={courses}    />
+          <HighlightsSection    items={highlights}       />
+          <AboutSection         about={profile.about}    />
+          <ExperienceSection    items={experience}       />
+          <EducationSection     items={education}        />
+          <OngoingCoursesSection items={ongoingCourses}  />
+          <SkillsSection        items={skills}           />
+          <ProjectsSection      items={projects}         />
+          <CoursesSection       items={completedCourses} />
+          <DisponibilidadSection profile={profile}       />
         </div>
       )}
 

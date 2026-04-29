@@ -1,5 +1,6 @@
 import { z } from 'zod'
-import { SKILL_CATEGORIES } from '@/types/cv'
+import { SKILL_CATEGORIES, SKILL_LEVELS_QUALITATIVE } from '@/types/cv'
+import type { SkillLevelQualitative } from '@/types/cv'
 
 // ─────────────────────────────────────────────────────────────
 // Helpers
@@ -103,11 +104,13 @@ export const CreateSkillSchema = z.object({
   name:        z.string().min(1, { error: 'Nombre requerido' }).max(100).trim(),
   category:    z.enum(SKILL_CATEGORIES, { error: 'Categoría inválida' }).default('technical'),
   subcategory: z.string().max(80).optional().transform((v) => v?.trim() || null),
-  level_pct:   z.string().optional().transform((v) => {
-    if (!v || v === '') return null
-    const n = parseInt(v, 10)
-    return isNaN(n) ? null : Math.min(100, Math.max(0, n))
-  }),
+  skill_level: z
+    .string()
+    .optional()
+    .transform((v): SkillLevelQualitative | null => {
+      const levels: readonly string[] = SKILL_LEVELS_QUALITATIVE
+      return v && levels.includes(v) ? (v as SkillLevelQualitative) : null
+    }),
   is_top:      z
     .string()
     .optional()
@@ -128,14 +131,21 @@ export const UpdateSkillSchema = CreateSkillSchema.extend({
 export type CreateSkillData = z.output<typeof CreateSkillSchema>
 export type UpdateSkillData = z.output<typeof UpdateSkillSchema>
 
+// ─────────────────────────────────────────────────────────────
 // Courses
+// ─────────────────────────────────────────────────────────────
 
 export const CreateCVCourseSchema = z.object({
-  title:          z.string().min(1, { error: 'Curso requerido' }).max(255).trim(),
-  provider:       optionalText(255),
-  credential_url: optionalUrl,
-  completed_at:   optionalDate,
-  description:    optionalText(3000),
+  title:                    z.string().min(1, { error: 'Curso requerido' }).max(255).trim(),
+  provider:                 optionalText(255),
+  credential_url:           optionalUrl,
+  completed_at:             optionalDate,
+  description:              optionalText(3000),
+  is_in_progress:           z
+    .string()
+    .optional()
+    .transform((v) => v === 'true'),
+  expected_completion_date: optionalDate,
   order_index: z
     .string()
     .optional()
@@ -149,7 +159,9 @@ export const UpdateCVCourseSchema = CreateCVCourseSchema.extend({
 export type CreateCVCourseData = z.output<typeof CreateCVCourseSchema>
 export type UpdateCVCourseData = z.output<typeof UpdateCVCourseSchema>
 
+// ─────────────────────────────────────────────────────────────
 // CV Projects
+// ─────────────────────────────────────────────────────────────
 
 export const CreateCVProjectSchema = z.object({
   title:       z.string().min(1, { error: 'Proyecto requerido' }).max(255).trim(),
@@ -173,3 +185,24 @@ export const UpdateCVProjectSchema = CreateCVProjectSchema.extend({
 
 export type CreateCVProjectData = z.output<typeof CreateCVProjectSchema>
 export type UpdateCVProjectData = z.output<typeof UpdateCVProjectSchema>
+
+// ─────────────────────────────────────────────────────────────
+// Highlights
+// ─────────────────────────────────────────────────────────────
+
+export const CreateCVHighlightSchema = z.object({
+  icon:        optionalText(50),
+  title:       z.string().min(1, { error: 'Título requerido' }).max(120).trim(),
+  body:        optionalText(300),
+  order_index: z
+    .string()
+    .optional()
+    .transform((v) => (v ? parseInt(v, 10) : 0)),
+})
+
+export const UpdateCVHighlightSchema = CreateCVHighlightSchema.extend({
+  id: z.string().uuid({ error: 'ID invalido' }),
+})
+
+export type CreateCVHighlightData = z.output<typeof CreateCVHighlightSchema>
+export type UpdateCVHighlightData = z.output<typeof UpdateCVHighlightSchema>

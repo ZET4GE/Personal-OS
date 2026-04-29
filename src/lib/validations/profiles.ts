@@ -1,6 +1,5 @@
 import { z } from 'zod'
 import {
-  CV_AVAILABILITY_OPTIONS,
   PORTFOLIO_ACCENT_STYLE_OPTIONS,
   PORTFOLIO_BACKGROUND_STYLE_OPTIONS,
   PORTFOLIO_CARD_STYLE_OPTIONS,
@@ -25,10 +24,15 @@ const optionalUrl = () =>
     .optional()
     .transform((v) => (v?.trim() || null))
 
-const optionalDate = z
+const csvInput = z
   .string()
   .optional()
-  .transform((v) => (v?.trim() || null))
+  .transform((v) =>
+    (v ?? '')
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean),
+  )
 
 // ─────────────────────────────────────────────────────────────
 // Username rules
@@ -51,27 +55,32 @@ export const UpdateProfileSchema = z.object({
     .refine((v) => !v.includes('--'), { error: 'No puede tener guiones consecutivos' })
     .refine((v) => !RESERVED_USERNAMES.has(v), { error: 'Ese username está reservado' }),
 
-  full_name:    optionalText(255),
-  headline:     optionalText(120),
-  bio:          optionalText(500),
-  avatar_url:   optionalUrl(),
-  phone:        optionalText(50),
-  birth_date:   optionalDate,
-  nationality:  optionalText(80),
-  availability: z
-    .enum(CV_AVAILABILITY_OPTIONS)
-    .or(z.literal(''))
+  full_name:       optionalText(255),
+  headline:        optionalText(120),
+  bio:             optionalText(500),
+  about:           optionalText(5000),
+  avatar_url:      optionalUrl(),
+  phone:           optionalText(50),
+  nationality:     optionalText(80),
+  work_types:      csvInput,
+  location_detail: optionalText(200),
+  open_to_travel:  z
+    .string()
     .optional()
-    .transform((v) => (v ? v : null)),
+    .transform((v) => v === 'true'),
+  has_vehicle: z
+    .string()
+    .optional()
+    .transform((v) => v === 'true'),
   location:     optionalText(100),
   website:      optionalUrl(),
   github_url:   optionalUrl(),
   linkedin_url: optionalUrl(),
   twitter_url:  optionalUrl(),
-  portfolio_font_style: z.enum(PORTFOLIO_FONT_STYLE_OPTIONS).optional(),
+  portfolio_font_style:       z.enum(PORTFOLIO_FONT_STYLE_OPTIONS).optional(),
   portfolio_background_style: z.enum(PORTFOLIO_BACKGROUND_STYLE_OPTIONS).optional(),
-  portfolio_card_style: z.enum(PORTFOLIO_CARD_STYLE_OPTIONS).optional(),
-  portfolio_accent_style: z.enum(PORTFOLIO_ACCENT_STYLE_OPTIONS).optional(),
+  portfolio_card_style:       z.enum(PORTFOLIO_CARD_STYLE_OPTIONS).optional(),
+  portfolio_accent_style:     z.enum(PORTFOLIO_ACCENT_STYLE_OPTIONS).optional(),
   is_public: z
     .string()
     .optional()

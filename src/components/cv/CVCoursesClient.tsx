@@ -32,16 +32,18 @@ export function CVCoursesClient({ items }: { items: CVCourse[] }) {
   function handleCreate(formData: FormData) {
     const now = new Date().toISOString()
     const optimisticItem: OptimisticCourse = {
-      id:             `optimistic-${Date.now()}`,
-      user_id:        '',
-      title:          String(formData.get('title') ?? ''),
-      provider:       (formData.get('provider') as string) || null,
-      credential_url: (formData.get('credential_url') as string) || null,
-      completed_at:   (formData.get('completed_at') as string) || null,
-      description:    (formData.get('description') as string) || null,
-      order_index:    0,
-      created_at:     now,
-      isOptimistic:   true,
+      id:                       `optimistic-${Date.now()}`,
+      user_id:                  '',
+      title:                    String(formData.get('title') ?? ''),
+      provider:                 (formData.get('provider') as string) || null,
+      credential_url:           (formData.get('credential_url') as string) || null,
+      completed_at:             (formData.get('completed_at') as string) || null,
+      description:              (formData.get('description') as string) || null,
+      is_in_progress:           formData.get('is_in_progress') === 'true',
+      expected_completion_date: (formData.get('expected_completion_date') as string) || null,
+      order_index:              0,
+      created_at:               now,
+      isOptimistic:             true,
     }
     startTransition(async () => {
       dispatch({ type: 'add', item: optimisticItem })

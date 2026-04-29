@@ -1,6 +1,5 @@
 import { Document, Page, Text, View, Link, StyleSheet } from '@react-pdf/renderer'
 import type { Profile } from '@/types/profile'
-import { CV_AVAILABILITY_LABELS } from '@/types/profile'
 import type { CVCourse, CVLanguage, CVProject, Education, Skill, SkillCategory, WorkExperience } from '@/types/cv'
 import { SKILL_CATEGORY_LABELS_BY_LANGUAGE } from '@/types/cv'
 
@@ -142,20 +141,6 @@ function formatMonthYear(dateStr: string, language: CVLanguage): string {
   }).format(new Date(dateStr + 'T00:00:00'))
 }
 
-function fmtBirthDate(dateStr: string): string {
-  return new Intl.DateTimeFormat('es-ES', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(
-    new Date(dateStr + 'T00:00:00'),
-  )
-}
-
-function calcAge(birthDateStr: string): number {
-  const today = new Date()
-  const birth = new Date(birthDateStr + 'T00:00:00')
-  let age = today.getFullYear() - birth.getFullYear()
-  const m = today.getMonth() - birth.getMonth()
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
-  return age
-}
 
 function expRange(exp: WorkExperience, language: CVLanguage): string {
   const labels = LABELS[language]
@@ -199,16 +184,11 @@ function TextBlock({ value }: { value: string | null }) {
   )
 }
 
-function Contact({ profile, language }: { profile: Profile; language: CVLanguage }) {
-  const ageLabel = language === 'en' ? 'y/o' : 'años'
+function Contact({ profile }: { profile: Profile; language: CVLanguage }) {
   const contactItems = [
     profile.location,
     profile.nationality,
     profile.phone,
-    profile.birth_date
-      ? `${fmtBirthDate(profile.birth_date)} · ${calcAge(profile.birth_date)} ${ageLabel}`
-      : null,
-    profile.availability ? CV_AVAILABILITY_LABELS[profile.availability] : null,
   ].filter(Boolean) as string[]
 
   return (

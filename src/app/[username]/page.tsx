@@ -6,13 +6,14 @@ import { createClient } from '@/lib/supabase/server'
 import { getProfileByUsername, getPublicProjectsByUsername } from '@/services/profiles'
 import { getPublicLearningRoadmapsByUser } from '@/services/learning-roadmaps'
 import { getPublicPosts } from '@/services/posts'
+import { getEarliestWorkYear } from '@/services/cv'
 import { PublicHeader } from '@/components/public/PublicHeader'
 import { PublicProjectsGrid } from '@/components/public/PublicProjectsGrid'
 import { PublicRoadmapsGrid } from '@/components/public/PublicRoadmapsGrid'
 import { TrackingPixel } from '@/components/analytics/TrackingPixel'
 
 // ─────────────────────────────────────────────────────────────
-// Types — params es Promise en Next.js 16
+// Types
 // ─────────────────────────────────────────────────────────────
 
 interface PageProps {
@@ -20,7 +21,7 @@ interface PageProps {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Metadata dinámica
+// Metadata
 // ─────────────────────────────────────────────────────────────
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -32,12 +33,14 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Perfil no encontrado' }
   }
 
+  const displayName = profile.full_name ?? `@${username}`
   return {
-    title: profile.full_name ?? `@${username}`,
+    title: displayName,
     description: profile.bio ?? `Perfil de @${username} en WINF`,
     openGraph: {
-      title: profile.full_name ?? `@${username}`,
+      title: displayName,
       description: profile.bio ?? undefined,
+      images: profile.avatar_url ? [{ url: profile.avatar_url }] : [],
       type: 'profile',
     },
   }
@@ -51,30 +54,36 @@ export default async function PublicProfilePage({ params }: PageProps) {
   const { username } = await params
   const supabase = await createClient()
 
-  // Fetch profile — si no existe o no es público, 404
   const { data: profile } = await getProfileByUsername(supabase, username)
   if (!profile) notFound()
 
-  // Visitor actual (para no trackear al owner viendo su propio perfil)
   const { data: { user } } = await supabase.auth.getUser()
 
-  // Fetch proyectos públicos en paralelo (ya tenemos el profile.id)
-  const [{ data: projects }, { data: roadmaps }, { data: posts }] = await Promise.all([
+  const [{ data: projects }, { data: roadmaps }, { data: posts }, earliestYear] = await Promise.all([
     getPublicProjectsByUsername(supabase, profile.id),
     getPublicLearningRoadmapsByUser(supabase, profile.id),
     getPublicPosts(supabase, profile.id),
+    getEarliestWorkYear(supabase, profile.id),
   ])
+
+  const yearsExp = earliestYear != null ? new Date().getFullYear() - earliestYear : null
+
+  const stats = {
+    projects:  (projects  ?? []).length,
+    roadmaps:  (roadmaps  ?? []).length,
+    posts:     (posts     ?? []).length,
+    yearsExp,
+  }
 
   return (
     <main className="public-body mx-auto max-w-5xl px-4 py-12 sm:px-6">
       <TrackingPixel pageType="profile" ownerId={profile.id} currentUserId={user?.id ?? null} />
-      {/* Header: avatar, nombre, bio, links */}
-      <PublicHeader profile={profile} />
 
-      {/* Divider */}
+      <PublicHeader profile={profile} stats={stats} />
+
       <div className="public-divider my-10 border-t" style={{ borderColor: 'var(--color-border)' }} />
 
-      {/* Nav tabs: Proyectos · CV */}
+      {/* Nav tabs */}
       <nav className="mb-6 flex items-center gap-4">
         <h2 className="public-heading text-xs font-semibold uppercase tracking-widest text-muted">
           Proyectos

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js'
-import type { WorkExperience, Education, Skill, CVCourse, CVProject } from '@/types/cv'
+import type { WorkExperience, Education, Skill, CVCourse, CVProject, CVHighlight } from '@/types/cv'
 import type {
   CreateWorkExperienceData,
   UpdateWorkExperienceData,
@@ -11,6 +11,8 @@ import type {
   UpdateCVCourseData,
   CreateCVProjectData,
   UpdateCVProjectData,
+  CreateCVHighlightData,
+  UpdateCVHighlightData,
 } from '@/lib/validations/cv'
 
 // ─────────────────────────────────────────────────────────────
@@ -222,7 +224,9 @@ export async function deleteSkill(
   return { error: error?.message ?? null }
 }
 
+// ─────────────────────────────────────────────────────────────
 // Courses
+// ─────────────────────────────────────────────────────────────
 
 export async function getCVCourses(
   supabase: SupabaseClient,
@@ -286,7 +290,9 @@ export async function deleteCVCourse(
   return { error: error?.message ?? null }
 }
 
+// ─────────────────────────────────────────────────────────────
 // CV Projects
+// ─────────────────────────────────────────────────────────────
 
 export async function getCVProjects(
   supabase: SupabaseClient,
@@ -349,4 +355,89 @@ export async function deleteCVProject(
     .eq('user_id', userId)
 
   return { error: error?.message ?? null }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Highlights
+// ─────────────────────────────────────────────────────────────
+
+export async function getCVHighlights(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<Result<CVHighlight[]>> {
+  const { data, error } = await supabase
+    .from('cv_highlights')
+    .select('*')
+    .eq('user_id', userId)
+    .order('order_index', { ascending: true })
+
+  if (error) return err(error.message)
+  return ok(data as CVHighlight[])
+}
+
+export async function createCVHighlight(
+  supabase: SupabaseClient,
+  userId: string,
+  input: CreateCVHighlightData,
+): Promise<Result<CVHighlight>> {
+  const { data, error } = await supabase
+    .from('cv_highlights')
+    .insert({ user_id: userId, ...input })
+    .select()
+    .single()
+
+  if (error) return err(error.message)
+  return ok(data as CVHighlight)
+}
+
+export async function updateCVHighlight(
+  supabase: SupabaseClient,
+  userId: string,
+  input: UpdateCVHighlightData,
+): Promise<Result<CVHighlight>> {
+  const { id, ...patch } = input
+  const { data, error } = await supabase
+    .from('cv_highlights')
+    .update(patch)
+    .eq('id', id)
+    .eq('user_id', userId)
+    .select()
+    .single()
+
+  if (error) return err(error.message)
+  return ok(data as CVHighlight)
+}
+
+export async function deleteCVHighlight(
+  supabase: SupabaseClient,
+  userId: string,
+  id: string,
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('cv_highlights')
+    .delete()
+    .eq('id', id)
+    .eq('user_id', userId)
+
+  return { error: error?.message ?? null }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Stats helpers
+// ─────────────────────────────────────────────────────────────
+
+export async function getEarliestWorkYear(
+  supabase: SupabaseClient,
+  userId: string,
+): Promise<number | null> {
+  const { data } = await supabase
+    .from('work_experience')
+    .select('start_date')
+    .eq('user_id', userId)
+    .order('start_date', { ascending: true })
+    .limit(1)
+    .maybeSingle()
+
+  if (!data?.start_date) return null
+  return new Date(data.start_date + 'T00:00:00').getFullYear()
 }

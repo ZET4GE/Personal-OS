@@ -1,9 +1,8 @@
 import { Document, Page, Text, View, Link, Image } from '@react-pdf/renderer'
 import type { ReactNode } from 'react'
 import { styles } from './PDFStylesPro'
-import { SKILL_CATEGORY_LABELS_BY_LANGUAGE } from '@/types/cv'
+import { SKILL_CATEGORY_LABELS_BY_LANGUAGE, SKILL_LEVEL_QUALITATIVE_LABELS } from '@/types/cv'
 import type { WorkExperience, Education, Skill, SkillCategory, CVCourse, CVProject, CVLanguage } from '@/types/cv'
-import { CV_AVAILABILITY_LABELS } from '@/types/profile'
 import type { Profile } from '@/types/profile'
 
 export interface CVDocumentProps {
@@ -19,7 +18,6 @@ export interface CVDocumentProps {
 const LABELS = {
   es: {
     contact:    'Contacto',
-    birth:      'Nacimiento',
     skills:     'Skills',
     courses:    'Cursos y Certificaciones',
     experience: 'Experiencia',
@@ -36,7 +34,6 @@ const LABELS = {
   },
   en: {
     contact:    'Contact',
-    birth:      'Birth date',
     skills:     'Skills',
     courses:    'Courses & Certifications',
     experience: 'Experience',
@@ -59,20 +56,6 @@ function fmt(dateStr: string, language: CVLanguage = 'es'): string {
   }).format(new Date(dateStr + 'T00:00:00'))
 }
 
-function calcAge(birthDateStr: string): number {
-  const today = new Date()
-  const birth = new Date(birthDateStr + 'T00:00:00')
-  let age = today.getFullYear() - birth.getFullYear()
-  const m = today.getMonth() - birth.getMonth()
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--
-  return age
-}
-
-function fmtBirthDate(dateStr: string): string {
-  return new Intl.DateTimeFormat('es-ES', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-  }).format(new Date(dateStr + 'T00:00:00'))
-}
 
 function expDateRange(exp: WorkExperience, language: CVLanguage): string {
   const start = fmt(exp.start_date, language)
@@ -115,14 +98,6 @@ function ContactSection({ profile, language }: { profile: Profile; language: CVL
       {profile.location    && <Text style={styles.sidebarText}>{profile.location}</Text>}
       {profile.nationality && <Text style={styles.sidebarText}>{profile.nationality}</Text>}
       {profile.phone       && <Text style={styles.sidebarText}>{profile.phone}</Text>}
-      {profile.birth_date  && (
-        <Text style={styles.sidebarText}>
-          {fmtBirthDate(profile.birth_date)} · {calcAge(profile.birth_date)} {language === 'en' ? 'y/o' : 'años'}
-        </Text>
-      )}
-      {profile.availability && (
-        <Text style={styles.sidebarText}>{CV_AVAILABILITY_LABELS[profile.availability]}</Text>
-      )}
       {profile.website     && (
         <Link src={profile.website} style={styles.sidebarLink}>
           {profile.website.replace(/^https?:\/\//, '')}
@@ -135,7 +110,7 @@ function ContactSection({ profile, language }: { profile: Profile; language: CVL
   )
 }
 
-// ─── Sidebar: Skills (with subcategory + level_pct bar) ──────────────────────
+// ─── Sidebar: Skills (with subcategory + level badge) ────────────────────────
 
 function SidebarSkills({ items, language }: { items: Skill[]; language: CVLanguage }) {
   if (items.length === 0) return null
@@ -178,10 +153,10 @@ function SidebarSkills({ items, language }: { items: Skill[]; language: CVLangua
           {skills.map((skill) => (
             <View key={skill.id} style={styles.skillRow}>
               <Text style={styles.skillName}>{skill.name}</Text>
-              {skill.level_pct != null && (
-                <View style={styles.skillBarTrack}>
-                  <View style={[styles.skillBarFill, { width: `${skill.level_pct}%` as unknown as number }]} />
-                </View>
+              {skill.skill_level && (
+                <Text style={[styles.skillName, { fontSize: 7, color: '#888' }]}>
+                  {SKILL_LEVEL_QUALITATIVE_LABELS[skill.skill_level]}
+                </Text>
               )}
             </View>
           ))}

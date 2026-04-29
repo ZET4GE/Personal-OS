@@ -6,15 +6,21 @@ export type LearningRoadmapTemplate = 'blank' | 'skill' | 'project' | 'clients' 
 export type LearningNodeStatus = 'pending' | 'in_progress' | 'completed' | 'blocked'
 
 export interface LearningRoadmap {
-  id: string
-  user_id: string
-  title: string
-  description: string | null
-  type: LearningRoadmapType
+  id:              string
+  user_id:         string
+  title:           string
+  description:     string | null
+  type:            LearningRoadmapType
   primary_goal_id: string | null
-  template: LearningRoadmapTemplate
-  is_public: boolean
-  created_at: string
+  template:        LearningRoadmapTemplate
+  is_public:       boolean
+  created_at:      string
+  updated_at:      string | null
+}
+
+export interface LearningRoadmapSummary extends LearningRoadmap {
+  progress:  number  // 0–100 computed from node statuses
+  nodeCount: number
 }
 
 export interface LearningNode {

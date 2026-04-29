@@ -7,8 +7,10 @@ import { createSkillAction, deleteSkillAction } from '@/app/(dashboard)/cv/actio
 import {
   SKILL_CATEGORIES,
   SKILL_CATEGORY_LABELS,
+  SKILL_LEVELS_QUALITATIVE,
+  SKILL_LEVEL_QUALITATIVE_LABELS,
 } from '@/types/cv'
-import type { Skill, SkillCategory } from '@/types/cv'
+import type { Skill, SkillCategory, SkillLevelQualitative } from '@/types/cv'
 
 // ─── Optimistic state ─────────────────────────────────────────────────────────
 
@@ -39,14 +41,30 @@ const SUBCATEGORY_SUGGESTIONS: Record<SkillCategory, string[]> = {
   tool:      ['IDE', 'CRM', 'Diseño', 'Productividad', 'Testing'],
 }
 
+// ─── Skill level badge ────────────────────────────────────────────────────────
+
+const LEVEL_COLORS: Record<SkillLevelQualitative, string> = {
+  solid:     'bg-accent-500/15 text-accent-500 border-accent-500/30',
+  operative: 'bg-amber-500/15 text-amber-500 border-amber-500/30',
+  learning:  'bg-slate-500/15 text-slate-400 border-slate-500/30',
+}
+
+function SkillLevelBadge({ level }: { level: SkillLevelQualitative | null }) {
+  if (!level) return null
+  return (
+    <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-semibold ${LEVEL_COLORS[level]}`}>
+      {SKILL_LEVEL_QUALITATIVE_LABELS[level]}
+    </span>
+  )
+}
+
 // ─── Add form ─────────────────────────────────────────────────────────────────
 
 function AddSkillForm({ onAdd }: { onAdd: (formData: FormData) => void }) {
   const [name,        setName]        = useState('')
   const [category,    setCategory]    = useState<SkillCategory>('technical')
   const [subcategory, setSubcategory] = useState('')
-  const [hasLevel,    setHasLevel]    = useState(false)
-  const [levelPct,    setLevelPct]    = useState(50)
+  const [skillLevel,  setSkillLevel]  = useState<SkillLevelQualitative | ''>('')
   const [isTop,       setIsTop]       = useState(false)
   const [keywords,    setKeywords]    = useState('')
   const [evidence,    setEvidence]    = useState('')
@@ -56,12 +74,10 @@ function AddSkillForm({ onAdd }: { onAdd: (formData: FormData) => void }) {
     e.preventDefault()
     if (!name.trim()) return
     const fd = new FormData(e.currentTarget)
-    if (!hasLevel) fd.delete('level_pct')
     onAdd(fd)
     setName('')
     setSubcategory('')
-    setHasLevel(false)
-    setLevelPct(50)
+    setSkillLevel('')
     setIsTop(false)
     setKeywords('')
     setEvidence('')
@@ -121,41 +137,32 @@ function AddSkillForm({ onAdd }: { onAdd: (formData: FormData) => void }) {
         </div>
       </div>
 
-      {/* Row 2: level toggle + slider + top skill + submit */}
-      <div className="flex flex-wrap items-center gap-4">
-        <label className="flex cursor-pointer select-none items-center gap-2 text-sm text-muted">
-          <input
-            type="checkbox"
-            checked={hasLevel}
-            onChange={(e) => setHasLevel(e.target.checked)}
-            className="accent-accent-500"
-          />
-          Nivel de dominio
-        </label>
-
-        {hasLevel && (
-          <div className="flex flex-1 min-w-48 items-center gap-3">
-            <input
-              type="range"
-              name="level_pct"
-              min="0"
-              max="100"
-              step="5"
-              value={levelPct}
-              onChange={(e) => setLevelPct(Number(e.target.value))}
-              className="flex-1 accent-accent-500"
-            />
-            <div className="relative h-1.5 w-20 shrink-0 overflow-hidden rounded-full bg-border">
-              <div
-                className="h-full rounded-full bg-accent-500 transition-all"
-                style={{ width: `${levelPct}%` }}
-              />
-            </div>
-            <span className="w-8 text-right text-sm font-semibold tabular-nums text-text">
-              {levelPct}%
-            </span>
-          </div>
-        )}
+      {/* Row 2: skill level + top + submit */}
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-1.5">
+          <span className="text-xs text-muted">Nivel:</span>
+          <input type="hidden" name="skill_level" value={skillLevel} />
+          {([
+            { value: '' as const,           label: 'Sin nivel' },
+            { value: 'solid' as const,      label: 'Sólido' },
+            { value: 'operative' as const,  label: 'Operativo' },
+            { value: 'learning' as const,   label: 'En aprendizaje' },
+          ] satisfies { value: SkillLevelQualitative | ''; label: string }[]).map(({ value, label }) => (
+            <button
+              key={value}
+              type="button"
+              onClick={() => setSkillLevel(value)}
+              className={[
+                'rounded-full border px-2.5 py-1 text-xs font-medium transition-colors',
+                skillLevel === value
+                  ? 'border-accent-500 bg-accent-500/15 text-accent-500'
+                  : 'border-border text-muted hover:border-border-bright',
+              ].join(' ')}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
 
         <label className="ml-auto flex cursor-pointer select-none items-center gap-1.5 text-sm text-muted">
           <input
@@ -239,17 +246,9 @@ function SkillCard({
           <p className="truncate text-sm font-medium text-text">{skill.name}</p>
         </div>
 
-        {skill.level_pct != null && (
-          <div className="mt-2 flex items-center gap-2">
-            <div className="relative h-1.5 flex-1 overflow-hidden rounded-full bg-border">
-              <div
-                className="h-full rounded-full bg-accent-500"
-                style={{ width: `${skill.level_pct}%` }}
-              />
-            </div>
-            <span className="w-7 shrink-0 text-right text-[10px] tabular-nums text-muted">
-              {skill.level_pct}%
-            </span>
+        {skill.skill_level && (
+          <div className="mt-1.5">
+            <SkillLevelBadge level={skill.skill_level} />
           </div>
         )}
 
@@ -288,12 +287,10 @@ export function SkillsManager({ items }: { items: Skill[] }) {
   const [, startTransition]    = useTransition()
 
   function handleAdd(formData: FormData) {
-    const levelRaw = formData.get('level_pct')
-    const levelPct = (() => {
-      if (!levelRaw || levelRaw === '') return null
-      const n = parseInt(String(levelRaw), 10)
-      return isNaN(n) ? null : Math.min(100, Math.max(0, n))
-    })()
+    const rawLevel = String(formData.get('skill_level') ?? '')
+    const skillLevel = (SKILL_LEVELS_QUALITATIVE as readonly string[]).includes(rawLevel)
+      ? rawLevel as SkillLevelQualitative
+      : null
 
     const optimisticSkill: OptimisticSkill = {
       id:           `optimistic-${Date.now()}`,
@@ -301,8 +298,7 @@ export function SkillsManager({ items }: { items: Skill[] }) {
       name:         String(formData.get('name') ?? ''),
       category:     (formData.get('category') as SkillCategory) ?? 'technical',
       subcategory:  String(formData.get('subcategory') ?? '').trim() || null,
-      level:        null,
-      level_pct:    levelPct,
+      skill_level:  skillLevel,
       is_top:       formData.get('is_top') === 'true',
       evidence:     String(formData.get('evidence') ?? '').trim() || null,
       evidence_url: String(formData.get('evidence_url') ?? '').trim() || null,
@@ -332,7 +328,6 @@ export function SkillsManager({ items }: { items: Skill[] }) {
     })
   }
 
-  // Build ordered groups, preserving insertion order of first appearance
   const groupMap = new Map<string, { label: string; skills: OptimisticSkill[] }>()
   for (const skill of optimistic) {
     const key = `${skill.category}::${skill.subcategory ?? ''}`
@@ -352,7 +347,7 @@ export function SkillsManager({ items }: { items: Skill[] }) {
 
       {!hasSkills ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border bg-surface py-16 text-center">
-          <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800">
+          <span className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-surface-elevated">
             <Zap size={24} className="text-muted" />
           </span>
           <p className="font-medium">Sin skills registradas todavía</p>

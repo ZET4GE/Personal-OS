@@ -13,6 +13,8 @@ import {
   UpdateCVCourseSchema,
   CreateCVProjectSchema,
   UpdateCVProjectSchema,
+  CreateCVHighlightSchema,
+  UpdateCVHighlightSchema,
 } from '@/lib/validations/cv'
 import {
   createWorkExperience,
@@ -30,6 +32,9 @@ import {
   createCVProject,
   updateCVProject,
   deleteCVProject,
+  createCVHighlight,
+  updateCVHighlight,
+  deleteCVHighlight,
 } from '@/services/cv'
 import type {
   WorkExperienceActionResult,
@@ -37,6 +42,7 @@ import type {
   SkillActionResult,
   CVCourseActionResult,
   CVProjectActionResult,
+  CVHighlightActionResult,
 } from '@/types/cv'
 
 // ─────────────────────────────────────────────────────────────
@@ -199,7 +205,9 @@ export async function deleteSkillAction(
   return { ok: true }
 }
 
+// ─────────────────────────────────────────────────────────────
 // Courses actions
+// ─────────────────────────────────────────────────────────────
 
 export async function createCVCourseAction(
   formData: FormData,
@@ -246,7 +254,9 @@ export async function deleteCVCourseAction(
   return { ok: true }
 }
 
+// ─────────────────────────────────────────────────────────────
 // CV Projects actions
+// ─────────────────────────────────────────────────────────────
 
 export async function createCVProjectAction(
   formData: FormData,
@@ -290,5 +300,51 @@ export async function deleteCVProjectAction(
 
   revalidatePath('/cv')
   revalidatePath('/cv/projects')
+  return { ok: true }
+}
+
+// ─────────────────────────────────────────────────────────────
+// Highlights actions
+// ─────────────────────────────────────────────────────────────
+
+export async function createCVHighlightAction(
+  formData: FormData,
+): Promise<CVHighlightActionResult> {
+  const { supabase, user } = await getAuthedClient()
+  const parsed = CreateCVHighlightSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos invalidos' }
+
+  const result = await createCVHighlight(supabase, user.id, parsed.data)
+  if (result.error) return { error: result.error }
+
+  revalidatePath('/cv')
+  return { item: result.data! }
+}
+
+export async function updateCVHighlightAction(
+  formData: FormData,
+): Promise<CVHighlightActionResult> {
+  const { supabase, user } = await getAuthedClient()
+  const parsed = UpdateCVHighlightSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos invalidos' }
+
+  const result = await updateCVHighlight(supabase, user.id, parsed.data)
+  if (result.error) return { error: result.error }
+
+  revalidatePath('/cv')
+  return { item: result.data! }
+}
+
+export async function deleteCVHighlightAction(
+  formData: FormData,
+): Promise<CVHighlightActionResult> {
+  const { supabase, user } = await getAuthedClient()
+  const id = formData.get('id')
+  if (typeof id !== 'string' || !id) return { error: 'ID requerido' }
+
+  const { error } = await deleteCVHighlight(supabase, user.id, id)
+  if (error) return { error }
+
+  revalidatePath('/cv')
   return { ok: true }
 }

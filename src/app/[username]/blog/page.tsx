@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 function formatDate(iso: string): string {
   return new Intl.DateTimeFormat('es-ES', {
-    day: 'numeric', month: 'short', year: 'numeric',
+    day: 'numeric', month: 'long', year: 'numeric',
   }).format(new Date(iso))
 }
 

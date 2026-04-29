@@ -7,8 +7,8 @@ import { toast } from 'sonner'
 import { updateProfileAction } from '@/app/(dashboard)/settings/actions'
 import { createClient } from '@/lib/supabase/client'
 import {
-  CV_AVAILABILITY_LABELS,
-  CV_AVAILABILITY_OPTIONS,
+  WORK_TYPE_LABELS,
+  WORK_TYPE_OPTIONS,
   PORTFOLIO_ACCENT_STYLE_LABELS,
   PORTFOLIO_ACCENT_STYLE_OPTIONS,
   PORTFOLIO_BACKGROUND_STYLE_LABELS,
@@ -39,6 +39,7 @@ export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileS
   const [state, formAction, isPending] = useActionState(updateProfileAction, null)
   const [avatarUrl, setAvatarUrl] = useState(profile?.avatar_url ?? '')
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false)
+  const [workTypes, setWorkTypes] = useState<string[]>(profile?.work_types ?? [])
 
   // Toasts — disparan cuando el estado cambia tras un submit
   useEffect(() => {
@@ -258,19 +259,20 @@ export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileS
           </Field>
         </Section>
 
-        {/* ─── Sección: Links ─────────────────────────── */}
+        {/* ─── Sección: Datos para CV ─────────────────── */}
         <Section title="Datos para CV">
+          <Field label="Sobre mí" htmlFor="about" hint="Párrafo largo visible en el CV público, encima de la experiencia.">
+            <textarea id="about" name="about" rows={4}
+              defaultValue={current?.about ?? ''}
+              placeholder="Describí tu trayectoria, enfoque y lo que te diferencia..."
+              className={`${inputCls} resize-none`} />
+          </Field>
+
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Teléfono" htmlFor="phone">
               <input id="phone" name="phone" type="tel"
                 defaultValue={current?.phone ?? ''}
                 placeholder="+54 9 ..."
-                className={inputCls} />
-            </Field>
-
-            <Field label="Fecha de nacimiento" htmlFor="birth_date">
-              <input id="birth_date" name="birth_date" type="date"
-                defaultValue={current?.birth_date?.slice(0, 10) ?? ''}
                 className={inputCls} />
             </Field>
 
@@ -280,19 +282,69 @@ export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileS
                 placeholder="Argentina, Chile..."
                 className={inputCls} />
             </Field>
+          </div>
 
-            <Field label="Disponibilidad" htmlFor="availability">
-              <select id="availability" name="availability"
-                defaultValue={current?.availability ?? ''}
-                className={inputCls}>
-                <option value="">Sin especificar</option>
-                {CV_AVAILABILITY_OPTIONS.map((option) => (
-                  <option key={option} value={option}>
-                    {CV_AVAILABILITY_LABELS[option]}
-                  </option>
-                ))}
-              </select>
+          <Field label="Tipo de disponibilidad" htmlFor="work_types">
+            <input type="hidden" name="work_types" value={workTypes.join(',')} />
+            <div className="flex flex-wrap gap-2">
+              {WORK_TYPE_OPTIONS.map((option) => {
+                const selected = workTypes.includes(option)
+                return (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() =>
+                      setWorkTypes(
+                        selected
+                          ? workTypes.filter((t) => t !== option)
+                          : [...workTypes, option],
+                      )
+                    }
+                    className={[
+                      'rounded-full border px-3 py-1 text-xs font-medium transition-colors',
+                      selected
+                        ? 'border-accent-500 bg-accent-500/15 text-accent-500'
+                        : 'border-border text-muted hover:border-border-bright',
+                    ].join(' ')}
+                  >
+                    {WORK_TYPE_LABELS[option]}
+                  </button>
+                )
+              })}
+            </div>
+          </Field>
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Detalle de ubicación" htmlFor="location_detail"
+              hint="Barrio, zona, ciudad específica, etc.">
+              <input id="location_detail" name="location_detail" type="text"
+                defaultValue={current?.location_detail ?? ''}
+                placeholder="CABA — zona norte, remoto desde Córdoba..."
+                className={inputCls} />
             </Field>
+          </div>
+
+          <div className="flex flex-wrap gap-6">
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                name="open_to_travel"
+                value="true"
+                defaultChecked={current?.open_to_travel ?? false}
+                className="accent-accent-500"
+              />
+              <span>Abierto a viajes</span>
+            </label>
+            <label className="flex cursor-pointer items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                name="has_vehicle"
+                value="true"
+                defaultChecked={current?.has_vehicle ?? false}
+                className="accent-accent-500"
+              />
+              <span>Vehículo propio</span>
+            </label>
           </div>
         </Section>
 

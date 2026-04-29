@@ -7,6 +7,7 @@ import type {
   LearningRoadmap,
   LearningRoadmapDetail,
   LearningRoadmapNode,
+  LearningRoadmapSummary,
   RoadmapNodeAction,
 } from '@/types/roadmaps'
 
@@ -189,7 +190,7 @@ export async function getRoadmapsByGoalId(
 export async function getPublicLearningRoadmapsByUser(
   supabase: SupabaseClient,
   userId: string,
-): Promise<Result<LearningRoadmap[]>> {
+): Promise<Result<LearningRoadmapSummary[]>> {
   const { data, error } = await supabase
     .from('learning_roadmaps')
     .select('*')
@@ -199,7 +200,26 @@ export async function getPublicLearningRoadmapsByUser(
 
   if (error) return err(error.message)
 
-  return ok((data ?? []) as LearningRoadmap[])
+  const roadmaps = (data ?? []) as LearningRoadmap[]
+  if (roadmaps.length === 0) return ok([])
+
+  const roadmapIds = roadmaps.map((r) => r.id)
+  const { data: nodes } = await supabase
+    .from('learning_nodes')
+    .select('roadmap_id, status')
+    .in('roadmap_id', roadmapIds)
+
+  const summaries: LearningRoadmapSummary[] = roadmaps.map((roadmap) => {
+    const roadmapNodes = (nodes ?? []).filter((n) => n.roadmap_id === roadmap.id)
+    const completed    = roadmapNodes.filter((n) => n.status === 'completed').length
+    const progress     = roadmapNodes.length > 0
+      ? Math.round((completed / roadmapNodes.length) * 100)
+      : 0
+
+    return { ...roadmap, progress, nodeCount: roadmapNodes.length }
+  })
+
+  return ok(summaries)
 }
 
 export async function getPublicLearningRoadmapDetail(
