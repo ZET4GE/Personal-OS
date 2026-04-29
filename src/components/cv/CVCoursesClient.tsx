@@ -56,11 +56,13 @@ export function CVCoursesClient({ items }: { items: CVCourse[] }) {
   function handleUpdate(formData: FormData) {
     const id = String(formData.get('id') ?? '')
     const patch: Partial<CVCourse> = {
-      title:          String(formData.get('title') ?? ''),
-      provider:       (formData.get('provider') as string) || null,
-      credential_url: (formData.get('credential_url') as string) || null,
-      completed_at:   (formData.get('completed_at') as string) || null,
-      description:    (formData.get('description') as string) || null,
+      title:                    String(formData.get('title') ?? ''),
+      provider:                 (formData.get('provider') as string) || null,
+      credential_url:           (formData.get('credential_url') as string) || null,
+      completed_at:             (formData.get('completed_at') as string) || null,
+      description:              (formData.get('description') as string) || null,
+      is_in_progress:           formData.get('is_in_progress') === 'true',
+      expected_completion_date: (formData.get('expected_completion_date') as string) || null,
     }
     startTransition(async () => {
       dispatch({ type: 'update', id, patch })

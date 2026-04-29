@@ -1,9 +1,9 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { BookOpen, Briefcase, FolderGit2, GraduationCap, Zap, ChevronRight, ExternalLink } from 'lucide-react'
+import { BookOpen, Briefcase, FolderGit2, GraduationCap, Zap, ChevronRight, ExternalLink, Sparkles } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
-import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects } from '@/services/cv'
+import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects, getCVHighlights } from '@/services/cv'
 import { getMyProfile } from '@/services/profiles'
 import { getBillingStatus } from '@/services/billing'
 import { CVModeSection } from '@/components/cv/CVModeSection'
@@ -67,21 +67,23 @@ export default async function CVPage() {
   if (!user) redirect('/login')
 
   // Fetch everything in parallel
-  const [expResult, eduResult, skillsResult, coursesResult, projectsResult, profileResult, billingResult] = await Promise.all([
+  const [expResult, eduResult, skillsResult, coursesResult, projectsResult, highlightsResult, profileResult, billingResult] = await Promise.all([
     getWorkExperience(supabase, user.id),
     getEducation(supabase, user.id),
     getSkills(supabase, user.id),
     getCVCourses(supabase, user.id),
     getCVProjects(supabase, user.id),
+    getCVHighlights(supabase, user.id),
     getMyProfile(supabase),
     getBillingStatus(supabase, user.id),
   ])
 
-  const expCount    = expResult.data?.length    ?? 0
-  const eduCount    = eduResult.data?.length    ?? 0
-  const skillsCount = skillsResult.data?.length ?? 0
-  const coursesCount = coursesResult.data?.length ?? 0
-  const projectsCount = projectsResult.data?.length ?? 0
+  const expCount        = expResult.data?.length        ?? 0
+  const eduCount        = eduResult.data?.length        ?? 0
+  const skillsCount     = skillsResult.data?.length     ?? 0
+  const coursesCount    = coursesResult.data?.length    ?? 0
+  const projectsCount   = projectsResult.data?.length   ?? 0
+  const highlightsCount = highlightsResult.data?.length ?? 0
   const profile     = profileResult.data
   const billing     = billingResult.data
   const canUseAts   = Boolean(billing && billing.plan !== 'free' && ['active', 'trialing'].includes(billing.status))
@@ -165,6 +167,13 @@ export default async function CVPage() {
           label="Proyectos"
           count={projectsCount}
           description={projectsCount === 0 ? 'Sin proyectos todavia' : `${projectsCount} ${projectsCount === 1 ? 'proyecto' : 'proyectos'}`}
+        />
+        <SectionCard
+          href="/cv/highlights"
+          icon={Sparkles}
+          label="Destacados"
+          count={highlightsCount}
+          description={highlightsCount === 0 ? 'Logros clave en tu CV público' : `${highlightsCount} ${highlightsCount === 1 ? 'destacado' : 'destacados'}`}
         />
       </div>
 

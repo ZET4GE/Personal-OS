@@ -2,7 +2,10 @@
 // Work types (replaces the old CVAvailability enum)
 // ─────────────────────────────────────────────────────────────
 
-export const WORK_TYPE_OPTIONS = ['full_time', 'part_time', 'contract', 'freelance', 'internship'] as const
+export const WORK_TYPE_OPTIONS = [
+  'full_time', 'part_time', 'contract', 'freelance', 'internship',
+  'remote', 'hybrid', 'in_person',
+] as const
 export type WorkType = (typeof WORK_TYPE_OPTIONS)[number]
 
 export const WORK_TYPE_LABELS: Record<WorkType, string> = {
@@ -11,6 +14,9 @@ export const WORK_TYPE_LABELS: Record<WorkType, string> = {
   contract:   'Contrato',
   freelance:  'Freelance',
   internship: 'Pasantía',
+  remote:     'Remoto',
+  hybrid:     'Híbrido',
+  in_person:  'Presencial',
 }
 
 // ─────────────────────────────────────────────────────────────

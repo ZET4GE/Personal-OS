@@ -16,13 +16,15 @@ interface CVCourseFormProps {
 
 export const CVCourseForm = forwardRef<CVCourseFormHandle, CVCourseFormProps>(
   ({ onSubmitCreate, onSubmitUpdate }, ref) => {
-    const dialogRef = useRef<HTMLDialogElement>(null)
-    const [editData, setEditData] = useState<CVCourse | null>(null)
+    const dialogRef  = useRef<HTMLDialogElement>(null)
+    const [editData, setEditData]     = useState<CVCourse | null>(null)
+    const [inProgress, setInProgress] = useState(false)
     const isEdit = editData !== null
 
     useImperativeHandle(ref, () => ({
       open(data) {
         setEditData(data ?? null)
+        setInProgress(data?.is_in_progress ?? false)
         dialogRef.current?.showModal()
       },
       close() { dialogRef.current?.close() },
@@ -33,6 +35,8 @@ export const CVCourseForm = forwardRef<CVCourseFormHandle, CVCourseFormProps>(
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
       e.preventDefault()
       const fd = new FormData(e.currentTarget)
+      // Ensure is_in_progress is always present
+      if (!fd.get('is_in_progress')) fd.set('is_in_progress', 'false')
       if (isEdit) {
         fd.set('id', editData.id)
         onSubmitUpdate(fd)
@@ -57,28 +61,80 @@ export const CVCourseForm = forwardRef<CVCourseFormHandle, CVCourseFormProps>(
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-4 overflow-y-auto p-5">
           <Field label="Curso *" htmlFor="title">
-            <input id="title" name="title" type="text" required defaultValue={editData?.title ?? ''} placeholder="AWS Cloud Practitioner" className={inputCls} />
+            <input
+              id="title" name="title" type="text" required
+              defaultValue={editData?.title ?? ''}
+              placeholder="AWS Cloud Practitioner"
+              className={inputCls}
+            />
           </Field>
 
-          <div className="grid gap-3 sm:grid-cols-2">
-            <Field label="Institucion" htmlFor="provider">
-              <input id="provider" name="provider" type="text" defaultValue={editData?.provider ?? ''} placeholder="AWS, Coursera, Udemy" className={inputCls} />
-            </Field>
-            <Field label="Finalizado" htmlFor="completed_at">
-              <input id="completed_at" name="completed_at" type="date" defaultValue={editData?.completed_at?.slice(0, 10) ?? ''} className={inputCls} />
-            </Field>
-          </div>
-
-          <Field label="Credencial" htmlFor="credential_url">
-            <input id="credential_url" name="credential_url" type="url" defaultValue={editData?.credential_url ?? ''} placeholder="https://..." className={inputCls} />
+          <Field label="Institución" htmlFor="provider">
+            <input
+              id="provider" name="provider" type="text"
+              defaultValue={editData?.provider ?? ''}
+              placeholder="AWS, Coursera, Udemy"
+              className={inputCls}
+            />
           </Field>
 
-          <Field label="Descripcion" htmlFor="description">
-            <textarea id="description" name="description" rows={3} defaultValue={editData?.description ?? ''} placeholder="Que aprendiste, proyecto final, certificacion..." className={`${inputCls} resize-none`} />
+          {/* En curso toggle */}
+          <label className="flex cursor-pointer items-center gap-2.5">
+            <input
+              type="checkbox"
+              name="is_in_progress"
+              value="true"
+              checked={inProgress}
+              onChange={(e) => setInProgress(e.target.checked)}
+              className="accent-accent-500"
+            />
+            <span className="text-sm font-medium">En curso (aún no terminado)</span>
+          </label>
+
+          {inProgress ? (
+            <Field label="Fin estimado" htmlFor="expected_completion_date">
+              <input
+                id="expected_completion_date"
+                name="expected_completion_date"
+                type="date"
+                defaultValue={editData?.expected_completion_date?.slice(0, 10) ?? ''}
+                className={inputCls}
+              />
+            </Field>
+          ) : (
+            <Field label="Fecha de finalización" htmlFor="completed_at">
+              <input
+                id="completed_at" name="completed_at" type="date"
+                defaultValue={editData?.completed_at?.slice(0, 10) ?? ''}
+                className={inputCls}
+              />
+            </Field>
+          )}
+
+          <Field label="Credencial URL" htmlFor="credential_url">
+            <input
+              id="credential_url" name="credential_url" type="url"
+              defaultValue={editData?.credential_url ?? ''}
+              placeholder="https://..."
+              className={inputCls}
+            />
+          </Field>
+
+          <Field label="Descripción" htmlFor="description">
+            <textarea
+              id="description" name="description" rows={3}
+              defaultValue={editData?.description ?? ''}
+              placeholder="Qué aprendiste, proyecto final, certificación..."
+              className={`${inputCls} resize-none`}
+            />
           </Field>
 
           <div className="flex items-center justify-end gap-2 pt-1">
-            <button type="button" onClick={handleClose} className="rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800" style={{ borderColor: 'var(--color-border)' }}>
+            <button
+              type="button" onClick={handleClose}
+              className="rounded-lg border px-4 py-2 text-sm font-medium transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
+              style={{ borderColor: 'var(--color-border)' }}
+            >
               Cancelar
             </button>
             <button type="submit" className="rounded-lg bg-accent-600 px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90">
