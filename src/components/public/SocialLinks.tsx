@@ -1,4 +1,4 @@
-import { Globe, GitBranch, Link, MapPin, AtSign, Mail, Phone } from 'lucide-react'
+import { Globe, GitBranch, Link, MapPin, AtSign } from 'lucide-react'
 import type { Profile } from '@/types/profile'
 import { RevealField } from './RevealField'
 
@@ -90,7 +90,7 @@ export function SocialLinks({ profile }: SocialLinksProps) {
         <RevealField
           value={contact_email}
           href={`mailto:${contact_email}`}
-          icon={Mail}
+          icon="Mail"
           label="email de contacto"
         />
       )}
@@ -98,7 +98,7 @@ export function SocialLinks({ profile }: SocialLinksProps) {
         <RevealField
           value={phone}
           href={`tel:${phone}`}
-          icon={Phone}
+          icon="Phone"
           label="teléfono"
         />
       )}

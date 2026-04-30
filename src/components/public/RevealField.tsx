@@ -1,17 +1,22 @@
 'use client'
 
 import { useState } from 'react'
+import { Mail, Phone } from 'lucide-react'
+
+const ICON_MAP = { Mail, Phone } as const
+export type RevealIconName = keyof typeof ICON_MAP
 
 interface RevealFieldProps {
   value: string
   href?: string
-  icon: React.FC<{ size?: number; className?: string }>
+  icon: RevealIconName
   label: string
   className?: string
 }
 
-export function RevealField({ value, href, icon: Icon, label, className = '' }: RevealFieldProps) {
+export function RevealField({ value, href, icon, label, className = '' }: RevealFieldProps) {
   const [revealed, setRevealed] = useState(false)
+  const Icon = ICON_MAP[icon]
 
   return (
     <div

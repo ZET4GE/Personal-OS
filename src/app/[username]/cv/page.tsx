@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import {
   BookOpen, FolderGit2, Flag, MapPin, GitBranch, ExternalLink,
-  Briefcase, GraduationCap, Mail, Phone, Star, Zap, ChevronRight,
+  Briefcase, GraduationCap, Star, Zap, ChevronRight,
   Car, Plane, User, Sparkles, Clock, Layers,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
@@ -571,7 +571,7 @@ export default async function PublicCVPage({ params }: PageProps) {
                 <RevealField
                   value={profile.contact_email}
                   href={`mailto:${profile.contact_email}`}
-                  icon={Mail}
+                  icon="Mail"
                   label="email de contacto"
                 />
               )}
@@ -579,7 +579,7 @@ export default async function PublicCVPage({ params }: PageProps) {
                 <RevealField
                   value={profile.phone}
                   href={`tel:${profile.phone}`}
-                  icon={Phone}
+                  icon="Phone"
                   label="teléfono"
                 />
               )}
