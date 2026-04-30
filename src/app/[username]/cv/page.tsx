@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import {
   BookOpen, FolderGit2, Flag, MapPin, GitBranch, ExternalLink,
-  Briefcase, GraduationCap, Phone, Star, Zap, ChevronRight,
+  Briefcase, GraduationCap, Mail, Phone, Star, Zap, ChevronRight,
   Car, Plane, User, Sparkles, Clock, Layers,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
@@ -22,6 +22,7 @@ import { CVDownloadSection } from '@/components/cv/pdf/CVDownloadSection'
 import { TrackingPixel } from '@/components/analytics/TrackingPixel'
 import { PageNavigation } from '@/components/public/PageNavigation'
 import { ScrollToTopButton } from '@/components/public/ScrollToTopButton'
+import { RevealField } from '@/components/public/RevealField'
 import type { NavSection } from '@/components/public/PageNavigation'
 
 // ─────────────────────────────────────────────────────────────
@@ -566,11 +567,22 @@ export default async function PublicCVPage({ params }: PageProps) {
                 <Flag size={13} /> {profile.nationality}
               </span>
             )}
-            {profile.phone && (
-              <span className="flex items-center gap-1.5">
-                <Phone size={13} /> {profile.phone}
-              </span>
-            )}
+            {profile.contact_email && (
+                <RevealField
+                  value={profile.contact_email}
+                  href={`mailto:${profile.contact_email}`}
+                  icon={Mail}
+                  label="email de contacto"
+                />
+              )}
+              {profile.phone && (
+                <RevealField
+                  value={profile.phone}
+                  href={`tel:${profile.phone}`}
+                  icon={Phone}
+                  label="teléfono"
+                />
+              )}
             {profile.website && (
               <a href={profile.website} target="_blank" rel="noopener noreferrer"
                  className="flex items-center gap-1.5 transition-colors hover:text-foreground">

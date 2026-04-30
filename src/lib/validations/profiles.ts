@@ -62,6 +62,7 @@ export const UpdateProfileSchema = z.object({
   about:           optionalText(5000),
   avatar_url:      optionalUrl(),
   phone:           optionalText(50),
+  contact_email:   optionalText(255),
   nationality:     optionalText(80),
   work_types:      csvInput,
   location_detail: optionalText(200),

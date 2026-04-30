@@ -86,6 +86,7 @@ export interface Profile {
   bio:             string | null
   about:           string | null
   phone:           string | null
+  contact_email:   string | null
   nationality:     string | null
   work_types:      string[]
   location_detail: string | null
@@ -119,6 +120,7 @@ export type UpdateProfileInput = {
   about?:          string | null
   avatar_url?:     string | null
   phone?:          string | null
+  contact_email?:  string | null
   nationality?:    string | null
   work_types?:     string[]
   location_detail?: string | null

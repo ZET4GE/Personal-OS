@@ -292,6 +292,14 @@ export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileS
             </Field>
           </div>
 
+          <Field label="Email de contacto público" htmlFor="contact_email"
+            hint="Este email aparece en tu CV y perfil público (oculto hasta hover). Puede ser diferente al de tu cuenta.">
+            <input id="contact_email" name="contact_email" type="email"
+              defaultValue={current?.contact_email ?? ''}
+              placeholder="contacto@ejemplo.com"
+              className={inputCls} />
+          </Field>
+
           <Field label="Tipo de disponibilidad" htmlFor="work_types">
             <input type="hidden" name="work_types" value={workTypes.join(',')} />
             <div className="flex flex-wrap gap-2">

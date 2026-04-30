@@ -1,5 +1,6 @@
-import { Globe, GitBranch, Link, MapPin, AtSign } from 'lucide-react'
+import { Globe, GitBranch, Link, MapPin, AtSign, Mail, Phone } from 'lucide-react'
 import type { Profile } from '@/types/profile'
+import { RevealField } from './RevealField'
 
 // ─────────────────────────────────────────────────────────────
 // Helpers
@@ -38,11 +39,12 @@ interface SocialLinksProps {
   profile: Pick<
     Profile,
     'location' | 'website' | 'github_url' | 'linkedin_url' | 'twitter_url'
+    | 'phone' | 'contact_email'
   >
 }
 
 export function SocialLinks({ profile }: SocialLinksProps) {
-  const { location, website, github_url, linkedin_url, twitter_url } = profile
+  const { location, website, github_url, linkedin_url, twitter_url, phone, contact_email } = profile
 
   type SocialItem = { href: string; label: string; icon: typeof Globe; display: string }
 
@@ -73,7 +75,8 @@ export function SocialLinks({ profile }: SocialLinksProps) {
     },
   ].filter(Boolean) as SocialItem[]
 
-  if (!location && links.length === 0) return null
+  const hasAnything = location || phone || contact_email || links.length > 0
+  if (!hasAnything) return null
 
   return (
     <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
@@ -82,6 +85,22 @@ export function SocialLinks({ profile }: SocialLinksProps) {
           <MapPin size={15} className="shrink-0" />
           {location}
         </span>
+      )}
+      {contact_email && (
+        <RevealField
+          value={contact_email}
+          href={`mailto:${contact_email}`}
+          icon={Mail}
+          label="email de contacto"
+        />
+      )}
+      {phone && (
+        <RevealField
+          value={phone}
+          href={`tel:${phone}`}
+          icon={Phone}
+          label="teléfono"
+        />
       )}
       {links.map((link) => (
         <SocialLink key={link.href} {...link} />
