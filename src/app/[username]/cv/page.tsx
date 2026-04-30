@@ -497,16 +497,16 @@ export default async function PublicCVPage({ params }: PageProps) {
 
   // Build nav sections — only include sections that have content
   const cvSections: NavSection[] = [
-    highlights.length > 0      ? { id: 'destacados',    label: 'Destacados',   icon: Sparkles      } : null,
-    profile.about              ? { id: 'sobre-mi',      label: 'Sobre mí',     icon: User          } : null,
-    experience.length > 0      ? { id: 'experiencia',   label: 'Experiencia',  icon: Briefcase     } : null,
-    education.length > 0       ? { id: 'educacion',     label: 'Educación',    icon: GraduationCap } : null,
-    ongoingCourses.length > 0  ? { id: 'en-curso',      label: 'En curso',     icon: Clock         } : null,
-    skills.length > 0          ? { id: 'skills',        label: 'Skills',       icon: Zap           } : null,
-    techStack.length > 0       ? { id: 'stack',         label: 'Stack',        icon: Layers        } : null,
-    projects.length > 0        ? { id: 'proyectos',     label: 'Proyectos',    icon: FolderGit2    } : null,
-    completedCourses.length > 0 ? { id: 'cursos',       label: 'Cursos',       icon: BookOpen      } : null,
-    hasDisponibilidad          ? { id: 'disponibilidad', label: 'Disponibilidad', icon: MapPin      } : null,
+    highlights.length > 0      ? { id: 'destacados',    label: 'Destacados',   icon: 'Sparkles'      } : null,
+    profile.about              ? { id: 'sobre-mi',      label: 'Sobre mí',     icon: 'User'          } : null,
+    experience.length > 0      ? { id: 'experiencia',   label: 'Experiencia',  icon: 'Briefcase'     } : null,
+    education.length > 0       ? { id: 'educacion',     label: 'Educación',    icon: 'GraduationCap' } : null,
+    ongoingCourses.length > 0  ? { id: 'en-curso',      label: 'En curso',     icon: 'Clock'         } : null,
+    skills.length > 0          ? { id: 'skills',        label: 'Skills',       icon: 'Zap'           } : null,
+    techStack.length > 0       ? { id: 'stack',         label: 'Stack',        icon: 'Layers'        } : null,
+    projects.length > 0        ? { id: 'proyectos',     label: 'Proyectos',    icon: 'FolderGit2'    } : null,
+    completedCourses.length > 0 ? { id: 'cursos',      label: 'Cursos',       icon: 'BookOpen'      } : null,
+    hasDisponibilidad          ? { id: 'disponibilidad', label: 'Disponibilidad', icon: 'MapPin'      } : null,
   ].filter(Boolean) as NavSection[]
 
   const showNav = cvSections.length >= 3

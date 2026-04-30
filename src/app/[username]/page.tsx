@@ -82,9 +82,9 @@ export default async function PublicProfilePage({ params }: PageProps) {
 
   // Build in-page section nav — only sections with content
   const profileSections: NavSection[] = [
-    (roadmaps ?? []).length > 0 ? { id: 'roadmaps',  label: 'Roadmaps',  icon: GitBranch  } : null,
-    (posts    ?? []).length > 0 ? { id: 'blog',      label: 'Blog',      icon: PenLine    } : null,
-    (projects ?? []).length > 0 ? { id: 'proyectos', label: 'Proyectos', icon: FolderGit2 } : null,
+    (roadmaps ?? []).length > 0 ? { id: 'roadmaps',  label: 'Roadmaps',  icon: 'GitBranch'  } : null,
+    (posts    ?? []).length > 0 ? { id: 'blog',      label: 'Blog',      icon: 'PenLine'    } : null,
+    (projects ?? []).length > 0 ? { id: 'proyectos', label: 'Proyectos', icon: 'FolderGit2' } : null,
   ].filter(Boolean) as NavSection[]
 
   const showNav = profileSections.length >= 2

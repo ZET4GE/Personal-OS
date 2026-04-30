@@ -1,7 +1,22 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import type { ComponentType } from 'react'
+import {
+  Briefcase, BookOpen, Clock, FolderGit2, GraduationCap,
+  GitBranch, Layers, MapPin, PenLine, Sparkles, User, Zap,
+} from 'lucide-react'
+
+// ─────────────────────────────────────────────────────────────
+// Icon registry — resolved client-side so icon names (strings)
+// can safely cross the RSC→Client serialization boundary
+// ─────────────────────────────────────────────────────────────
+
+const ICON_MAP = {
+  Briefcase, BookOpen, Clock, FolderGit2, GraduationCap,
+  GitBranch, Layers, MapPin, PenLine, Sparkles, User, Zap,
+} as const
+
+export type NavIconName = keyof typeof ICON_MAP
 
 // ─────────────────────────────────────────────────────────────
 // Types (exported so page.tsx files can build section arrays)
@@ -10,7 +25,7 @@ import type { ComponentType } from 'react'
 export interface NavSection {
   id: string
   label: string
-  icon?: ComponentType<{ size?: number; className?: string }>
+  icon?: NavIconName
 }
 
 interface PageNavigationProps {
@@ -74,7 +89,7 @@ export function PageNavigation({ sections, ariaLabel = 'Navegación' }: PageNavi
       >
         <div className="flex items-center overflow-x-auto scrollbar-hide">
           {sections.map((section) => {
-            const Icon = section.icon
+            const Icon = section.icon ? ICON_MAP[section.icon] : null
             const isActive = activeId === section.id
             return (
               <a
@@ -110,7 +125,7 @@ export function PageNavigation({ sections, ariaLabel = 'Navegación' }: PageNavi
           Secciones
         </p>
         {sections.map((section) => {
-          const Icon = section.icon
+          const Icon = section.icon ? ICON_MAP[section.icon] : null
           const isActive = activeId === section.id
           return (
             <a
