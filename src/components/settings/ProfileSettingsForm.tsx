@@ -244,6 +244,14 @@ export function ProfileSettingsForm({ profile, canCustomizePortfolio }: ProfileS
               className={inputCls} />
           </Field>
 
+          <Field label="Estado actual" htmlFor="current_status"
+            hint="Aparece como un chip con punto verde en tu perfil público. Ej: Disponible para nuevas oportunidades.">
+            <input id="current_status" name="current_status" type="text"
+              defaultValue={current?.current_status ?? ''}
+              placeholder="Disponible para nuevas oportunidades..."
+              className={inputCls} />
+          </Field>
+
           <Field label="Bio" htmlFor="bio" hint="Máximo 500 caracteres.">
             <textarea id="bio" name="bio" rows={3}
               defaultValue={current?.bio ?? ''}

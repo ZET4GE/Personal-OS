@@ -38,7 +38,7 @@ export default async function PublicRoadmapsPage({ params }: PageProps) {
 
   return (
     <main className="public-body mx-auto max-w-5xl px-4 py-12 sm:px-6">
-      <PublicHeader profile={profile} />
+      <PublicHeader profile={profile} username={username} />
 
       <div className="public-divider my-10 border-t border-border" />
 

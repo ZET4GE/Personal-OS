@@ -75,11 +75,13 @@ export default async function PublicProfilePage({ params }: PageProps) {
     yearsExp,
   }
 
+  const isOwner = user?.id === profile.id
+
   return (
-    <main className="public-body mx-auto max-w-5xl px-4 py-12 sm:px-6">
+    <main className="public-body mx-auto max-w-5xl px-4 py-12 sm:px-6 animate-public-fade-in">
       <TrackingPixel pageType="profile" ownerId={profile.id} currentUserId={user?.id ?? null} />
 
-      <PublicHeader profile={profile} stats={stats} />
+      <PublicHeader profile={profile} username={username} stats={stats} isOwner={isOwner} />
 
       <div className="public-divider my-10 border-t" style={{ borderColor: 'var(--color-border)' }} />
 

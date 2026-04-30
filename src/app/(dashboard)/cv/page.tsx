@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { BookOpen, Briefcase, FolderGit2, GraduationCap, Zap, ChevronRight, ExternalLink, Sparkles, Layers } from 'lucide-react'
+import { BookOpen, Briefcase, FolderGit2, GraduationCap, Zap, ChevronRight, ExternalLink, Sparkles, Layers, Eye } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects, getCVHighlights } from '@/services/cv'
 import { getTechStack } from '@/services/tech-stack'
@@ -115,6 +115,17 @@ export default async function CVPage() {
               >
                 <ExternalLink size={13} />
                 Ver público
+              </a>
+            )}
+            {profile.username && (
+              <a
+                href={`/${profile.username}/preview`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 rounded-lg border border-dashed border-border px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:text-foreground"
+              >
+                <Eye size={13} />
+                Vista reclutador
               </a>
             )}
           </div>

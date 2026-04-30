@@ -82,6 +82,7 @@ export interface Profile {
   username:        string
   full_name:       string | null
   headline:        string | null
+  current_status:  string | null
   bio:             string | null
   about:           string | null
   phone:           string | null
@@ -113,6 +114,7 @@ export type UpdateProfileInput = {
   username:        string
   full_name?:      string | null
   headline?:       string | null
+  current_status?: string | null
   bio?:            string | null
   about?:          string | null
   avatar_url?:     string | null
