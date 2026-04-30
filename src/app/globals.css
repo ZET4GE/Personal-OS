@@ -245,6 +245,10 @@ html.dark .app-card-hover:hover {
 .animate-scale-in      { animation: scale-in 0.2s ease-out both; }
 .animate-public-fade-in { animation: slide-up 0.4s ease-out both; }
 
+/* Hide scrollbar while keeping scroll functionality (used in mobile nav) */
+.scrollbar-hide { scrollbar-width: none; -ms-overflow-style: none; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+
 /* Stagger helpers for lists */
 .stagger-1 { animation-delay: 50ms; }
 .stagger-2 { animation-delay: 100ms; }

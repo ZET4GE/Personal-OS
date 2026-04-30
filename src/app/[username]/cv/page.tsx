@@ -20,6 +20,9 @@ import type { UserTechStack, TechCategory } from '@/types/tech-stack'
 import { TechIcon } from '@/components/cv/TechIcon'
 import { CVDownloadSection } from '@/components/cv/pdf/CVDownloadSection'
 import { TrackingPixel } from '@/components/analytics/TrackingPixel'
+import { PageNavigation } from '@/components/public/PageNavigation'
+import { ScrollToTopButton } from '@/components/public/ScrollToTopButton'
+import type { NavSection } from '@/components/public/PageNavigation'
 
 // ─────────────────────────────────────────────────────────────
 // Types
@@ -90,13 +93,13 @@ function SkillLevelBadge({ level }: { level: SkillLevelQualitative | null }) {
 }
 
 // ─────────────────────────────────────────────────────────────
-// Sections
+// Sections — each has a hardcoded id that matches cvSections below
 // ─────────────────────────────────────────────────────────────
 
 function AboutSection({ about }: { about: string | null }) {
   if (!about) return null
   return (
-    <section>
+    <section id="sobre-mi" className="scroll-mt-24">
       <SectionTitle icon={User} label="Sobre mí" />
       <p className="leading-relaxed text-muted whitespace-pre-line">{about}</p>
     </section>
@@ -106,7 +109,7 @@ function AboutSection({ about }: { about: string | null }) {
 function HighlightsSection({ items }: { items: CVHighlight[] }) {
   if (items.length === 0) return null
   return (
-    <section>
+    <section id="destacados" className="scroll-mt-24">
       <SectionTitle icon={Sparkles} label="Destacados" />
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3">
         {items.map((h) => (
@@ -124,7 +127,7 @@ function HighlightsSection({ items }: { items: CVHighlight[] }) {
 function ExperienceSection({ items }: { items: WorkExperience[] }) {
   if (items.length === 0) return null
   return (
-    <section>
+    <section id="experiencia" className="scroll-mt-24">
       <SectionTitle icon={Briefcase} label="Experiencia" />
       <div className="space-y-6">
         {items.map((exp) => {
@@ -166,7 +169,7 @@ function ExperienceSection({ items }: { items: WorkExperience[] }) {
 function EducationSection({ items }: { items: Education[] }) {
   if (items.length === 0) return null
   return (
-    <section>
+    <section id="educacion" className="scroll-mt-24">
       <SectionTitle icon={GraduationCap} label="Educación" />
       <div className="space-y-5">
         {items.map((edu) => {
@@ -216,7 +219,7 @@ function SkillsSection({ items }: { items: Skill[] }) {
   }
 
   return (
-    <section>
+    <section id="skills" className="scroll-mt-24">
       <SectionTitle icon={Zap} label="Skills" />
 
       {topSkills.length > 0 && (
@@ -259,7 +262,7 @@ function SkillsSection({ items }: { items: Skill[] }) {
 function ProjectsSection({ items }: { items: CVProject[] }) {
   if (items.length === 0) return null
   return (
-    <section>
+    <section id="proyectos" className="scroll-mt-24">
       <SectionTitle icon={FolderGit2} label="Proyectos" />
       <div className="space-y-4">
         {items.map((project) => (
@@ -306,7 +309,7 @@ function ProjectsSection({ items }: { items: CVProject[] }) {
 function OngoingCoursesSection({ items }: { items: CVCourse[] }) {
   if (items.length === 0) return null
   return (
-    <section>
+    <section id="en-curso" className="scroll-mt-24">
       <SectionTitle icon={Clock} label="Estudios en curso" />
       <div className="space-y-3">
         {items.map((course) => (
@@ -340,7 +343,7 @@ function OngoingCoursesSection({ items }: { items: CVCourse[] }) {
 function CoursesSection({ items }: { items: CVCourse[] }) {
   if (items.length === 0) return null
   return (
-    <section>
+    <section id="cursos" className="scroll-mt-24">
       <SectionTitle icon={BookOpen} label="Cursos y Certificaciones" />
       <div className="space-y-4">
         {items.map((course) => (
@@ -380,7 +383,7 @@ function TechStackSection({ items }: { items: UserTechStack[] }) {
   const categories = [...new Set(items.map((i) => i.category))] as TechCategory[]
 
   return (
-    <section>
+    <section id="stack" className="scroll-mt-24">
       <SectionTitle icon={Layers} label="Stack Tecnológico" />
       <div className="space-y-5">
         {categories.map((cat) => {
@@ -423,7 +426,7 @@ function DisponibilidadSection({ profile }: { profile: Profile }) {
   if (!hasAny) return null
 
   return (
-    <section>
+    <section id="disponibilidad" className="scroll-mt-24">
       <SectionTitle icon={Briefcase} label="Disponibilidad" />
       <div className="flex flex-wrap gap-2">
         {workTypes.map((type) => (
@@ -474,24 +477,42 @@ export default async function PublicCVPage({ params }: PageProps) {
     getTechStack(supabase, profile.id),
   ])
 
-  const experience  = expResult.data        ?? []
-  const education   = eduResult.data        ?? []
-  const skills      = skillsResult.data     ?? []
-  const allCourses  = coursesResult.data    ?? []
-  const projects    = projectsResult.data   ?? []
-  const highlights  = highlightsResult.data ?? []
-  const techStack   = techResult.data       ?? []
+  const experience        = expResult.data        ?? []
+  const education         = eduResult.data        ?? []
+  const skills            = skillsResult.data     ?? []
+  const allCourses        = coursesResult.data    ?? []
+  const projects          = projectsResult.data   ?? []
+  const highlights        = highlightsResult.data ?? []
+  const techStack         = techResult.data       ?? []
+  const ongoingCourses    = allCourses.filter((c) => c.is_in_progress)
+  const completedCourses  = allCourses.filter((c) => !c.is_in_progress)
 
-  const ongoingCourses   = allCourses.filter((c) => c.is_in_progress)
-  const completedCourses = allCourses.filter((c) => !c.is_in_progress)
+  const hasDisponibilidad = (profile.work_types ?? []).length > 0 ||
+    !!profile.location_detail || profile.open_to_travel || profile.has_vehicle
 
   const displayName = profile.full_name ?? `@${username}`
 
   const isEmpty = experience.length === 0 && education.length === 0 && skills.length === 0 &&
                   allCourses.length === 0 && projects.length === 0 && techStack.length === 0
 
+  // Build nav sections — only include sections that have content
+  const cvSections: NavSection[] = [
+    highlights.length > 0      ? { id: 'destacados',    label: 'Destacados',   icon: Sparkles      } : null,
+    profile.about              ? { id: 'sobre-mi',      label: 'Sobre mí',     icon: User          } : null,
+    experience.length > 0      ? { id: 'experiencia',   label: 'Experiencia',  icon: Briefcase     } : null,
+    education.length > 0       ? { id: 'educacion',     label: 'Educación',    icon: GraduationCap } : null,
+    ongoingCourses.length > 0  ? { id: 'en-curso',      label: 'En curso',     icon: Clock         } : null,
+    skills.length > 0          ? { id: 'skills',        label: 'Skills',       icon: Zap           } : null,
+    techStack.length > 0       ? { id: 'stack',         label: 'Stack',        icon: Layers        } : null,
+    projects.length > 0        ? { id: 'proyectos',     label: 'Proyectos',    icon: FolderGit2    } : null,
+    completedCourses.length > 0 ? { id: 'cursos',       label: 'Cursos',       icon: BookOpen      } : null,
+    hasDisponibilidad          ? { id: 'disponibilidad', label: 'Disponibilidad', icon: MapPin      } : null,
+  ].filter(Boolean) as NavSection[]
+
+  const showNav = cvSections.length >= 3
+
   return (
-    <main className="public-body mx-auto max-w-3xl px-4 py-12 sm:px-6">
+    <main className={`public-body mx-auto px-4 py-12 sm:px-6 ${showNav ? 'max-w-5xl' : 'max-w-3xl'}`}>
       <TrackingPixel pageType="cv" ownerId={profile.id} currentUserId={user?.id ?? null} />
 
       {/* Breadcrumb + download */}
@@ -576,7 +597,30 @@ export default async function PublicCVPage({ params }: PageProps) {
 
       {isEmpty ? (
         <p className="text-center text-muted">Este CV está vacío por el momento.</p>
+      ) : showNav ? (
+        /* ── Two-column layout with sidebar nav ─────────────── */
+        <div className="lg:grid lg:grid-cols-[200px_1fr] lg:gap-10 lg:items-start">
+          {/* Sidebar slot: PageNavigation renders mobile bar + desktop sidebar */}
+          <div className="lg:sticky lg:top-20 lg:self-start">
+            <PageNavigation sections={cvSections} ariaLabel="Navegación del CV" />
+          </div>
+
+          {/* Content */}
+          <div className="space-y-10">
+            <HighlightsSection    items={highlights}       />
+            <AboutSection         about={profile.about}    />
+            <ExperienceSection    items={experience}       />
+            <EducationSection     items={education}        />
+            <OngoingCoursesSection items={ongoingCourses}  />
+            <SkillsSection        items={skills}           />
+            <TechStackSection     items={techStack}        />
+            <ProjectsSection      items={projects}         />
+            <CoursesSection       items={completedCourses} />
+            <DisponibilidadSection profile={profile}       />
+          </div>
+        </div>
       ) : (
+        /* ── Single-column fallback (< 3 sections) ──────────── */
         <div className="space-y-10">
           <HighlightsSection    items={highlights}       />
           <AboutSection         about={profile.about}    />
@@ -596,6 +640,8 @@ export default async function PublicCVPage({ params }: PageProps) {
           ← Ver perfil completo de {displayName}
         </Link>
       </div>
+
+      <ScrollToTopButton />
     </main>
   )
 }
