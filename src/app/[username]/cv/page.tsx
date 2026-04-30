@@ -4,15 +4,20 @@ import Link from 'next/link'
 import {
   BookOpen, FolderGit2, Flag, MapPin, GitBranch, ExternalLink,
   Briefcase, GraduationCap, Phone, Star, Zap, ChevronRight,
-  Car, Plane, User, Sparkles, Clock,
+  Car, Plane, User, Sparkles, Clock, Layers,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getProfileByUsername } from '@/services/profiles'
 import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects, getCVHighlights } from '@/services/cv'
+import { getTechStack } from '@/services/tech-stack'
 import { SKILL_CATEGORY_LABELS, SKILL_LEVEL_QUALITATIVE_LABELS } from '@/types/cv'
 import { WORK_TYPE_LABELS } from '@/types/profile'
+import { CATALOG_BY_SLUG } from '@/lib/tech-catalog'
+import { TECH_CATEGORY_LABELS } from '@/types/tech-stack'
 import type { WorkExperience, Education, Skill, SkillCategory, CVCourse, CVProject, CVHighlight, SkillLevelQualitative } from '@/types/cv'
 import type { Profile } from '@/types/profile'
+import type { UserTechStack, TechCategory } from '@/types/tech-stack'
+import { TechIcon } from '@/components/cv/TechIcon'
 import { CVDownloadSection } from '@/components/cv/pdf/CVDownloadSection'
 import { TrackingPixel } from '@/components/analytics/TrackingPixel'
 
@@ -369,6 +374,49 @@ function CoursesSection({ items }: { items: CVCourse[] }) {
   )
 }
 
+function TechStackSection({ items }: { items: UserTechStack[] }) {
+  if (items.length === 0) return null
+
+  const categories = [...new Set(items.map((i) => i.category))] as TechCategory[]
+
+  return (
+    <section>
+      <SectionTitle icon={Layers} label="Stack Tecnológico" />
+      <div className="space-y-5">
+        {categories.map((cat) => {
+          const catItems = items.filter((i) => i.category === cat)
+          if (catItems.length === 0) return null
+          return (
+            <div key={cat}>
+              <p className="mb-3 text-[11px] font-semibold uppercase tracking-widest text-muted">
+                {TECH_CATEGORY_LABELS[cat]}
+              </p>
+              <div className="flex flex-wrap gap-3">
+                {catItems.map((item) => {
+                  const catalogEntry = CATALOG_BY_SLUG.get(item.tech_slug)
+                  const icon = catalogEntry?.icon ?? { type: 'none' as const }
+                  return (
+                    <div
+                      key={item.id}
+                      className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-surface p-3 text-center"
+                      style={{ minWidth: '72px' }}
+                    >
+                      <TechIcon name={item.tech_name} icon={icon} size={36} />
+                      <p className="max-w-[68px] truncate text-[11px] font-medium leading-tight text-text">
+                        {item.tech_name}
+                      </p>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
 function DisponibilidadSection({ profile }: { profile: Profile }) {
   const workTypes    = profile.work_types ?? []
   const hasAny = workTypes.length > 0 || profile.location_detail || profile.open_to_travel || profile.has_vehicle
@@ -416,21 +464,23 @@ export default async function PublicCVPage({ params }: PageProps) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const [expResult, eduResult, skillsResult, coursesResult, projectsResult, highlightsResult] = await Promise.all([
+  const [expResult, eduResult, skillsResult, coursesResult, projectsResult, highlightsResult, techResult] = await Promise.all([
     getWorkExperience(supabase, profile.id),
     getEducation(supabase, profile.id),
     getSkills(supabase, profile.id),
     getCVCourses(supabase, profile.id),
     getCVProjects(supabase, profile.id),
     getCVHighlights(supabase, profile.id),
+    getTechStack(supabase, profile.id),
   ])
 
-  const experience  = expResult.data       ?? []
-  const education   = eduResult.data       ?? []
-  const skills      = skillsResult.data    ?? []
-  const allCourses  = coursesResult.data   ?? []
-  const projects    = projectsResult.data  ?? []
+  const experience  = expResult.data        ?? []
+  const education   = eduResult.data        ?? []
+  const skills      = skillsResult.data     ?? []
+  const allCourses  = coursesResult.data    ?? []
+  const projects    = projectsResult.data   ?? []
   const highlights  = highlightsResult.data ?? []
+  const techStack   = techResult.data       ?? []
 
   const ongoingCourses   = allCourses.filter((c) => c.is_in_progress)
   const completedCourses = allCourses.filter((c) => !c.is_in_progress)
@@ -438,7 +488,7 @@ export default async function PublicCVPage({ params }: PageProps) {
   const displayName = profile.full_name ?? `@${username}`
 
   const isEmpty = experience.length === 0 && education.length === 0 && skills.length === 0 &&
-                  allCourses.length === 0 && projects.length === 0
+                  allCourses.length === 0 && projects.length === 0 && techStack.length === 0
 
   return (
     <main className="public-body mx-auto max-w-3xl px-4 py-12 sm:px-6">
@@ -534,6 +584,7 @@ export default async function PublicCVPage({ params }: PageProps) {
           <EducationSection     items={education}        />
           <OngoingCoursesSection items={ongoingCourses}  />
           <SkillsSection        items={skills}           />
+          <TechStackSection     items={techStack}        />
           <ProjectsSection      items={projects}         />
           <CoursesSection       items={completedCourses} />
           <DisponibilidadSection profile={profile}       />

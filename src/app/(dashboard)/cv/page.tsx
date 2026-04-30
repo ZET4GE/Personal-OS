@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { BookOpen, Briefcase, FolderGit2, GraduationCap, Zap, ChevronRight, ExternalLink, Sparkles } from 'lucide-react'
+import { BookOpen, Briefcase, FolderGit2, GraduationCap, Zap, ChevronRight, ExternalLink, Sparkles, Layers } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { getWorkExperience, getEducation, getSkills, getCVCourses, getCVProjects, getCVHighlights } from '@/services/cv'
+import { getTechStack } from '@/services/tech-stack'
 import { getMyProfile } from '@/services/profiles'
 import { getBillingStatus } from '@/services/billing'
 import { CVModeSection } from '@/components/cv/CVModeSection'
@@ -67,13 +68,14 @@ export default async function CVPage() {
   if (!user) redirect('/login')
 
   // Fetch everything in parallel
-  const [expResult, eduResult, skillsResult, coursesResult, projectsResult, highlightsResult, profileResult, billingResult] = await Promise.all([
+  const [expResult, eduResult, skillsResult, coursesResult, projectsResult, highlightsResult, techResult, profileResult, billingResult] = await Promise.all([
     getWorkExperience(supabase, user.id),
     getEducation(supabase, user.id),
     getSkills(supabase, user.id),
     getCVCourses(supabase, user.id),
     getCVProjects(supabase, user.id),
     getCVHighlights(supabase, user.id),
+    getTechStack(supabase, user.id),
     getMyProfile(supabase),
     getBillingStatus(supabase, user.id),
   ])
@@ -84,6 +86,7 @@ export default async function CVPage() {
   const coursesCount    = coursesResult.data?.length    ?? 0
   const projectsCount   = projectsResult.data?.length   ?? 0
   const highlightsCount = highlightsResult.data?.length ?? 0
+  const techCount       = techResult.data?.length       ?? 0
   const profile     = profileResult.data
   const billing     = billingResult.data
   const canUseAts   = Boolean(billing && billing.plan !== 'free' && ['active', 'trialing'].includes(billing.status))
@@ -174,6 +177,13 @@ export default async function CVPage() {
           label="Destacados"
           count={highlightsCount}
           description={highlightsCount === 0 ? 'Logros clave en tu CV público' : `${highlightsCount} ${highlightsCount === 1 ? 'destacado' : 'destacados'}`}
+        />
+        <SectionCard
+          href="/cv/tech-stack"
+          icon={Layers}
+          label="Stack Tecnológico"
+          count={techCount}
+          description={techCount === 0 ? 'Tecnologías con íconos en tu CV público' : `${techCount} ${techCount === 1 ? 'tecnología' : 'tecnologías'}`}
         />
       </div>
 

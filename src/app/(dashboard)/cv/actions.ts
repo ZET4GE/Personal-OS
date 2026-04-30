@@ -348,3 +348,49 @@ export async function deleteCVHighlightAction(
   revalidatePath('/cv')
   return { ok: true }
 }
+
+// ─────────────────────────────────────────────────────────────
+// Tech Stack actions
+// ─────────────────────────────────────────────────────────────
+
+import { AddTechSchema, RemoveTechSchema, ReorderTechSchema } from '@/lib/validations/tech-stack'
+import { addTechToStack, removeTechFromStack, reorderTechStack } from '@/services/tech-stack'
+import type { TechStackActionResult } from '@/types/tech-stack'
+
+export async function addTechAction(formData: FormData): Promise<TechStackActionResult> {
+  const { supabase, user } = await getAuthedClient()
+  const parsed = AddTechSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' }
+
+  const result = await addTechToStack(supabase, user.id, parsed.data)
+  if (result.error) return { error: result.error }
+
+  revalidatePath('/cv/tech-stack')
+  revalidatePath('/cv')
+  return { ok: true }
+}
+
+export async function removeTechAction(formData: FormData): Promise<TechStackActionResult> {
+  const { supabase, user } = await getAuthedClient()
+  const parsed = RemoveTechSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'ID inválido' }
+
+  const result = await removeTechFromStack(supabase, user.id, parsed.data.id)
+  if (result.error) return { error: result.error }
+
+  revalidatePath('/cv/tech-stack')
+  revalidatePath('/cv')
+  return { ok: true }
+}
+
+export async function reorderTechStackAction(formData: FormData): Promise<TechStackActionResult> {
+  const { supabase, user } = await getAuthedClient()
+  const parsed = ReorderTechSchema.safeParse(Object.fromEntries(formData))
+  if (!parsed.success) return { error: parsed.error.issues[0]?.message ?? 'Datos inválidos' }
+
+  const result = await reorderTechStack(supabase, user.id, parsed.data.ordered_ids)
+  if (result.error) return { error: result.error }
+
+  revalidatePath('/cv/tech-stack')
+  return { ok: true }
+}
